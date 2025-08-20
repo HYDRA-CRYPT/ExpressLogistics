@@ -1,0 +1,111 @@
+@baseUrl = http://localhost:5000/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTQwY2UxZWZiYTQ1ZTc1NjVmODUwMCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NTY0MzgwOCwiZXhwIjoxNzU2MjQ4NjA4fQ.GviXqOV2F4OvU9HUUPfhBZlc8yOTXpcZaD0xDA1npPM
+
+# placeholders (fill after creating a delivery)
+@deliveryId = 68a500bf0fd4818aa17c86e0
+@trackingCode = AGL5901114930
+
+
+
+### AUTH ROUTES
+
+### Login
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "owner@example.com",
+  "password": "Passw0rd!"
+}
+
+###
+
+### Get Current User (Protected)
+GET http://localhost:5000/api/auth/me
+Authorization: Bearer {{token}}
+
+---
+### DELIVERY ROUTES
+
+### Create Delivery (Admin)
+POST http://localhost:5000/api/deliveries
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sender": {
+    "name": "Alice",
+    "address": "Lagos",
+    "phone": "08012345678",
+    "email": "alice@example.com",
+    "country": "Nigeria"
+  },
+  "receiver": {
+    "name": "Bob",
+    "address": "Abuja",
+    "phone": "08087654321",
+    "email": "bob@example.com",
+    "country": "Nigeria"
+  },
+  "goodsDescription": "Electronics",
+  "deliveryFee": 5000,
+  "currency": "NGN",
+  "dateSent": "2025-08-19T10:00:00Z",
+  "deliveryDate": "2025-08-25T10:00:00Z"
+}
+
+
+### List Deliveries (Protected)
+GET http://localhost:5000/api/deliveries
+Authorization: Bearer {{token}}
+
+###
+
+### Track Delivery by Tracking Code (Public)
+GET http://localhost:5000/api/deliveries/track/{{trackingCode}}
+
+###
+
+
+### Update Delivery Status (Protected)
+PUT http://localhost:5000/api/deliveries/{{deliveryId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "On Hold"
+}
+
+###
+
+### Add Delivery Location Update (Protected)
+PUT http://localhost:5000/api/deliveries/{{deliveryId}}/location
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "description": "Left Abuja warehouse",
+  "time":"2025-08-19T10:00:00Z",
+  "location":{
+    "lat": 6.5244,
+    "lng": 3.3792
+  },
+  "city":"Abuja",
+  "country":"Nigeria"
+  
+  
+ 
+}
+
+###
+
+### Admin Logs (Admin only)
+GET http://localhost:5000/api/deliveries/admin/logs
+Authorization: Bearer {{token}}
+
+---
+
+### INVOICE ROUTES
+
+### Download Invoice (Public)
+GET http://localhost:5000/api/invoices/{{deliveryId}}/pdf
