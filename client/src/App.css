@@ -1,0 +1,58 @@
+:root {
+  --max-width: 1280px;
+  --padding-main: 2rem;
+  --logo-height: 6em;
+  --logo-padding: 1.5em;
+  --logo-shadow: 0 0 2em #646cffaa;
+  --logo-react-shadow: 0 0 2em #61dafbaa;
+  --card-padding: 2em;
+  --docs-color: #888;
+}
+
+/* Root Container */
+#root {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--padding-main);
+  text-align: center;
+}
+
+/* Logo Styles */
+.logo {
+  height: var(--logo-height);
+  padding: var(--logo-padding);
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(var(--logo-shadow));
+}
+.logo.react:hover {
+  filter: drop-shadow(var(--logo-react-shadow));
+}
+
+/* Logo Animation */
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+/* Card Styles */
+.card {
+  padding: var(--card-padding);
+}
+
+/* Docs Link */
+.read-the-docs {
+  color: var(--docs-color);
+}
