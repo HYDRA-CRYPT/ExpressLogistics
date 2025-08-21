@@ -10,11 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TrackIndexRouteImport } from './routes/track/index'
+import { Route as BlogsIndexRouteImport } from './routes/blogs/index'
+import { Route as TrackCodeRouteImport } from './routes/track/$code'
+import { Route as BlogsIdRouteImport } from './routes/blogs/$id'
 
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -22,31 +32,93 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrackIndexRoute = TrackIndexRouteImport.update({
+  id: '/track/',
+  path: '/track/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogsIndexRoute = BlogsIndexRouteImport.update({
+  id: '/blogs/',
+  path: '/blogs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrackCodeRoute = TrackCodeRouteImport.update({
+  id: '/track/$code',
+  path: '/track/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogsIdRoute = BlogsIdRouteImport.update({
+  id: '/blogs/$id',
+  path: '/blogs/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/blogs/$id': typeof BlogsIdRoute
+  '/track/$code': typeof TrackCodeRoute
+  '/blogs': typeof BlogsIndexRoute
+  '/track': typeof TrackIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/blogs/$id': typeof BlogsIdRoute
+  '/track/$code': typeof TrackCodeRoute
+  '/blogs': typeof BlogsIndexRoute
+  '/track': typeof TrackIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/blogs/$id': typeof BlogsIdRoute
+  '/track/$code': typeof TrackCodeRoute
+  '/blogs/': typeof BlogsIndexRoute
+  '/track/': typeof TrackIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/contact'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/blogs/$id'
+    | '/track/$code'
+    | '/blogs'
+    | '/track'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/contact'
-  id: '__root__' | '/' | '/contact'
+  to:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/blogs/$id'
+    | '/track/$code'
+    | '/blogs'
+    | '/track'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/blogs/$id'
+    | '/track/$code'
+    | '/blogs/'
+    | '/track/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
+  BlogsIdRoute: typeof BlogsIdRoute
+  TrackCodeRoute: typeof TrackCodeRoute
+  BlogsIndexRoute: typeof BlogsIndexRoute
+  TrackIndexRoute: typeof TrackIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +130,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -65,12 +144,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/track/': {
+      id: '/track/'
+      path: '/track'
+      fullPath: '/track'
+      preLoaderRoute: typeof TrackIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blogs/': {
+      id: '/blogs/'
+      path: '/blogs'
+      fullPath: '/blogs'
+      preLoaderRoute: typeof BlogsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track/$code': {
+      id: '/track/$code'
+      path: '/track/$code'
+      fullPath: '/track/$code'
+      preLoaderRoute: typeof TrackCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blogs/$id': {
+      id: '/blogs/$id'
+      path: '/blogs/$id'
+      fullPath: '/blogs/$id'
+      preLoaderRoute: typeof BlogsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
+  BlogsIdRoute: BlogsIdRoute,
+  TrackCodeRoute: TrackCodeRoute,
+  BlogsIndexRoute: BlogsIndexRoute,
+  TrackIndexRoute: TrackIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
