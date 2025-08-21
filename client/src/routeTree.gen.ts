@@ -13,8 +13,11 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TrackIndexRouteImport } from './routes/track/index'
+import { Route as OwnerIndexRouteImport } from './routes/owner/index'
 import { Route as BlogsIndexRouteImport } from './routes/blogs/index'
 import { Route as TrackCodeRouteImport } from './routes/track/$code'
+import { Route as OwnerLoginRouteImport } from './routes/owner/login'
+import { Route as OwnerDashboardRouteImport } from './routes/owner/dashboard'
 import { Route as BlogsIdRouteImport } from './routes/blogs/$id'
 
 const ContactRoute = ContactRouteImport.update({
@@ -37,6 +40,11 @@ const TrackIndexRoute = TrackIndexRouteImport.update({
   path: '/track/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OwnerIndexRoute = OwnerIndexRouteImport.update({
+  id: '/owner/',
+  path: '/owner/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogsIndexRoute = BlogsIndexRouteImport.update({
   id: '/blogs/',
   path: '/blogs/',
@@ -45,6 +53,16 @@ const BlogsIndexRoute = BlogsIndexRouteImport.update({
 const TrackCodeRoute = TrackCodeRouteImport.update({
   id: '/track/$code',
   path: '/track/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerLoginRoute = OwnerLoginRouteImport.update({
+  id: '/owner/login',
+  path: '/owner/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerDashboardRoute = OwnerDashboardRouteImport.update({
+  id: '/owner/dashboard',
+  path: '/owner/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogsIdRoute = BlogsIdRouteImport.update({
@@ -58,8 +76,11 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/blogs/$id': typeof BlogsIdRoute
+  '/owner/dashboard': typeof OwnerDashboardRoute
+  '/owner/login': typeof OwnerLoginRoute
   '/track/$code': typeof TrackCodeRoute
   '/blogs': typeof BlogsIndexRoute
+  '/owner': typeof OwnerIndexRoute
   '/track': typeof TrackIndexRoute
 }
 export interface FileRoutesByTo {
@@ -67,8 +88,11 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/blogs/$id': typeof BlogsIdRoute
+  '/owner/dashboard': typeof OwnerDashboardRoute
+  '/owner/login': typeof OwnerLoginRoute
   '/track/$code': typeof TrackCodeRoute
   '/blogs': typeof BlogsIndexRoute
+  '/owner': typeof OwnerIndexRoute
   '/track': typeof TrackIndexRoute
 }
 export interface FileRoutesById {
@@ -77,8 +101,11 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/blogs/$id': typeof BlogsIdRoute
+  '/owner/dashboard': typeof OwnerDashboardRoute
+  '/owner/login': typeof OwnerLoginRoute
   '/track/$code': typeof TrackCodeRoute
   '/blogs/': typeof BlogsIndexRoute
+  '/owner/': typeof OwnerIndexRoute
   '/track/': typeof TrackIndexRoute
 }
 export interface FileRouteTypes {
@@ -88,8 +115,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/blogs/$id'
+    | '/owner/dashboard'
+    | '/owner/login'
     | '/track/$code'
     | '/blogs'
+    | '/owner'
     | '/track'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -97,8 +127,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/blogs/$id'
+    | '/owner/dashboard'
+    | '/owner/login'
     | '/track/$code'
     | '/blogs'
+    | '/owner'
     | '/track'
   id:
     | '__root__'
@@ -106,8 +139,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/blogs/$id'
+    | '/owner/dashboard'
+    | '/owner/login'
     | '/track/$code'
     | '/blogs/'
+    | '/owner/'
     | '/track/'
   fileRoutesById: FileRoutesById
 }
@@ -116,8 +152,11 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   BlogsIdRoute: typeof BlogsIdRoute
+  OwnerDashboardRoute: typeof OwnerDashboardRoute
+  OwnerLoginRoute: typeof OwnerLoginRoute
   TrackCodeRoute: typeof TrackCodeRoute
   BlogsIndexRoute: typeof BlogsIndexRoute
+  OwnerIndexRoute: typeof OwnerIndexRoute
   TrackIndexRoute: typeof TrackIndexRoute
 }
 
@@ -151,6 +190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrackIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/owner/': {
+      id: '/owner/'
+      path: '/owner'
+      fullPath: '/owner'
+      preLoaderRoute: typeof OwnerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blogs/': {
       id: '/blogs/'
       path: '/blogs'
@@ -163,6 +209,20 @@ declare module '@tanstack/react-router' {
       path: '/track/$code'
       fullPath: '/track/$code'
       preLoaderRoute: typeof TrackCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/login': {
+      id: '/owner/login'
+      path: '/owner/login'
+      fullPath: '/owner/login'
+      preLoaderRoute: typeof OwnerLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/dashboard': {
+      id: '/owner/dashboard'
+      path: '/owner/dashboard'
+      fullPath: '/owner/dashboard'
+      preLoaderRoute: typeof OwnerDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blogs/$id': {
@@ -180,8 +240,11 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   BlogsIdRoute: BlogsIdRoute,
+  OwnerDashboardRoute: OwnerDashboardRoute,
+  OwnerLoginRoute: OwnerLoginRoute,
   TrackCodeRoute: TrackCodeRoute,
   BlogsIndexRoute: BlogsIndexRoute,
+  OwnerIndexRoute: OwnerIndexRoute,
   TrackIndexRoute: TrackIndexRoute,
 }
 export const routeTree = rootRouteImport
