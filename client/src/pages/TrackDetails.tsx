@@ -1,9 +1,9 @@
-import { useParams } from "@tanstack/react-router";
+import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../services/api";
 
 const TrackDetails = () => {
-  const { code } = useParams({ from: "/track/$code" });
+  const { code } = useParams<{ code: string }>();
 
   const { data, isPending, isError } = useQuery({
     queryKey: ["delivery", code],

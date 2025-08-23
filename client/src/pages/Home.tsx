@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { FiMapPin, FiZap, FiShield } from "react-icons/fi";
+import { TestimonialsSimple } from "../components/Testimony";
 
 const items = [
   {
@@ -79,6 +80,9 @@ const Home = () => {
             </motion.div>
           ))}
         </div>
+      </section>
+      <section>
+        <TestimonialsSimple />
       </section>
 
       {/* Call-to-Action Section */}

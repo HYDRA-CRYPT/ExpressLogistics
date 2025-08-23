@@ -1,22 +1,19 @@
-import { Outlet, ScrollRestoration } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import "./index.css";
+import "./App.css";
+import { Outlet } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-
 function App() {
   return (
-    <div className="min-h-dvh flex flex-col bg-white text-neutral-900">
+    <>
       <Header />
-      <main className="flex-1">
-        <Outlet />
-      </main>
+      <Outlet />
       <Footer />
-      <ScrollRestoration />
-
-      <TanStackRouterDevtools position="bottom-left" />
-    </div>
+    </>
   );
 }
 
 export default App;
+// The App component serves as the main layout for the application.
+// It includes a header, a link to the About page, and a footer.
+// The Outlet component is used to render the child routes defined in the router configuration.
+// The Link component is used to navigate to the About page without reloading the application.
