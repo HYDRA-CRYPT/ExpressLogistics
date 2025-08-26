@@ -9,9 +9,14 @@ import Contact from "../pages/Contact.tsx";
 import ProtectedRoute from "../services/ProtectedRoute.tsx";
 import AdminLayout from "../Admin/AdminLayout.tsx";
 import AdminDashboard from "../Admin/pages/Dashboard.tsx";
-import ManageOrders from "../Admin/pages/Orders.tsx";
 import CreateDelivery from "../Admin/pages/CreateDelivery.tsx";
 import AdminLogin from "../Admin/auth/Login.tsx";
+import AllShipments from "@/Admin/pages/AllShipment.tsx";
+import TrackShipments from "../Admin/pages/TrackShipments.tsx";
+import NotifyEmail from "@/Admin/pages/NotifyEmail.tsx";
+import UpdateEmail from "@/Admin/pages/UpdateEmail.tsx";
+import OwnerTrackDetails from "@/Admin/pages/OwnerTrackDetails.tsx";
+import EditShipment from "@/Admin/pages/EditShipment.tsx";
 
 const router = createBrowserRouter([
   {
@@ -19,34 +24,13 @@ const router = createBrowserRouter([
     element: <App />,
     errorElement: <NotFound />,
     children: [
-      {
-        index: true,
-        element: <Home />,
-      },
-      {
-        path: "about",
-        element: <About />,
-      },
-      {
-        path: "track",
-        element: <Track />,
-      },
-      {
-        path: "track/:code",
-        element: <TrackDetails />,
-      },
-      {
-        path: "contact",
-        element: <Contact />,
-      },
-      {
-        path: "service",
-        element: <Contact />,
-      },
-      {
-        path: "team",
-        element: <Contact />,
-      },
+      { index: true, element: <Home /> },
+      { path: "about", element: <About /> },
+      { path: "track", element: <Track /> },
+      { path: "track/:code", element: <TrackDetails /> },
+      { path: "contact", element: <Contact /> },
+      { path: "service", element: <Contact /> },
+      { path: "team", element: <Contact /> },
     ],
   },
   {
@@ -57,16 +41,31 @@ const router = createBrowserRouter([
         element: <AdminLayout />,
         children: [
           { path: "dashboard", element: <AdminDashboard /> },
-          { path: "orders", element: <ManageOrders /> },
-          { path: "delivery", element: <CreateDelivery /> },
+          { path: "shipments/create", element: <CreateDelivery /> },
+          { path: "/owner/shipments/edit/:id", element: <EditShipment /> },
+
+          { path: "shipments", element: <AllShipments /> },
+          {
+            path: "shipments/track", // <-- FIXED
+            element: <TrackShipments />,
+          },
+          {
+            path: "shipments/track/:code", // <-- FIXED
+            element: <OwnerTrackDetails />,
+          },
+          {
+            path: "shipments/notify-emails/create",
+            element: <NotifyEmail />,
+          },
+          {
+            path: "shipments/update-emails/create",
+            element: <UpdateEmail />,
+          },
         ],
       },
     ],
   },
-  {
-    path: "/owner/login",
-    element: <AdminLogin />,
-  },
+  { path: "/owner/login", element: <AdminLogin /> },
 ]);
 
 export default router;

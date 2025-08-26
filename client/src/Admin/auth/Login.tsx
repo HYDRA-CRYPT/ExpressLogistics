@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { login } from "../../services/auth";
-
-export default function AdminLogin() {
+import { GalleryVerticalEnd } from "lucide-react";
+import { LoginForm } from "@/components/login-form";
+import { login } from "@/services/auth"; // your existing login function
+import LoginImg from "../../assets/login-img.jpg";
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,15 +16,9 @@ export default function AdminLogin() {
 
     try {
       const data = await login(email, password);
-      console.log("Login success:", data);
-
-      // Example: if your server returns user + token
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("adminRole", "admin");
-      // If using JWT, store token
       if (data.token) localStorage.setItem("adminToken", data.token);
-
-      // Redirect after login
       window.location.href = "/owner/dashboard";
     } catch (err: any) {
       setError(err.response?.data?.message || "Login failed");
@@ -32,53 +28,37 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-
-        {error && (
-          <div className="mb-4 text-red-600 bg-red-100 p-2 rounded">
-            {error}
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 py-6 px-0 md:p-10">
+        <div className="flex justify-center gap-2 md:justify-start">
+          <a href="#" className="flex items-center gap-2 font-medium">
+            <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+              <GalleryVerticalEnd className="size-4" />
+            </div>
+            AegisExpressLogistics
+          </a>
+        </div>
+        <div className="flex flex-1 items-center lg:justify-center lg:flex-row lg:py-2 justify-start flex-col py-32 ">
+          <div className="w-full max-w-full px-6">
+            <LoginForm
+              email={email}
+              password={password}
+              loading={loading}
+              error={error}
+              onEmailChange={(e) => setEmail(e.target.value)}
+              onPasswordChange={(e) => setPassword(e.target.value)}
+              onSubmit={handleSubmit}
+            />
           </div>
-        )}
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="mt-1 w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
         </div>
-
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700">
-            Password
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="mt-1 w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 disabled:opacity-50"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+      </div>
+      <div className="bg-muted relative hidden lg:block">
+        <img
+          src={LoginImg}
+          alt="Image"
+          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+        />
+      </div>
     </div>
   );
 }

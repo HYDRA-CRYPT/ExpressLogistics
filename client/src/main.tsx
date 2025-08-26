@@ -4,14 +4,20 @@ import { RouterProvider } from "react-router-dom";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import router from "./routes/router";
 import "./App.css";
+import { ThemeProvider } from "./context/ThemeProvider";
+
 const queryClient = new QueryClient();
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </ThemeProvider>
   </StrictMode>
 );
+
 // The main.tsx file is the entry point of the React application.
 // It uses React's StrictMode to help identify potential problems in the application.
 // The createRoot function from react-dom/client is used to render the application into the root element

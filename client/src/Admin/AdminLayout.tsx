@@ -1,29 +1,87 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarSeparator,
+} from "@/components/ui/sidebar";
+import { NavMain } from "@/components/nav-main";
+import { NavDocuments } from "@/components/nav-documents";
+import { NavUser } from "@/components/nav-user";
+import { data } from "./stores/api";
+import { SiteHeader } from "@/components/site-header";
+import { Link } from "react-router-dom";
 
 const AdminLayout = () => {
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-64 bg-gray-800 text-white p-4">
-        <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
-        <nav className="space-y-3">
-          <Link to="/owner/dashboard" className="block hover:text-green-400">
-            Dashboard
-          </Link>
-          <Link to="/owner/orders" className="block hover:text-green-400">
-            Orders
-          </Link>
-          <Link to="/owner/delivery" className="block hover:text-green-400">
-            Drivers
-          </Link>
-        </nav>
-      </aside>
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex min-h-screen w-full overflow-hidden">
+        {/* Sidebar */}
+        <Sidebar
+          variant="sidebar"
+          collapsible="offcanvas"
+          className="bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+        >
+          <SidebarHeader className="py-3 bg-zinc-200 dark:bg-zinc-900">
+            <h2 className="text-xl font-bold dark:text-zinc-100">
+              AegisExpress's Admin
+            </h2>
+          </SidebarHeader>
+          <SidebarSeparator className="mx-1 border border-zinc-300 dark:border-zinc-700" />
 
-      {/* Main Content */}
-      <main className="flex-1 p-6">
-        <Outlet />
-      </main>
-    </div>
+          <SidebarContent>
+            <NavMain items={data.navMain} />
+            <NavDocuments items={data.shipments} />
+            <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+              <SidebarGroupLabel className="dark:text-zinc-200">
+                Emails
+              </SidebarGroupLabel>
+              <SidebarMenu>
+                {data.createEmail.map((item) => (
+                  <SidebarMenuItem key={item.name}>
+                    <SidebarMenuButton
+                      asChild
+                      className="hover:bg-zinc-700 dark:hover:bg-zinc-700"
+                    >
+                      <Link
+                        to={item.url}
+                        className="flex items-center gap-2 text-zinc-900 dark:text-zinc-100"
+                      >
+                        <item.icon className="text-zinc-700 dark:text-zinc-300" />
+                        <span>{item.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+
+          <SidebarFooter>
+            <NavUser user={data.user} />
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              © 2025 AegisExpress
+            </p>
+          </SidebarFooter>
+        </Sidebar>
+
+        {/* Main Content */}
+        <SidebarInset>
+          <SiteHeader />
+          <div className="flex-1 overflow-auto">
+            <Outlet />
+          </div>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 };
 
