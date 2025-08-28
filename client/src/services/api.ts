@@ -1,28 +1,139 @@
-import axios from "axios";
+// src/services/api.ts
+import axios, { AxiosError, type AxiosRequestConfig } from "axios";
 
-export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
+const BASE_URL = "http://localhost:5000/api";
+
+// --- Token Manager (FIXED) ---
+const tokenManager = {
+  get accessToken() {
+    // Try both keys for backward compatibility
+    return localStorage.getItem("adminToken") || localStorage.getItem("token");
   },
+  get refreshToken() {
+    return localStorage.getItem("refreshToken");
+  },
+  setTokens(access: string, refresh?: string) {
+    localStorage.setItem("adminToken", access);
+    if (refresh) {
+      localStorage.setItem("refreshToken", refresh);
+    }
+  },
+  clear() {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("token"); // Clean up both
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("adminRole");
+    localStorage.removeItem("adminUser");
+  },
+};
+
+// --- Axios Instance ---
+export const api = axios.create({
+  baseURL: BASE_URL,
+  timeout: 10000,
+  headers: { "Content-Type": "application/json" },
 });
 
-// Example interceptors for perf/logging
+// --- Refresh Logic ---
+let isRefreshing = false;
+let failedQueue: {
+  resolve: (token: string) => void;
+  reject: (err: unknown) => void;
+}[] = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) prom.reject(error);
+    else if (token) prom.resolve(token);
+  });
+  failedQueue = [];
+};
+
+// --- Request Interceptor ---
+api.interceptors.request.use(
+  (config) => {
+    const token = tokenManager.accessToken;
+    if (token) {
+      // Use set() if available (Axios v1+)
+      config.headers?.set?.("Authorization", `Bearer ${token}`);
+
+      // Or fallback for older Axios (still safe)
+      (config.headers as any)["Authorization"] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// --- Response Interceptor ---
 api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    const message = err.response?.data?.message || err.message;
-    console.error("API error:", message);
-    return Promise.reject(err);
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as AxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      // Already refreshing? Queue the request
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers = {
+              ...originalRequest.headers,
+              Authorization: `Bearer ${token}`,
+            };
+            return api(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshToken = tokenManager.refreshToken;
+        if (!refreshToken) {
+          throw new Error("No refresh token available");
+        }
+
+        const { data } = await axios.post(`${BASE_URL}/auth/refresh`, {
+          refreshToken,
+        });
+
+        const { token: newToken, refreshToken: newRefresh } = data;
+        tokenManager.setTokens(newToken, newRefresh);
+
+        // Update defaults & retry queued requests
+        api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+        processQueue(null, newToken);
+
+        return api({
+          ...originalRequest,
+          headers: {
+            ...originalRequest.headers,
+            Authorization: `Bearer ${newToken}`,
+          },
+        });
+      } catch (refreshError) {
+        console.error("Token refresh failed:", refreshError);
+        processQueue(refreshError, null);
+        tokenManager.clear();
+
+        // Redirect to login
+        if (window.location.pathname !== "/owner/login") {
+          window.location.href = "/owner/login";
+        }
+
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
   }
 );
 
-// This file creates an Axios instance with a base URL and default headers.
-// It uses the environment variable to determine the base URL based on the mode (development or production
-// mode). The instance can be used throughout the application to make HTTP requests
-// with consistent configuration, such as including credentials and setting the content type to JSON.
-// The `withCredentials` option allows cookies to be sent with requests, which is useful for
-// authentication and session management in applications that require user login.
-// The `axiosInstance` can be imported and used in other parts of the application to make API calls.
-// The hook also handles errors by throwing an error with a message from the response or a default message.
+export default api;

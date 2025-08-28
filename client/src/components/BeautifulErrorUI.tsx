@@ -1,0 +1,196 @@
+import React, { useRef, useEffect } from "react";
+import { motion } from "framer-motion";
+import * as THREE from "three";
+import { AlertTriangle, RefreshCw } from "lucide-react";
+
+interface ErrorObject {
+  message: string;
+  code?: string | number;
+  name?: string;
+}
+
+interface ParticleUserData {
+  originalY: number;
+  speed: number;
+  rotationSpeed: number;
+}
+
+interface BeautifulErrorUIProps {
+  error: ErrorObject;
+  onRetry?: () => void | Promise<void>;
+  className?: string;
+}
+
+const BeautifulErrorUI: React.FC<BeautifulErrorUIProps> = ({
+  error,
+  onRetry,
+  className,
+}) => {
+  const mountRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!mountRef.current) return;
+
+    // Three.js setup for animated background
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, 300 / 150, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
+    renderer.setSize(300, 150);
+    renderer.setClearColor(0x000000, 0);
+    mountRef.current.appendChild(renderer.domElement);
+
+    // Create animated particles
+    const particles: THREE.Mesh[] = [];
+    const particleGeometry = new THREE.SphereGeometry(0.3, 6, 6);
+
+    for (let i = 0; i < 12; i++) {
+      const material = new THREE.MeshBasicMaterial({
+        color: new THREE.Color().setHSL(0.02, 0.8, 0.6),
+        transparent: true,
+        opacity: 0.6,
+      });
+
+      const particle = new THREE.Mesh(particleGeometry, material);
+      particle.position.set(
+        (Math.random() - 0.5) * 15,
+        (Math.random() - 0.5) * 8,
+        (Math.random() - 0.5) * 8
+      );
+      particle.userData = {
+        originalY: particle.position.y,
+        speed: Math.random() * 0.02 + 0.01,
+        rotationSpeed: Math.random() * 0.02 + 0.01,
+      } as ParticleUserData;
+      scene.add(particle);
+      particles.push(particle);
+    }
+
+    camera.position.z = 10;
+
+    // Animation loop
+    const animate = (): void => {
+      particles.forEach((particle, index) => {
+        const userData = particle.userData as ParticleUserData;
+        particle.rotation.x += userData.rotationSpeed;
+        particle.rotation.y += userData.rotationSpeed;
+        particle.position.y =
+          userData.originalY +
+          Math.sin(Date.now() * userData.speed + index) * 1.5;
+        (particle.material as THREE.MeshBasicMaterial).opacity =
+          0.3 + Math.sin(Date.now() * 0.003 + index) * 0.3;
+      });
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      if (mountRef.current && renderer.domElement) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
+      renderer.dispose();
+      particles.forEach((p) => {
+        p.geometry.dispose();
+        p.material.dispose();
+      });
+      particleGeometry.dispose();
+    };
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{
+        type: "spring",
+        damping: 25,
+        stiffness: 300,
+        duration: 0.6,
+      }}
+      className={`relative bg-gradient-to-br from-red-50 via-white to-orange-50 rounded-2xl border border-red-200/50 p-6 shadow-lg max-w-md mx-auto overflow-hidden ${
+        className || ""
+      }`}
+    >
+      {/* Three.js Background */}
+      <div
+        ref={mountRef}
+        className="absolute top-0 right-0 pointer-events-none opacity-40"
+      />
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-orange-500/5 rounded-2xl" />
+
+      {/* Content */}
+      <div className="relative flex items-start gap-4">
+        {/* Animated Icon */}
+        <motion.div
+          initial={{ scale: 0, rotate: -90 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{
+            delay: 0.2,
+            type: "spring",
+            damping: 20,
+            stiffness: 400,
+          }}
+          className="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center"
+        >
+          <AlertTriangle className="w-5 h-5 text-red-500" />
+        </motion.div>
+
+        {/* Text Content */}
+        <div className="flex-1 min-w-0">
+          <motion.h3
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="font-semibold text-red-800 text-sm mb-1"
+          >
+            Error fetching stats
+          </motion.h3>
+
+          <motion.p
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.4 }}
+            className="text-red-600 text-sm leading-relaxed break-words"
+          >
+            {error?.message || "An unexpected error occurred"}
+          </motion.p>
+
+          {onRetry && (
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onRetry}
+              className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors"
+            >
+              <RefreshCw className="w-3 h-3" />
+              Retry
+            </motion.button>
+          )}
+        </div>
+      </div>
+
+      {/* Subtle animated border */}
+      <motion.div
+        className="absolute inset-0 rounded-2xl border-2 border-red-300/30"
+        animate={{
+          borderColor: [
+            "rgba(239, 68, 68, 0.3)",
+            "rgba(239, 68, 68, 0.1)",
+            "rgba(239, 68, 68, 0.3)",
+          ],
+        }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+      />
+    </motion.div>
+  );
+};
+
+export default BeautifulErrorUI;

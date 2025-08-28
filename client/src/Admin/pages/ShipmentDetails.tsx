@@ -14,6 +14,7 @@ import AdminPanel from "../../components/AdminPanel";
 
 interface ShipmentDetailsProps {
   shipment: ShipmentData;
+  isAdmin: boolean;
   onShipmentUpdate?: (updatedShipment: ShipmentData) => void;
 }
 

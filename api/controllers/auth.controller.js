@@ -2,10 +2,20 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import redisClient from "../config/redis.js";
 
-function signToken(user) {
+function signToken(user, expiresIn = process.env.JWT_EXPIRES || "7d") {
   return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES || "7d",
+    expiresIn,
   });
+}
+
+function signRefreshToken(user) {
+  return jwt.sign(
+    { id: user._id },
+    process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+    {
+      expiresIn: "30d", // Refresh token lasts longer
+    }
+  );
 }
 
 // ===== LOGIN =====
@@ -20,18 +30,85 @@ export const login = async (req, res) => {
   }
 
   const token = signToken(user);
+  const refreshToken = signRefreshToken(user);
 
-  // Store token in Redis with TTL (matches JWT expiry)
+  // Store both tokens in Redis
   const decoded = jwt.decode(token);
   const expiresInSec = decoded.exp - Math.floor(Date.now() / 1000);
 
-  // ioredis syntax
   await redisClient.set(`auth:token:${user._id}`, token, "EX", expiresInSec);
+  await redisClient.set(
+    `auth:refresh:${user._id}`,
+    refreshToken,
+    "EX",
+    30 * 24 * 60 * 60
+  ); // 30 days
 
   res.json({
     token,
+    refreshToken,
     user: { id: user._id, email: user.email, role: user.role },
   });
+};
+
+// ===== REFRESH TOKEN =====
+export const refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Refresh token required" });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
+    );
+
+    // Check if refresh token exists in Redis
+    const storedRefreshToken = await redisClient.get(
+      `auth:refresh:${decoded.id}`
+    );
+    if (!storedRefreshToken || storedRefreshToken !== refreshToken) {
+      return res.status(401).json({ message: "Invalid refresh token" });
+    }
+
+    // Get user and generate new tokens
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const newToken = signToken(user);
+    const newRefreshToken = signRefreshToken(user);
+
+    // Update Redis with new tokens
+    const newDecoded = jwt.decode(newToken);
+    const expiresInSec = newDecoded.exp - Math.floor(Date.now() / 1000);
+
+    await redisClient.set(
+      `auth:token:${user._id}`,
+      newToken,
+      "EX",
+      expiresInSec
+    );
+    await redisClient.set(
+      `auth:refresh:${user._id}`,
+      newRefreshToken,
+      "EX",
+      30 * 24 * 60 * 60
+    );
+
+    res.json({
+      token: newToken,
+      refreshToken: newRefreshToken,
+      user: { id: user._id, email: user.email, role: user.role },
+    });
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    res.status(401).json({ message: "Invalid refresh token" });
+  }
 };
 
 // ===== LOGOUT =====
@@ -45,7 +122,9 @@ export const logout = async (req, res) => {
     const decoded = jwt.decode(token);
 
     if (decoded?.id) {
+      // Remove both access and refresh tokens
       await redisClient.del(`auth:token:${decoded.id}`);
+      await redisClient.del(`auth:refresh:${decoded.id}`);
     }
 
     res.json({ message: "Logged out successfully" });

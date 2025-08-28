@@ -57,119 +57,125 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Define your data type
-import { type PackageType } from "@/types";
 import ShipmentActions from "./ShipmentActions";
+import type { TableDelivery } from "@/types/shipment"; // Updated Shipment type
 
-// FIX: Columns are now inside, so setData is available
-const columns: ColumnDef<PackageType>[] = [
-  {
-    id: "drag",
-    header: () => null,
-    cell: ({ row }) => <DragHandle id={row.original.id} />,
-    enableSorting: false,
-    enableHiding: false,
-    size: 32,
-  },
-  {
-    id: "select",
-    header: ({ table }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
+export function DataTable({ data: initialData }: { data: TableDelivery[] }) {
+  const [data, setData] = React.useState<TableDelivery[]>(initialData || []);
+
+  // Update data when initialData changes (for API refetches)
+  React.useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
+
+  // FIX: Columns are now inside, so setData is available
+  const columns: ColumnDef<TableDelivery>[] = [
+    {
+      id: "drag",
+      header: () => null,
+      cell: ({ row }) => <DragHandle id={row.original.id} />,
+      enableSorting: false,
+      enableHiding: false,
+      size: 32,
+    },
+    {
+      id: "select",
+      header: ({ table }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+          />
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        </div>
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      size: 32,
+    },
+    { accessorKey: "id", header: "ID" },
+    { accessorKey: "Package", header: "Package" },
+    { accessorKey: "weight", header: "Weight (kg)" },
+    { accessorKey: "status", header: "Status" },
+    { accessorKey: "receiver", header: "Receiver" },
+    { accessorKey: "sender", header: "Sender" },
+    { accessorKey: "origin", header: "Origin" },
+    { accessorKey: "destination", header: "Destination" },
+    { accessorKey: "trackingCode", header: "Tracking Code" },
+    {
+      id: "actions",
+      header: "",
+      cell: ({ row }) => (
+        <ShipmentActions
+          shipment={row.original} // row.original is TableDelivery
+          onDelete={(id) => setData((prev) => prev.filter((p) => p._id !== id))}
+          onEdit={(shipment) => console.log("Edit:", shipment)}
+          onUpdateLocation={(code) => console.log("Track:", code)}
         />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-    size: 32,
-  },
-  { accessorKey: "id", header: "ID" },
-  { accessorKey: "Package", header: "Package" },
-  { accessorKey: "weight", header: "Weight (kg)" },
-  { accessorKey: "item", header: "Amount" },
-  { accessorKey: "status", header: "Status" },
-  { accessorKey: "receiver", header: "Receiver" },
-  { accessorKey: "sender", header: "Sender" },
-  { accessorKey: "origin", header: "Origin" },
-  { accessorKey: "destination", header: "Destination" },
-  { accessorKey: "trackingCode", header: "Tracking Code" },
-  {
-    id: "actions",
-    header: "",
-    cell: ({ row }) => (
-      <ShipmentActions
-        shipment={row.original}
-        onDelete={(id) => setData((prev) => prev.filter((p) => p.id !== id))}
-        onEdit={(id) => console.log("Edit:", id)}
-        onUpdateLocation={(code) => console.log("Track:", code)}
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-    size: 48,
-  },
-];
-// Drag handle component
-function DragHandle({ id }: { id: number }) {
-  const { attributes, listeners } = useSortable({ id });
-  return (
-    <Button
-      {...attributes}
-      {...listeners}
-      variant="ghost"
-      size="icon"
-      className="text-muted-foreground size-7 hover:bg-transparent cursor-grab"
-    >
-      <IconGripVertical className="text-muted-foreground size-3" />
-      <span className="sr-only">Drag to reorder</span>
-    </Button>
-  );
-}
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      size: 48,
+    },
+  ];
 
-// Draggable row component
-function DraggableRow({ row }: { row: Row<PackageType> }) {
-  const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.original.id,
-  });
+  // Drag handle component
+  function DragHandle({ id }: { id: number }) {
+    const { attributes, listeners } = useSortable({ id });
+    return (
+      <Button
+        {...attributes}
+        {...listeners}
+        variant="ghost"
+        size="icon"
+        className="text-muted-foreground size-7 hover:bg-transparent cursor-grab"
+      >
+        <IconGripVertical className="text-muted-foreground size-3" />
+        <span className="sr-only">Drag to reorder</span>
+      </Button>
+    );
+  }
 
-  return (
-    <TableRow
-      data-state={row.getIsSelected() && "selected"}
-      data-dragging={isDragging}
-      ref={setNodeRef}
-      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition: transition,
-      }}
-    >
-      {row.getVisibleCells().map((cell) => (
-        <TableCell key={cell.id}>
-          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </TableCell>
-      ))}
-    </TableRow>
-  );
-}
+  // Draggable row component
+  function DraggableRow({ row }: { row: Row<TableDelivery> }) {
+    const { transform, transition, setNodeRef, isDragging } = useSortable({
+      id: row.original.id,
+    });
 
-// Main DataTable component
-export function DataTable({ data: initialData }: { data: PackageType[] }) {
-  const [data, setData] = React.useState(() => initialData);
+    return (
+      <TableRow
+        data-state={row.getIsSelected() && "selected"}
+        data-dragging={isDragging}
+        ref={setNodeRef}
+        className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+        style={{
+          transform: CSS.Transform.toString(transform),
+          transition: transition,
+        }}
+      >
+        {row.getVisibleCells().map((cell) => (
+          <TableCell key={cell.id}>
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </TableCell>
+        ))}
+      </TableRow>
+    );
+  }
+
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -393,6 +399,7 @@ export function DataTable({ data: initialData }: { data: PackageType[] }) {
 
 export const schema = z.object({
   id: z.number(),
+  _id: z.string(), // ✅ Updated schema to match
   Package: z.string(),
   status: z.string(),
   receiver: z.string(),

@@ -1,15 +1,15 @@
+// routes/auth.routes.js
 import express from "express";
-import { login } from "../controllers/auth.controller.js";
+import { login, logout, refreshToken } from "../controllers/auth.controller.js";
 import { protect } from "../middleware/authMiddleware.js";
-const router = express.Router();
-router.post("/login", login);
 
-// Protected: get user profile
+const router = express.Router();
+
+router.post("/login", login);
+router.post("/logout", protect, logout);
+router.post("/refresh", refreshToken);
 router.get("/me", protect, (req, res) => {
-  res.json({
-    id: req.user._id,
-    email: req.user.email,
-    role: req.user.role,
-  });
+  res.json({ user: req.user });
 });
+
 export default router;

@@ -43,3 +43,18 @@ export async function getAdminLogs({ offset = 0, limit = 50 } = {}) {
     return [];
   }
 }
+
+// Add this function to your existing cacheService.js file
+
+export const deleteCachedTracking = async (trackingCode) => {
+  try {
+    if (redisClient && redisClient.isOpen) {
+      const key = `tracking:${trackingCode}`;
+      await redisClient.del(key);
+      console.log(`Cache deleted for tracking code: ${trackingCode}`);
+    }
+  } catch (error) {
+    console.error("Cache deletion error:", error);
+    // Don't throw error - cache deletion failure shouldn't break the main operation
+  }
+};

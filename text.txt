@@ -419,3 +419,42 @@ dashboard bg <div className="min-h-screen w-full bg-[#f9fafb] relative">
   />
      {/* Your Content/Components */}
 </div>
+
+
+{
+    "shipmentType": "Bulk Cargo",
+    "pickupDate": "2025-08-27T09:00:00.000Z",
+    "deliveryDate": "2025-08-29T09:00:00.000Z",
+    "originName": "John Doe",
+    "originCity": "Lagos",
+    "originCountry": "Nigeria",
+    "originPhone": "+234 801 234 5678",
+    "originEmail": "john.doe@example.com",
+    "destName": "John Doe",
+    "destCity": "Lagos",
+    "destCountry": "Nigeria",
+    "destPhone": "+234 801 234 5678",
+    "destEmail": "Nigeria",
+    "items": [
+        {
+            "description": "Smartphone",
+            "quantity": 5,
+            "weight": 1,
+            "value": 1000
+        },
+        {
+            "description": "Laptop",
+            "category": "General Merchandise",
+            "quantity": 2,
+            "weight": 1,
+            "value": 2000
+        }
+    ],
+    "currency": {
+        "code": "USD",
+        "symbol": "$",
+        "name": "US Dollar"
+    },
+    "checkEmail": true
+}
+

@@ -20,18 +20,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { EllipsisVertical } from "lucide-react";
-import type { TableDelivery } from "@/types/shipment";
 
-// Use a more flexible shipment type that matches your actual data
+// Import the new CardDelivery type
+import type { CardDelivery } from "@/types/shipment";
 
 interface ShipmentActionsProps {
-  shipment: TableDelivery; // Use the more flexible type
+  shipment: CardDelivery; // Use CardDelivery type for cards
   onDelete: (id: string) => void;
-  onEdit?: (shipment: TableDelivery) => void;
+  onEdit?: (shipment: CardDelivery) => void;
   onUpdateLocation?: (trackingCode: string) => void;
 }
 
-const ShipmentActions: React.FC<ShipmentActionsProps> = ({
+const ShipmentActionCard: React.FC<ShipmentActionsProps> = ({
   shipment,
   onDelete,
   onEdit,
@@ -141,4 +141,4 @@ const ShipmentActions: React.FC<ShipmentActionsProps> = ({
   );
 };
 
-export default ShipmentActions;
+export default ShipmentActionCard;

@@ -13,12 +13,6 @@ import {
 } from "@tabler/icons-react";
 
 export const data = {
-  user: {
-    name: "RabbitDaCoder",
-    email: "rabbit@example.com",
-    avatar:
-      "https://ui-avatars.com/api/?name=RabbitDaCoder&size=128&background=0D8ABC&color=fff&rounded=true",
-  },
   navMain: [
     {
       title: "Dashboard",

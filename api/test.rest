@@ -1,16 +1,22 @@
+# Delivery Tracking API Email Test Suite
+# Focused on email functionality testing with real emails
+
 @baseUrl = http://localhost:5000/api
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTQwY2UxZWZiYTQ1ZTc1NjVmODUwMCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NTY0MzgwOCwiZXhwIjoxNzU2MjQ4NjA4fQ.GviXqOV2F4OvU9HUUPfhBZlc8yOTXpcZaD0xDA1npPM
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTQwY2UxZWZiYTQ1ZTc1NjVmODUwMCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NjM1NDI1MSwiZXhwIjoxNzU2OTU5MDUxfQ.uNGdd3X4jd-QnFZ0yiMwQ2osAcnntZEP_MnvpwxrKcs
+@deliveryId = 68b0969642c2df96cb3e785a
+@trackingCode = AGL7285255670
 
-# placeholders (fill after creating a delivery)
-@deliveryId = 68a500bf0fd4818aa17c86e0
-@trackingCode = AGL5901114930
+# Test Emails:
+# boltdropa@gmail.com
+# edehchinedu59@gmail.com  
+# godwinchristain45@gmail.com
 
+# =============================================================================
+# AUTHENTICATION
+# =============================================================================
 
-
-### AUTH ROUTES
-
-### Login
-POST http://localhost:5000/api/auth/login
+### Login - Get authentication token
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
@@ -18,94 +24,473 @@ Content-Type: application/json
   "password": "Passw0rd!"
 }
 
-###
 
-### Get Current User (Protected)
-GET http://localhost:5000/api/auth/me
+
+### Test Email System - Direct email test
+GET {{baseUrl}}/deliveries/test-email
 Authorization: Bearer {{token}}
 
----
-### DELIVERY ROUTES
+### Simple Email Test
+GET {{baseUrl}}/deliveries/simple-email-test
+Authorization: Bearer {{token}
 
-### Create Delivery (Admin)
-POST http://localhost:5000/api/deliveries
+# ### Test All Emails - Bulk test
+GET {{baseUrl}}/deliveries/test-all-emails
+Authorization: Bearer {{token}}
+
+### Test Delivery Email Template
+GET {{baseUrl}}/deliveries/test-delivery-email
+Authorization: Bearer {{token}}
+
+
+# =============================================================================
+# EMAIL FUNCTIONALITY TESTS WITH REAL EMAILS
+# =============================================================================
+
+### Test 1: Email Test - Bolt Dropa as Receiver
+POST {{baseUrl}}/deliveries
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "sender": {
-    "name": "Alice",
-    "address": "Lagos",
-    "phone": "08012345678",
-    "email": "alice@example.com",
+    "name": "TechAgba Logistics",
+    "email": "techagbadev@gmail.com",
+    "phone": "+2348012345678",
+    "address": "TechAgba HQ, Victoria Island, Lagos",
     "country": "Nigeria"
   },
   "receiver": {
-    "name": "Bob",
-    "address": "Abuja",
-    "phone": "08087654321",
-    "email": "bob@example.com",
+    "name": "Bolt Dropa",
+    "email": "boltdropa@gmail.com",
+    "phone": "+2348087654321",
+    "address": "Plot 15, Allen Avenue, Ikeja, Lagos",
     "country": "Nigeria"
   },
-  "goodsDescription": "Electronics",
+  "items": [
+    {
+      "description": "Email Test Package - Bolt",
+      "quantity": 1,
+      "weight": 1.0,
+      "value": 25000
+    }
+  ],
+  "deliveryFee": 3500,
+  "currency": "NGN",
+  "dateSent": "2025-08-28T10:00:00Z",
+  "deliveryDate": "2025-08-30T16:00:00Z",
+  "checkEmail": true,
+  "invoiceUrl": "https://example.com/invoices/fake_invoice_001.pdf"
+}
+
+### Test 2: Email Test - Edeh Chinedu as Receiver
+POST {{baseUrl}}/deliveries
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sender": {
+    "name": "Godwin Christian Store",
+    "email": "godwinchristain45@gmail.com",
+    "phone": "+2348023456789",
+    "address": "Shop 42, Computer Village, Lagos",
+    "country": "Nigeria"
+  },
+  "receiver": {
+    "name": "Edeh Chinedu",
+    "email": "edehchinedu59@gmail.com",
+    "phone": "+2348076543210",
+    "address": "No 7 Woji Road, Port Harcourt, Rivers State",
+    "country": "Nigeria"
+  },
+  "items": [
+    {
+      "description": "Electronics Bundle - Chinedu Order",
+      "quantity": 2,
+      "weight": 2.5,
+      "value": 85000
+    }
+  ],
+  "deliveryFee": 7500,
+  "currency": "NGN",
+  "dateSent": "2025-08-28T11:00:00Z",
+  "deliveryDate": "2025-09-02T14:00:00Z",
+  "checkEmail": true,
+  "invoiceUrl": "https://example.com/invoices/fake_invoice_002.pdf"
+}
+
+### Test 3: Email Test - Godwin Christian as Sender
+POST {{baseUrl}}/deliveries
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sender": {
+    "name": "Godwin Christian",
+    "email": "godwinchristain45@gmail.com",
+    "phone": "+2348034567890",
+    "address": "15 Ahmadu Bello Way, Kaduna",
+    "country": "Nigeria"
+  },
+  "receiver": {
+    "name": "Bolt Dropa",
+    "email": "boltdropa@gmail.com",
+    "phone": "+2348098765432",
+    "address": "Block C, Estate Plaza, Abuja",
+    "country": "Nigeria"
+  },
+  "items": [
+    {
+      "description": "Fashion Items - Godwin to Bolt",
+      "quantity": 3,
+      "weight": 1.8,
+      "value": 45000
+    }
+  ],
   "deliveryFee": 5000,
   "currency": "NGN",
-  "dateSent": "2025-08-19T10:00:00Z",
-  "deliveryDate": "2025-08-25T10:00:00Z"
+  "dateSent": "2025-08-28T12:00:00Z",
+  "deliveryDate": "2025-09-01T18:00:00Z",
+  "checkEmail": true,
+  "invoiceUrl": "https://example.com/invoices/fake_invoice_003.pdf"
 }
 
-
-### List Deliveries (Protected)
-GET http://localhost:5000/api/deliveries
-Authorization: Bearer {{token}}
-
-###
-
-### Track Delivery by Tracking Code (Public)
-GET http://localhost:5000/api/deliveries/track/{{trackingCode}}
-
-###
-
-
-### Update Delivery Status (Protected)
-PUT http://localhost:5000/api/deliveries/{{deliveryId}}/status
+### Test 4: Multi-Item Delivery with Fake Invoice - All Real Emails
+POST {{baseUrl}}/deliveries
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "status": "On Hold"
+  "sender": {
+    "name": "Edeh Chinedu Business",
+    "email": "edehchinedu59@gmail.com",
+    "phone": "+2348045678901",
+    "address": "Trade Center, Port Harcourt",
+    "country": "Nigeria"
+  },
+  "receiver": {
+    "name": "Godwin Christian",
+    "email": "godwinchristain45@gmail.com",
+    "phone": "+2348054321098",
+    "address": "Ministry Road, Kaduna State",
+    "country": "Nigeria"
+  },
+  "items": [
+    {
+      "description": "Laptop Computer",
+      "quantity": 1,
+      "weight": 2.2,
+      "value": 450000
+    },
+    {
+      "description": "Wireless Mouse",
+      "quantity": 2,
+      "weight": 0.3,
+      "value": 15000
+    },
+    {
+      "description": "USB Drive",
+      "quantity": 1,
+      "weight": 0.1,
+      "value": 8000
+    }
+  ],
+  "deliveryFee": 12000,
+  "currency": "NGN",
+  "dateSent": "2025-08-28T13:00:00Z",
+  "deliveryDate": "2025-09-03T16:00:00Z",
+  "checkEmail": true,
+  "invoiceUrl": "https://techagba.com/invoices/fake_comprehensive_invoice_004.pdf"
 }
 
-###
-
-### Add Delivery Location Update (Protected)
-PUT http://localhost:5000/api/deliveries/{{deliveryId}}/location
+### Test 5: International Style Delivery with High Value Items
+POST {{baseUrl}}/deliveries
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "description": "Left Abuja warehouse",
-  "time":"2025-08-19T10:00:00Z",
-  "location":{
+  "sender": {
+    "name": "TechAgba International",
+    "email": "techagbadev@gmail.com",
+    "phone": "+2348012345678",
+    "address": "International Wing, Lagos Airport",
+    "country": "Nigeria"
+  },
+  "receiver": {
+    "name": "Bolt Dropa Premium",
+    "email": "boltdropa@gmail.com",
+    "phone": "+2348087654321",
+    "address": "Premium Estate, Victoria Island, Lagos",
+    "country": "Nigeria"
+  },
+  "items": [
+    {
+      "description": "Premium Electronics Package",
+      "quantity": 1,
+      "weight": 5.0,
+      "value": 850000
+    }
+  ],
+  "deliveryFee": 25000,
+  "currency": "NGN",
+  "dateSent": "2025-08-28T14:00:00Z",
+  "deliveryDate": "2025-09-05T12:00:00Z",
+  "checkEmail": true,
+  "invoiceUrl": "https://secure-invoices.techagba.com/premium/fake_invoice_005.pdf"
+}
+
+# =============================================================================
+# STATUS UPDATE EMAIL TESTS
+# =============================================================================
+
+### Update Status to Processing (Should send email notification)
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "Processing"
+}
+
+### Update Status to Shipped (Should send shipping notification email)
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "Shipped"
+}
+
+### Update Status to In Transit (Should send tracking update email)
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "In Transit"
+}
+
+### Update Status to Delivered (Should send delivery confirmation email)
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "Delivered"
+}
+
+# =============================================================================
+# LOCATION UPDATE EMAIL TESTS
+# =============================================================================
+
+### Add Location Update - Package Pickup (Should trigger location email)
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/location
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "description": "Package picked up from sender - Email Test",
+  "time": "2025-08-28T09:00:00Z",
+  "location": {
     "lat": 6.5244,
     "lng": 3.3792
   },
-  "city":"Abuja",
-  "country":"Nigeria"
-  
-  
- 
+  "city": "Lagos",
+  "country": "Nigeria"
+}
+
+### Add Location Update - In Transit (Should trigger tracking email)
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/location
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "description": "Package in transit to destination - Email Update",
+  "time": "2025-08-29T14:30:00Z",
+  "location": {
+    "lat": 9.0765,
+    "lng": 7.3986
+  },
+  "city": "Abuja",
+  "country": "Nigeria"
+}
+
+### Add Location Update - Out for Delivery (Should trigger final delivery email)
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/location
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "description": "Out for delivery - Final email notification",
+  "time": "2025-08-30T08:00:00Z",
+  "location": {
+    "lat": 9.0579,
+    "lng": 7.4951
+  },
+  "city": "Abuja",
+  "country": "Nigeria"
+}
+
+# =============================================================================
+# FAKE INVOICE TESTING
+# =============================================================================
+
+### Generate Fake Invoice for Delivery
+POST {{baseUrl}}/invoices/{{deliveryId}}/generate
+Authorization: Bearer {{token}}
+
+### Update Delivery with Fake Invoice URL
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/invoice
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "invoiceUrl": "https://fake-invoices.techagba.com/generated/invoice_{{deliveryId}}.pdf"
+}
+
+### Download Fake Invoice PDF (Test URL)
+GET {{baseUrl}}/invoices/{{deliveryId}}/pdf
+
+# =============================================================================
+# EMAIL VERIFICATION TESTS
+# =============================================================================
+
+### Get All Deliveries with Email Check Enabled
+GET {{baseUrl}}/deliveries?checkEmail=true
+Authorization: Bearer {{token}}
+
+### Enable Email Check for Existing Delivery
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/checkemail
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "checkEmail": true
+}
+
+### Search Deliveries by Real Email Recipients
+GET {{baseUrl}}/deliveries?receiver.email=boltdropa@gmail.com
+Authorization: Bearer {{token}}
+
+### Search Deliveries by Real Email Senders
+GET {{baseUrl}}/deliveries?sender.email=godwinchristain45@gmail.com
+Authorization: Bearer {{token}}
+
+# =============================================================================
+# BULK EMAIL TEST SCENARIOS
+# =============================================================================
+
+### Rapid Fire Email Test - Multiple Deliveries in Sequence
+POST {{baseUrl}}/deliveries
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sender": {
+    "name": "Bulk Test Sender 1",
+    "email": "godwinchristain45@gmail.com",
+    "phone": "+2348011111111",
+    "address": "Bulk Test Address 1, Lagos",
+    "country": "Nigeria"
+  },
+  "receiver": {
+    "name": "Bulk Test Receiver 1",
+    "email": "boltdropa@gmail.com",
+    "phone": "+2348022222222",
+    "address": "Bulk Test Address 1, Abuja",
+    "country": "Nigeria"
+  },
+  "items": [
+    {
+      "description": "Bulk Test Item 1",
+      "quantity": 1,
+      "weight": 1.0,
+      "value": 15000
+    }
+  ],
+  "deliveryFee": 2500,
+  "currency": "NGN",
+  "dateSent": "2025-08-28T15:00:00Z",
+  "deliveryDate": "2025-09-01T12:00:00Z",
+  "checkEmail": true,
+  "invoiceUrl": "https://bulk-test.com/invoices/bulk_001.pdf"
 }
 
 ###
+POST {{baseUrl}}/deliveries
+Authorization: Bearer {{token}}
+Content-Type: application/json
 
-### Admin Logs (Admin only)
-GET http://localhost:5000/api/deliveries/admin/logs
+{
+  "sender": {
+    "name": "Bulk Test Sender 2",
+    "email": "edehchinedu59@gmail.com",
+    "phone": "+2348033333333",
+    "address": "Bulk Test Address 2, Port Harcourt",
+    "country": "Nigeria"
+  },
+  "receiver": {
+    "name": "Bulk Test Receiver 2",
+    "email": "godwinchristain45@gmail.com",
+    "phone": "+2348044444444",
+    "address": "Bulk Test Address 2, Kaduna",
+    "country": "Nigeria"
+  },
+  "items": [
+    {
+      "description": "Bulk Test Item 2",
+      "quantity": 2,
+      "weight": 1.5,
+      "value": 32000
+    }
+  ],
+  "deliveryFee": 4000,
+  "currency": "NGN",
+  "dateSent": "2025-08-28T15:30:00Z",
+  "deliveryDate": "2025-09-02T16:00:00Z",
+  "checkEmail": true,
+  "invoiceUrl": "https://bulk-test.com/invoices/bulk_002.pdf"
+}
+
+# =============================================================================
+# TRACKING AND EMAIL VERIFICATION
+# =============================================================================
+
+### Track Delivery by Tracking Code (Public endpoint - should work without auth)
+GET {{baseUrl}}/deliveries/track/{{trackingCode}}
+
+### Get Specific Delivery by ID
+GET {{baseUrl}}/deliveries/{{deliveryId}}
 Authorization: Bearer {{token}}
 
----
+### Get Admin Logs (Check for email sending logs)
+GET {{baseUrl}}/deliveries/admin/logs
+Authorization: Bearer {{token}}
 
-### INVOICE ROUTES
+# =============================================================================
+# EMAIL TESTING NOTES
+# =============================================================================
 
-### Download Invoice (Public)
-GET http://localhost:5000/api/invoices/{{deliveryId}}/pdf
+# Email Test Checklist:
+# ✓ boltdropa@gmail.com - Receiving delivery notifications
+# ✓ edehchinedu59@gmail.com - Sending and receiving notifications  
+# ✓ godwinchristain45@gmail.com - Sending and receiving notifications
+# ✓ Fake invoice URLs included in all test deliveries
+# ✓ checkEmail: true enabled for all test deliveries
+# ✓ Various status update email triggers
+# ✓ Location update email triggers
+# ✓ Multiple delivery scenarios with real emails
+
+# Expected Email Flow:
+# 1. Delivery creation → Welcome/Confirmation email
+# 2. Status updates → Status change notifications
+# 3. Location updates → Tracking notifications
+# 4. Final delivery → Delivery confirmation email
+
+# Fake Invoice URLs Used:
+# - https://example.com/invoices/fake_invoice_001.pdf
+# - https://example.com/invoices/fake_invoice_002.pdf
+# - https://example.com/invoices/fake_invoice_003.pdf
+# - https://techagba.com/invoices/fake_comprehensive_invoice_004.pdf
+# - https://secure-invoices.techagba.com/premium/fake_invoice_005.pdf
+# - https://fake-invoices.techagba.com/generated/invoice_{{deliveryId}}.pdf

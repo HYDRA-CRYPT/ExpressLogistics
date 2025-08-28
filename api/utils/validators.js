@@ -19,13 +19,28 @@ export const createDeliverySchema = Joi.object({
     country: Joi.string().allow(""),
   }).required(),
 
+  // ✅ Added items validation
+  items: Joi.array()
+    .items(
+      Joi.object({
+        description: Joi.string().allow(""),
+        quantity: Joi.number().min(0).default(1),
+        weight: Joi.number().min(0).default(0),
+        value: Joi.number().min(0).default(0),
+      })
+    )
+    .min(1)
+    .required(), // At least 1 item required
+
   goodsDescription: Joi.string().allow(""),
   deliveryFee: Joi.number().min(0).default(0),
   currency: Joi.string().default("USD"),
 
   // ✅ Added fields for frontend-provided dates
+  checkEmail: Joi.boolean().default(false),
   dateSent: Joi.date().required(),
   deliveryDate: Joi.date().required(),
+  invoiceUrl: Joi.string().allow(""),
 
   status: Joi.string()
     .valid(

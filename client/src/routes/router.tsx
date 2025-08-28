@@ -13,8 +13,6 @@ import CreateDelivery from "../Admin/pages/CreateDelivery.tsx";
 import AdminLogin from "../Admin/auth/Login.tsx";
 import AllShipments from "@/Admin/pages/AllShipment.tsx";
 import TrackShipments from "../Admin/pages/TrackShipments.tsx";
-import NotifyEmail from "@/Admin/pages/NotifyEmail.tsx";
-import UpdateEmail from "@/Admin/pages/UpdateEmail.tsx";
 import OwnerTrackDetails from "@/Admin/pages/OwnerTrackDetails.tsx";
 import EditShipment from "@/Admin/pages/EditShipment.tsx";
 
@@ -52,14 +50,6 @@ const router = createBrowserRouter([
           {
             path: "shipments/track/:code", // <-- FIXED
             element: <OwnerTrackDetails />,
-          },
-          {
-            path: "shipments/notify-emails/create",
-            element: <NotifyEmail />,
-          },
-          {
-            path: "shipments/update-emails/create",
-            element: <UpdateEmail />,
           },
         ],
       },

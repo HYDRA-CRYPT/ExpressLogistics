@@ -1,29 +1,26 @@
 import { useState } from "react";
 import { GalleryVerticalEnd } from "lucide-react";
 import { LoginForm } from "@/components/login-form";
-import { login } from "@/services/auth"; // your existing login function
 import LoginImg from "../../assets/login-img.jpg";
+
+import { useAuthStore } from "../../stores/authStore";
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  // Zustand store
+  const login = useAuthStore((state) => state.login);
+  const loading = useAuthStore((state) => state.loading);
+  const error = useAuthStore((state) => state.error);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
 
-    try {
-      const data = await login(email, password);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("adminRole", "admin");
-      if (data.token) localStorage.setItem("adminToken", data.token);
+    const success = await login(email, password);
+    if (success) {
+      // Redirect to dashboard
       window.location.href = "/owner/dashboard";
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -38,7 +35,7 @@ export default function LoginPage() {
             AegisExpressLogistics
           </a>
         </div>
-        <div className="flex flex-1 items-center lg:justify-center lg:flex-row lg:py-2 justify-start flex-col py-32 ">
+        <div className="flex flex-1 items-center lg:justify-center lg:flex-row lg:py-2 justify-start flex-col py-32">
           <div className="w-full max-w-full px-6">
             <LoginForm
               email={email}

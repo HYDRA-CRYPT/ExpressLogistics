@@ -3,23 +3,16 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarProvider,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { NavMain } from "@/components/nav-main";
 import { NavDocuments } from "@/components/nav-documents";
-import { NavUser } from "@/components/nav-user";
+
 import { data } from "./stores/api";
 import { SiteHeader } from "@/components/site-header";
-import { Link } from "react-router-dom";
-
 const AdminLayout = () => {
   return (
     <SidebarProvider defaultOpen={true}>
@@ -40,33 +33,9 @@ const AdminLayout = () => {
           <SidebarContent>
             <NavMain items={data.navMain} />
             <NavDocuments items={data.shipments} />
-            <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-              <SidebarGroupLabel className="dark:text-zinc-200">
-                Emails
-              </SidebarGroupLabel>
-              <SidebarMenu>
-                {data.createEmail.map((item) => (
-                  <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton
-                      asChild
-                      className="hover:bg-zinc-700 dark:hover:bg-zinc-700"
-                    >
-                      <Link
-                        to={item.url}
-                        className="flex items-center gap-2 text-zinc-900 dark:text-zinc-100"
-                      >
-                        <item.icon className="text-zinc-700 dark:text-zinc-300" />
-                        <span>{item.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroup>
           </SidebarContent>
 
           <SidebarFooter>
-            <NavUser user={data.user} />
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               © 2025 AegisExpress
             </p>

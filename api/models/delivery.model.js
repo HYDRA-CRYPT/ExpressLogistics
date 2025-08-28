@@ -15,6 +15,13 @@ const locationUpdateSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const itemSchema = new mongoose.Schema({
+  description: String,
+  quantity: Number,
+  weight: Number,
+  value: Number,
+});
+
 const deliverySchema = new mongoose.Schema(
   {
     trackingCode: { type: String, unique: true, index: true },
@@ -35,8 +42,8 @@ const deliverySchema = new mongoose.Schema(
       country: String,
     },
 
-    goodsDescription: String, // package content
-    deliveryFee: Number, // shipping fee
+    items: [itemSchema], // ← Add this
+    deliveryFee: Number,
     currency: String,
     status: {
       type: String,
@@ -52,14 +59,11 @@ const deliverySchema = new mongoose.Schema(
       index: true,
     },
 
-    // Route history (tracking updates)
     history: [locationUpdateSchema],
 
-    // Dates (all set from frontend)
-    dateSent: { type: Date, required: true }, // when package is sent
-    deliveryDate: { type: Date, required: true }, // when it should arrive
-
-    // ✅ Invoice stored in Cloudinary
+    dateSent: { type: Date, required: true },
+    deliveryDate: { type: Date, required: true },
+    checkEmail: { type: Boolean, default: false },
     invoiceUrl: { type: String },
   },
   { timestamps: true }
