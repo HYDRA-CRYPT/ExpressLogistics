@@ -39,4 +39,13 @@ if (process.argv[1].includes("server.js")) {
   startServer();
 }
 
+// example: server.js (backend)
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; connect-src 'self' http://localhost:5000; script-src 'self'; style-src 'self' 'unsafe-inline'"
+  );
+  next();
+});
+
 export default app; // allow tests to import app directly

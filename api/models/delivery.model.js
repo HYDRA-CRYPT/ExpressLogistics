@@ -1,10 +1,24 @@
 import mongoose from "mongoose";
 
-// Schema for each route/location update
 const locationUpdateSchema = new mongoose.Schema(
   {
     description: { type: String },
+    status: {
+      type: String,
+      enum: [
+        "Pending",
+        "Processing",
+        "Shipped",
+        "In Transit",
+        "On Hold",
+        "Delivered",
+      ],
+      required: false,
+    },
     time: { type: Date, default: Date.now, index: true },
+    // Optional: Add explicit date/time fields for better frontend control
+    updateDate: { type: String }, // e.g., "2024-01-15"
+    updateTime: { type: String }, // e.g., "14:30"
     location: {
       lat: Number,
       lng: Number,
@@ -32,6 +46,7 @@ const deliverySchema = new mongoose.Schema(
       phone: String,
       address: String,
       country: String,
+      city: String,
     },
 
     receiver: {
@@ -40,9 +55,16 @@ const deliverySchema = new mongoose.Schema(
       phone: String,
       address: String,
       country: String,
+      city: String,
     },
 
-    items: [itemSchema], // ← Add this
+    shipmentType: {
+      type: String,
+      enum: ["Document", "Parcel", "Freight", "Other"],
+      default: "Parcel",
+    },
+
+    items: [itemSchema],
     deliveryFee: Number,
     currency: String,
     status: {

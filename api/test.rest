@@ -3,8 +3,8 @@
 
 @baseUrl = http://localhost:5000/api
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTQwY2UxZWZiYTQ1ZTc1NjVmODUwMCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NjM1NDI1MSwiZXhwIjoxNzU2OTU5MDUxfQ.uNGdd3X4jd-QnFZ0yiMwQ2osAcnntZEP_MnvpwxrKcs
-@deliveryId = 68b0969642c2df96cb3e785a
-@trackingCode = AGL7285255670
+@deliveryId = 68b03e2dc3158b77359b0159
+@trackingCode = AGL2234712819
 
 # Test Emails:
 # boltdropa@gmail.com
@@ -240,44 +240,131 @@ Content-Type: application/json
 }
 
 # =============================================================================
+# EDIT DELIVERY TEST (ADMIN ONLY)
+# =============================================================================
+
+### Edit Existing Delivery - Change Receiver and Delivery Date
+PUT {{baseUrl}}/deliveries/{{deliveryId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sender": {
+    "name": "Updated Sender Name",
+    "email": "sender_updated@example.com",
+    "phone": "+2348012345678",
+    "address": "123 Updated Street, Lagos",
+    "country": "Nigeria"
+  },
+  "receiver": {
+    "name": "Updated Receiver Name",
+    "email": "receiver_updated@example.com",
+    "phone": "+2348098765432",
+    "address": "456 New Address, Abuja",
+    "country": "Nigeria"
+  },
+  "deliveryDate": "2025-09-10T15:30:00Z",
+  "items": [
+    {
+      "description": "Updated Item - Premium Package",
+      "quantity": 3,
+      "weight": 5.2,
+      "value": 180000
+    }
+  ],
+  "deliveryFee": 5000,
+  "checkEmail": true,
+  "invoiceUrl": "https://updated-invoices.techagba.com/updated_invoice_{{deliveryId}}.pdf"
+}
+
+
+
+
+### Get All Deliveries to Confirm Creation
+GET {{baseUrl}}/deliveries
+Authorization: Bearer {{token}}
+# =============================================================================
 # STATUS UPDATE EMAIL TESTS
 # =============================================================================
 
 ### Update Status to Processing (Should send email notification)
-PUT {{baseUrl}}/deliveries/{{deliveryId}}/status
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/update-combined
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "status": "Processing"
+    "description": "Package delivered to recipient at home",
+  "city": "Lagos", 
+  "country": "Nigeria",
+  "lat": 6.5244,
+  "lng": 3.3792,
+  "checkEmail": true
 }
 
 ### Update Status to Shipped (Should send shipping notification email)
-PUT {{baseUrl}}/deliveries/{{deliveryId}}/status
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/update-combined
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "status": "Shipped"
+    "description": "Package delivered to recipient at home",
+  "city": "Lagos", 
+  "country": "Nigeria",
+  "lat": 6.5244,
+  "lng": 3.3792,
+  "checkEmail": true
 }
 
 ### Update Status to In Transit (Should send tracking update email)
-PUT {{baseUrl}}/deliveries/{{deliveryId}}/status
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/update-combined
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "status": "In Transit"
+    "description": "Package delivered to recipient at home",
+  "city": "Lagos", 
+  "country": "Nigeria",
+  "lat": 6.5244,
+  "lng": 3.3792,
+  "checkEmail": true
 }
-
-### Update Status to Delivered (Should send delivery confirmation email)
-PUT {{baseUrl}}/deliveries/{{deliveryId}}/status
+### Update Status to In Transit (Should send tracking update email)
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/update-combined
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "status": "Delivered"
+  "status": "On Hold"
+    "description": "Package delivered to recipient at home",
+  "city": "Lagos", 
+  "country": "Nigeria",
+  "lat": 6.5244,
+  "lng": 3.3792,
+  "checkEmail": true
 }
+
+# =============================================================================
+# Update Status and Location Combined
+# =============================================================================
+
+### Update Delivery Status & Location
+PUT {{baseUrl}}/deliveries/{{deliveryId}}/update-combined
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "Delivered",
+  "description": "Package delivered to recipient at home",
+  "city": "Lagos", 
+  "country": "Nigeria",
+  "lat": 6.5244,
+  "lng": 3.3792,
+  "checkEmail": true
+}
+
 
 # =============================================================================
 # LOCATION UPDATE EMAIL TESTS
@@ -289,13 +376,14 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "description": "Package picked up from sender - Email Test",
+  "status": "Delivered"
+  "description": "Package home deviced - Pickup location update",
   "time": "2025-08-28T09:00:00Z",
   "location": {
-    "lat": 6.5244,
-    "lng": 3.3792
+    "lat": 4.6378,
+    "lng": 9.4409
   },
-  "city": "Lagos",
+  "city": "kumba",
   "country": "Nigeria"
 }
 
@@ -461,6 +549,11 @@ GET {{baseUrl}}/deliveries/track/{{trackingCode}}
 
 ### Get Specific Delivery by ID
 GET {{baseUrl}}/deliveries/{{deliveryId}}
+Authorization: Bearer {{token}}
+
+
+### Fetch Full Delivery Info
+GET {{baseUrl}}/deliveries/track/{{trackingCode}}/full
 Authorization: Bearer {{token}}
 
 ### Get Admin Logs (Check for email sending logs)

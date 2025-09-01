@@ -32,9 +32,9 @@ export function SiteHeader() {
 
   return (
     <header
-      className="flex h-(--header-height) shrink-0 items-center gap-2 
-      border-b transition-[width,height] ease-linear 
-      sticky top-0 z-50 bg-gray-100 dark:bg-zinc-900 border-gray-200 dark:border-gray-800"
+      className="flex w-full h-[3.3rem] shrink-0 items-center gap-2
+    border-b transition-[width,height] ease-linear
+    sticky top-0 z-50 bg-gray-100 dark:bg-zinc-900 border-gray-200 dark:border-gray-800"
     >
       <SidebarTrigger className="ml-2" />
       <Separator

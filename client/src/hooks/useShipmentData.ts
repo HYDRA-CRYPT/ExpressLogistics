@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { calculateStats } from "../assets/data/mockData";
 import { useDeliveryList } from "@/hooks/useDelivery";
 
 export interface Shipment {
@@ -99,14 +98,9 @@ export const useShipmentData = () => {
     });
   }, [shipments, searchTerm, statusFilter, priorityFilter]);
 
-  const stats = useMemo(
-    () => calculateStats(filteredShipments),
-    [filteredShipments]
-  );
-
   return {
     shipments: filteredShipments,
-    stats,
+
     searchTerm,
     setSearchTerm,
     statusFilter,

@@ -1,48 +1,25 @@
 import React from "react";
-import { Clock, CheckCircle, AlertTriangle } from "lucide-react";
+import { getStatusIcon } from "../utils/getIcon";
 import type { CardDelivery } from "@/types/shipment";
 import ShipmentActionCard from "./ShipmentActionCard";
 
 interface ShipmentCardProps {
-  shipment: CardDelivery; // instead of ShipmentBase
+  shipment: CardDelivery;
 }
 
-const statusConfig = {
-  "in-transit": {
-    label: "In Transit",
-    color: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    icon: Clock,
-  },
-  delivered: {
-    label: "Delivered",
-    color: "bg-green-500/10 text-green-400 border-green-500/20",
-    icon: CheckCircle,
-  },
-  pending: {
-    label: "Pending",
-    color: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-    icon: AlertTriangle,
-  },
-  delayed: {
-    label: "Delayed",
-    color: "bg-red-500/10 text-red-400 border-red-500/20",
-    icon: AlertTriangle,
-  },
-};
-
 const ShipmentCard: React.FC<ShipmentCardProps> = ({ shipment }) => {
-  type StatusKey = keyof typeof statusConfig;
-  const statusKey = (shipment.status || "pending")
-    .toLowerCase()
-    .replace(/\s/g, "-") as StatusKey;
-
-  const StatusInfo = statusConfig[statusKey] || statusConfig.pending;
-  const StatusIcon = StatusInfo.icon;
-
-  const totalWeight =
-    shipment.items?.reduce((sum, i) => sum + i.weight, 0) || 0;
-  const totalItems =
-    shipment.items?.reduce((sum, i) => sum + i.quantity, 0) || 0;
+  // Defensive fallback for nested data
+  const receiver = shipment.receiver?.name || "N/A";
+  const sender = shipment.sender?.name || "N/A";
+  const origin = shipment.sender?.city || "N/A";
+  const destination = shipment.receiver?.city || "N/A";
+  const packageName = shipment.shipmentType || "N/A";
+  const weight = Array.isArray(shipment.items)
+    ? shipment.items.reduce((sum, i) => sum + (i.weight || 0), 0)
+    : 0;
+  const status = shipment.status || "N/A";
+  const trackingCode = shipment.trackingCode || "N/A";
+  const id = shipment._id || shipment.id || "N/A";
 
   return (
     <div className="bg-zinc-800/50 backdrop-blur-sm border border-zinc-700/50 rounded-xl p-6 hover:bg-zinc-800/70 transition-all duration-300 min-w-[260px] sm:min-w-[300px] md:min-w-[320px]">
@@ -50,14 +27,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = ({ shipment }) => {
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="text-white text-lg font-semibold truncate">
-            {shipment.shipmentType}
+            {packageName}
           </h3>
-          <p className="text-zinc-400 text-sm truncate">
-            {shipment.trackingCode}
-          </p>
+          <p className="text-zinc-400 text-sm truncate">{trackingCode}</p>
         </div>
-
-        {/* Actions Dropdown */}
         <ShipmentActionCard
           shipment={shipment}
           onDelete={(id) => console.log("Delete:", id)}
@@ -66,51 +39,39 @@ const ShipmentCard: React.FC<ShipmentCardProps> = ({ shipment }) => {
         />
       </div>
 
-      {/* Sender & Receiver & Status */}
-      <div className="mb-6">
-        <h4 className="text-white font-medium mb-2 truncate">
-          {shipment.receiver.name} ({shipment.receiver.city})
-        </h4>
-        <p className="text-zinc-400 text-sm mb-1 truncate">
-          Sender: {shipment.sender.name} ({shipment.sender.city})
-        </p>
-        <div
-          className={`inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-medium ${StatusInfo.color}`}
-        >
-          <StatusIcon size={12} />
-          {StatusInfo.label}
+      {/* Status */}
+      <div className="mb-4">
+        <div className="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-medium bg-zinc-700/30 text-white border-zinc-600">
+          {getStatusIcon(status)}
+          {status}
         </div>
       </div>
 
-      {/* Pickup & Delivery Dates */}
-      <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+      {/* Info Grid */}
+      <div className="grid grid-cols-2 gap-4 text-sm mb-4">
         <div>
-          <p className="text-zinc-400 mb-1">Pickup</p>
-          <p className="text-white truncate">
-            {shipment.pickupDate
-              ? new Date(shipment.pickupDate).toLocaleDateString()
-              : "N/A"}
-          </p>
+          <p className="text-zinc-400 mb-1">Receiver</p>
+          <p className="text-white truncate">{receiver}</p>
         </div>
         <div>
-          <p className="text-zinc-400 mb-1">Delivery</p>
-          <p className="text-white truncate">
-            {shipment.deliveryDate
-              ? new Date(shipment.deliveryDate).toLocaleDateString()
-              : "N/A"}
-          </p>
-        </div>
-      </div>
-
-      {/* Weight & Items */}
-      <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-        <div>
-          <p className="text-zinc-400 mb-1">Weight</p>
-          <p className="text-white">{totalWeight} kg</p>
+          <p className="text-zinc-400 mb-1">Sender</p>
+          <p className="text-white truncate">{sender}</p>
         </div>
         <div>
-          <p className="text-zinc-400 mb-1">Items</p>
-          <p className="text-white">{totalItems}</p>
+          <p className="text-zinc-400 mb-1">Origin</p>
+          <p className="text-white truncate">{origin}</p>
+        </div>
+        <div>
+          <p className="text-zinc-400 mb-1">Destination</p>
+          <p className="text-white truncate">{destination}</p>
+        </div>
+        <div>
+          <p className="text-zinc-400 mb-1">Weight (kg)</p>
+          <p className="text-white">{weight}</p>
+        </div>
+        <div>
+          <p className="text-zinc-400 mb-1">ID</p>
+          <p className="text-white truncate">{id}</p>
         </div>
       </div>
     </div>

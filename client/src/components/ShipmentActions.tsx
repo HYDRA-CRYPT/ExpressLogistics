@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { EllipsisVertical } from "lucide-react";
 import type { TableDelivery } from "@/types/shipment";
+import { useDeleteDelivery } from "@/services/deliveryService"; // adjust path as needed
 
 // Use a more flexible shipment type that matches your actual data
 
@@ -38,12 +39,43 @@ const ShipmentActions: React.FC<ShipmentActionsProps> = ({
   onUpdateLocation,
 }) => {
   const [openAlert, setOpenAlert] = useState(false);
+  const [isEditLoading, setIsEditLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleDelete = () => {
-    onDelete(shipment._id);
-    toast.success(`Parcel ${shipment.trackingCode} removed successfully.`);
-    setOpenAlert(false);
+  const deleteDelivery = useDeleteDelivery();
+
+  const resolveDeliveryId = async (trackingCode: string) => {
+    const token = localStorage.getItem("adminToken");
+    const response = await fetch(`/api/deliveries/track/${trackingCode}/full`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) throw new Error("Failed to resolve delivery ID");
+    const data = await response.json();
+    return data._id || data.id;
+  };
+
+  const handleDelete = async () => {
+    setIsDeleteLoading(true);
+    try {
+      const deliveryId =
+        shipment._id || (await resolveDeliveryId(shipment.trackingCode));
+      await deleteDelivery.mutateAsync(deliveryId);
+      onDelete(deliveryId); // Remove from UI
+      toast.success(`Parcel ${shipment.trackingCode} removed successfully.`);
+      setOpenAlert(false);
+    } catch (err: unknown) {
+      console.log("Error message", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to delete parcel. Please try again.";
+      toast.error(errorMessage);
+    } finally {
+      setIsDeleteLoading(false);
+    }
   };
 
   const handleCopy = () => {
@@ -55,10 +87,18 @@ const ShipmentActions: React.FC<ShipmentActionsProps> = ({
     navigate(`/owner/shipments/track/${shipment.trackingCode}`);
   };
 
-  const handleEdit = () => {
-    navigate(`/owner/shipments/edit/${shipment.trackingCode}`, {
-      state: shipment, // Send full shipment data to EditShipment page
-    });
+  const handleEdit = async () => {
+    setIsEditLoading(true);
+    try {
+      const deliveryId =
+        shipment._id || (await resolveDeliveryId(shipment.trackingCode));
+      navigate(`/owner/shipments/edit/${deliveryId}`); // <-- FIXED
+    } catch (err) {
+      console.log("Error message", err);
+      toast.error("Failed to resolve delivery for editing.");
+    } finally {
+      setIsEditLoading(false);
+    }
   };
 
   return (
@@ -83,8 +123,9 @@ const ShipmentActions: React.FC<ShipmentActionsProps> = ({
             <DropdownMenuItem
               className="hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer"
               onClick={handleEdit}
+              disabled={isEditLoading}
             >
-              Edit Parcel
+              {isEditLoading ? "Loading..." : "Edit Parcel"}
             </DropdownMenuItem>
           )}
 
@@ -131,8 +172,9 @@ const ShipmentActions: React.FC<ShipmentActionsProps> = ({
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={isDeleteLoading}
             >
-              Continue
+              {isDeleteLoading ? "Deleting..." : "Continue"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

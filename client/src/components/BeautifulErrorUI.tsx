@@ -16,7 +16,7 @@ interface ParticleUserData {
 }
 
 interface BeautifulErrorUIProps {
-  error: ErrorObject;
+  error: ErrorObject | null;
   onRetry?: () => void | Promise<void>;
   className?: string;
 }
@@ -94,7 +94,6 @@ const BeautifulErrorUI: React.FC<BeautifulErrorUIProps> = ({
       renderer.dispose();
       particles.forEach((p) => {
         p.geometry.dispose();
-        p.material.dispose();
       });
       particleGeometry.dispose();
     };

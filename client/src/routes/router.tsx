@@ -40,7 +40,7 @@ const router = createBrowserRouter([
         children: [
           { path: "dashboard", element: <AdminDashboard /> },
           { path: "shipments/create", element: <CreateDelivery /> },
-          { path: "/owner/shipments/edit/:id", element: <EditShipment /> },
+          { path: "shipments/edit/:id", element: <EditShipment /> },
 
           { path: "shipments", element: <AllShipments /> },
           {

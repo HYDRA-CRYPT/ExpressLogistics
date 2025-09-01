@@ -9,6 +9,7 @@ export const createDeliverySchema = Joi.object({
     phone: Joi.string().allow(""),
     address: Joi.string().allow(""),
     country: Joi.string().allow(""),
+    city: Joi.string().allow(""),
   }).required(),
 
   receiver: Joi.object({
@@ -17,6 +18,7 @@ export const createDeliverySchema = Joi.object({
     phone: Joi.string().allow(""),
     address: Joi.string().allow(""),
     country: Joi.string().allow(""),
+    city: Joi.string().allow(""),
   }).required(),
 
   // ✅ Added items validation
@@ -76,4 +78,24 @@ export const updateLocationSchema = Joi.object({
   }).required(),
   city: Joi.string().allow(""),
   country: Joi.string().allow(""),
+});
+
+export const combinedUpdateSchema = Joi.object({
+  status: Joi.string()
+    .valid(
+      "Pending",
+      "Processing",
+      "Shipped",
+      "In Transit",
+      "On Hold",
+      "Delivered"
+    )
+    .optional(),
+  description: Joi.string().optional(),
+  time: Joi.date().optional(),
+  city: Joi.string().optional(),
+  country: Joi.string().optional(),
+  lat: Joi.number().optional(),
+  lng: Joi.number().optional(),
+  checkEmail: Joi.boolean().optional().default(false),
 });

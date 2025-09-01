@@ -1,18 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
   <head>
-    <meta charset="UTF-8" />
+    <!-- Basic document metadata -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- favicon -->
-    <link rel="icon" type="image/png" href="/favicon.png" />
-
-    <!-- responsive scaling for mobile -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <!-- browser tab title -->
     <title>AegisExpressLogistics | Delivery Website</title>
 
-    <!-- SEO -->
+    <!-- Core SEO -->
     <meta
       name="description"
       content="Fast, reliable, and secure delivery services with AegisExpressLogistics. Track your packages and enjoy seamless logistics solutions."
@@ -24,7 +20,7 @@
     <meta name="author" content="AegisExpressLogistics" />
     <meta name="robots" content="index, follow" />
 
-    <!-- Open Graph / Facebook -->
+    <!-- Social / Open Graph -->
     <meta property="og:title" content="AegisExpressLogistics" />
     <meta
       property="og:description"
@@ -46,21 +42,39 @@
     <!-- PWA / Mobile -->
     <meta name="theme-color" content="#16a34a" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
     <meta name="apple-mobile-web-app-title" content="AegisExpressLogistics" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-
-    <!-- Manifest (optional for PWA) -->
     <link rel="manifest" href="/manifest.json" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Performance / hinting (optional) -->
+    <!-- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /> -->
+
+    <!-- Vite will inject the app bundle -->
   </head>
+
   <body>
-    <!-- React app root -->
     <div id="root"></div>
 
-    <!-- Vite injects your React bundle here -->
+    <!-- Provide a fallback for users with JS disabled -->
+    <noscript>
+      <div
+        style="padding: 1rem; background: #111; color: #fff; text-align: center"
+      >
+        JavaScript is required to run this application. Please enable JavaScript
+        in your browser.
+      </div>
+    </noscript>
+
+    <!-- Vite dev / build entry -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

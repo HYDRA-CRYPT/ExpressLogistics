@@ -20,12 +20,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { EllipsisVertical } from "lucide-react";
-
-// Import the new CardDelivery type
 import type { CardDelivery } from "@/types/shipment";
+import { useDeleteDelivery } from "@/services/deliveryService"; // adjust path as needed
 
 interface ShipmentActionsProps {
-  shipment: CardDelivery; // Use CardDelivery type for cards
+  shipment: CardDelivery;
   onDelete: (id: string) => void;
   onEdit?: (shipment: CardDelivery) => void;
   onUpdateLocation?: (trackingCode: string) => void;
@@ -34,16 +33,61 @@ interface ShipmentActionsProps {
 const ShipmentActionCard: React.FC<ShipmentActionsProps> = ({
   shipment,
   onDelete,
-  onEdit,
   onUpdateLocation,
 }) => {
   const [openAlert, setOpenAlert] = useState(false);
+  const [isEditLoading, setIsEditLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleDelete = () => {
-    onDelete(shipment._id);
-    toast.success(`Parcel ${shipment.trackingCode} removed successfully.`);
-    setOpenAlert(false);
+  const deleteDelivery = useDeleteDelivery();
+
+  // Helper to resolve deliveryId by trackingCode
+  const resolveDeliveryId = async (trackingCode: string) => {
+    const token = localStorage.getItem("adminToken");
+    const response = await fetch(`/api/deliveries/track/${trackingCode}/full`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) throw new Error("Failed to resolve delivery ID");
+    const data = await response.json();
+    return data._id || data.id;
+  };
+
+  const handleDelete = async () => {
+    setIsDeleteLoading(true);
+    try {
+      const deliveryId =
+        shipment._id || (await resolveDeliveryId(shipment.trackingCode));
+      await deleteDelivery.mutateAsync(deliveryId);
+      onDelete(deliveryId); // Remove from UI
+      toast.success(`Parcel ${shipment.trackingCode} removed successfully.`);
+      setOpenAlert(false);
+    } catch (err: unknown) {
+      console.log("Error message", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to delete parcel. Please try again.";
+      toast.error(errorMessage);
+    } finally {
+      setIsDeleteLoading(false);
+    }
+  };
+
+  const handleEdit = async () => {
+    setIsEditLoading(true);
+    try {
+      const deliveryId =
+        shipment._id || (await resolveDeliveryId(shipment.trackingCode));
+      navigate(`/owner/shipments/edit/${deliveryId}`); // <-- FIXED
+    } catch (err) {
+      console.log("Error message", err);
+      toast.error("Failed to resolve delivery for editing.");
+    } finally {
+      setIsEditLoading(false);
+    }
   };
 
   const handleCopy = () => {
@@ -53,12 +97,6 @@ const ShipmentActionCard: React.FC<ShipmentActionsProps> = ({
 
   const handleUpdateLocation = () => {
     navigate(`/owner/shipments/track/${shipment.trackingCode}`);
-  };
-
-  const handleEdit = () => {
-    navigate(`/owner/shipments/edit/${shipment.trackingCode}`, {
-      state: shipment, // Send full shipment data to EditShipment page
-    });
   };
 
   return (
@@ -79,14 +117,13 @@ const ShipmentActionCard: React.FC<ShipmentActionsProps> = ({
           align="end"
           className="w-48 rounded-lg bg-white dark:bg-zinc-900 shadow-lg border border-gray-200 dark:border-zinc-700"
         >
-          {onEdit && (
-            <DropdownMenuItem
-              className="hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer"
-              onClick={handleEdit}
-            >
-              Edit Parcel
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem
+            className="hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer"
+            onClick={handleEdit}
+            disabled={isEditLoading}
+          >
+            {isEditLoading ? "Loading..." : "Edit Parcel"}
+          </DropdownMenuItem>
 
           {onUpdateLocation && (
             <DropdownMenuItem
@@ -131,8 +168,9 @@ const ShipmentActionCard: React.FC<ShipmentActionsProps> = ({
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={isDeleteLoading}
             >
-              Continue
+              {isDeleteLoading ? "Deleting..." : "Continue"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

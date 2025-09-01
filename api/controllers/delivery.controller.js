@@ -16,7 +16,7 @@ import {
 import {
   createDeliverySchema,
   updateLocationSchema,
-  updateStatusSchema,
+  combinedUpdateSchema,
 } from "../utils/validators.js";
 
 import {
@@ -30,7 +30,17 @@ const CACHE_TTL = process.env.REDIS_CACHE_TTL || 3600; // default 1h
 export const createDelivery = async (req, res) => {
   try {
     const { error, value } = createDeliverySchema.validate(req.body);
-    if (error) return res.status(400).json({ message: error.message });
+    if (error) {
+      console.warn("CreateDelivery validation failed:", {
+        message: error.message,
+        details: error.details,
+        payload: req.body,
+      });
+      return res.status(400).json({
+        message: error.message,
+        details: error.details, // return details for client debugging (dev only)
+      });
+    }
 
     const exists = await Delivery.findOne({
       trackingCode: value.trackingCode,
@@ -219,7 +229,6 @@ export const getByTrackingCode = async (req, res) => {
         })),
         history: cached.history,
         createdAt: cached.createdAt,
-        timeline: generateTimeline(cached),
       };
       return res.json(publicInfo);
     }
@@ -250,7 +259,6 @@ export const getByTrackingCode = async (req, res) => {
       })),
       history: doc.history,
       createdAt: doc.createdAt,
-      timeline: generateTimeline(doc),
     };
 
     res.json(publicInfo);
@@ -260,7 +268,10 @@ export const getByTrackingCode = async (req, res) => {
   }
 };
 
+// NEW: Combined endpoint - get delivery by tracking code AND ID
+
 // Admin: list deliveries with frontend-ready data structure
+
 export const listDeliveries = async (req, res) => {
   try {
     const page = Math.max(parseInt(req.query.page || "1", 10), 1);
@@ -337,39 +348,89 @@ export const listDeliveries = async (req, res) => {
   }
 };
 
-// Admin: update status with enhanced email notification
-export const updateStatus = async (req, res) => {
+// Combined status and location update endpoint
+export const updateStatusAndLocation = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error, value } = updateStatusSchema.validate(req.body);
+    if (!id || id === "undefined") {
+      return res.status(400).json({ message: "Invalid delivery ID" });
+    }
+    const { error, value } = combinedUpdateSchema.validate(req.body);
     if (error) return res.status(400).json({ message: error.message });
 
-    const doc = await Delivery.findByIdAndUpdate(
-      id,
-      { $set: { status: value.status } },
-      {
-        new: true,
-        projection:
-          "trackingCode status receiver.email receiver.name sender.email sender.name",
-      }
-    ).lean();
+    // Build the update object
+    const updateObj = {};
+    const locationUpdate = {};
 
-    if (!doc) return res.status(404).json({ message: "Not found" });
+    // If status is provided, update the main status
+    if (value.status) {
+      updateObj.status = value.status;
+    }
+
+    // Build location update if any location data is provided
+    if (
+      value.description ||
+      value.city ||
+      value.country ||
+      value.lat ||
+      value.lng ||
+      value.status
+    ) {
+      locationUpdate.description =
+        value.description ||
+        `Status updated to ${value.status || "current status"}`;
+      locationUpdate.time = value.time ? new Date(value.time) : new Date();
+
+      // Add updateDate and updateTime
+      const now = locationUpdate.time;
+      locationUpdate.updateDate = now.toISOString().slice(0, 10); // "YYYY-MM-DD"
+      locationUpdate.updateTime = now.toTimeString().slice(0, 5); // "HH:MM"
+
+      if (value.city) locationUpdate.city = value.city;
+      if (value.country) locationUpdate.country = value.country;
+      if (value.lat && value.lng) {
+        locationUpdate.location = {
+          lat: value.lat,
+          lng: value.lng,
+        };
+      }
+      if (value.status) {
+        locationUpdate.status = value.status;
+      }
+
+      updateObj.$push = { history: locationUpdate };
+    }
+
+    const doc = await Delivery.findByIdAndUpdate(id, updateObj, {
+      new: true,
+      runValidators: true,
+    }).lean();
+
+    if (!doc) return res.status(404).json({ message: "Delivery not found" });
+
+    // Generate updated timeline
+    const deliveryWithTimeline = {
+      ...doc,
+      timeline: generateTimeline(doc),
+    };
 
     // Update cache
-    await cacheTracking(doc.trackingCode, doc, CACHE_TTL);
+    await cacheTracking(doc.trackingCode, deliveryWithTimeline, CACHE_TTL);
 
+    // Admin log
     await pushAdminLog({
-      type: "UPDATE_STATUS",
+      type: "COMBINED_UPDATE",
       adminId: req.user?._id,
       trackingCode: doc.trackingCode,
-      status: doc.status,
+      status: value.status,
+      location: locationUpdate,
     });
 
-    // Enhanced status update notification
-    if (value.checkEmail) {
+    // Enhanced email notification
+    if (value.checkEmail && value.status) {
       const statusMessages = {
         Pending: "Your delivery is pending and being prepared for shipment.",
+        Processing: "Your delivery is being processed at our facility.",
         Shipped: "Your delivery has been shipped and is on its way!",
         "In Transit":
           "Your delivery is currently in transit to the destination.",
@@ -379,7 +440,12 @@ export const updateStatus = async (req, res) => {
       };
 
       const statusMessage =
-        statusMessages[doc.status] || "Your delivery status has been updated.";
+        statusMessages[value.status] ||
+        "Your delivery status has been updated.";
+      const locationText =
+        value.city && value.country
+          ? `Currently at: ${value.city}, ${value.country}`
+          : "";
 
       // Send to both receiver and sender
       const recipients = [doc.receiver?.email, doc.sender?.email].filter(
@@ -390,11 +456,11 @@ export const updateStatus = async (req, res) => {
         try {
           await sendEmail({
             to: recipients,
-            subject: `Delivery Update: ${doc.trackingCode} is now ${doc.status}`,
+            subject: `Delivery Update: ${doc.trackingCode} is now ${value.status}`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
-                  <h1 style="margin: 0; font-size: 24px;">Delivery Status Update</h1>
+                  <h1 style="margin: 0; font-size: 24px;">Delivery Update</h1>
                   <p style="margin: 8px 0 0 0; opacity: 0.9;">TechAgba Logistics</p>
                 </div>
                 
@@ -404,11 +470,21 @@ export const updateStatus = async (req, res) => {
                       doc.trackingCode
                     }</div>
                     <div style="font-size: 16px; font-weight: bold; color: #1f2937;">Status: ${
-                      doc.status
+                      value.status
                     }</div>
+                    ${
+                      locationText
+                        ? `<div style="font-size: 14px; color: #6b7280; margin-top: 4px;">${locationText}</div>`
+                        : ""
+                    }
                   </div>
                   
                   <p style="font-size: 16px; line-height: 1.6; color: #374151;">${statusMessage}</p>
+                  ${
+                    value.description
+                      ? `<p style="font-size: 14px; color: #6b7280; font-style: italic;">${value.description}</p>`
+                      : ""
+                  }
                   
                   <div style="text-align: center; margin-top: 30px;">
                     <a href="${
@@ -426,62 +502,328 @@ export const updateStatus = async (req, res) => {
               </div>
             `,
           });
-          console.log(`Status update email sent for ${doc.trackingCode}`);
+          console.log(`Combined update email sent for ${doc.trackingCode}`);
         } catch (emailError) {
-          console.error("Status update email failed:", emailError.message);
+          console.error("Combined update email failed:", emailError.message);
         }
       }
     }
 
-    res.json(doc);
+    res.json(deliveryWithTimeline);
   } catch (err) {
-    console.error("Update Status Error:", err);
+    console.error("Combined Update Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// Admin: add location update
-export const addLocationUpdate = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { error, value } = updateLocationSchema.validate(req.body);
-    if (error) return res.status(400).json({ message: error.message });
+// Updated timeline generation with icons and combined display
+const generateTimelineWithIcons = (delivery) => {
+  const parseDate = (dateValue) => {
+    if (!dateValue) return null;
+    const date = new Date(dateValue);
+    return isNaN(date.getTime()) ? null : date;
+  };
 
-    const update = {
-      description: value.description,
-      time: value.time ? new Date(value.time) : new Date(),
-      city: value.city,
-      country: value.country,
-      location: { lat: value.lat, lng: value.lng },
-    };
+  const formatDate = (dateValue) => {
+    const date = parseDate(dateValue);
+    if (!date) return new Date().toISOString().split("T")[0];
+    return date.toISOString().split("T")[0];
+  };
 
-    const doc = await Delivery.findByIdAndUpdate(
-      id,
-      { $push: { history: update } },
-      {
-        new: true,
-        projection:
-          "trackingCode history receiver.email receiver.name sender.email sender.name",
-      }
-    ).lean();
-
-    if (!doc) return res.status(404).json({ message: "Not found" });
-
-    await cacheTracking(doc.trackingCode, doc, CACHE_TTL);
-
-    await pushAdminLog({
-      type: "ADD_LOCATION",
-      adminId: req.user?._id,
-      trackingCode: doc.trackingCode,
-      point: update,
+  const formatTime = (dateValue) => {
+    const date = parseDate(dateValue);
+    if (!date) return "Pending";
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
+  };
 
-    res.json(doc);
-  } catch (err) {
-    console.error("Add Location Error:", err);
-    res.status(500).json({ message: "Server error" });
+  // Status icons
+  const statusIcons = {
+    Pending: "📦",
+    Processing: "⚙️",
+    Shipped: "🚚",
+    "In Transit": "🛣️",
+    "On Hold": "⏸️",
+    Delivered: "✅",
+  };
+
+  // Base timeline structure with status mapping
+  const statusTimeline = [
+    {
+      status: "Pending",
+      title: "Package Received",
+      defaultLocation: delivery.sender?.country || "Origin",
+      icon: "📦",
+    },
+    {
+      status: "Processing",
+      title: "Processing",
+      defaultLocation: delivery.sender?.country || "Origin",
+      icon: "⚙️",
+    },
+    {
+      status: "Shipped",
+      title: "Package Shipped",
+      defaultLocation: "Shipping Facility",
+      icon: "🚚",
+    },
+    {
+      status: "In Transit",
+      title: "In Transit",
+      defaultLocation: "Distribution Center",
+      icon: "🛣️",
+    },
+    {
+      status: "On Hold",
+      title: "Package On Hold",
+      defaultLocation: "Transit Hub",
+      icon: "⏸️",
+    },
+    {
+      status: "Delivered",
+      title: "Delivered",
+      defaultLocation: delivery.receiver?.country || "Destination",
+      icon: "✅",
+    },
+  ];
+
+  const currentStatusIndex = statusTimeline.findIndex(
+    (item) => item.status === delivery.status
+  );
+
+  // Process history entries and combine status + location + description
+  const processedHistory = [];
+
+  if (delivery.history && delivery.history.length > 0) {
+    // Sort history by time
+    const sortedHistory = [...delivery.history].sort(
+      (a, b) =>
+        new Date(a.time || a.date).getTime() -
+        new Date(b.time || b.date).getTime()
+    );
+
+    sortedHistory.forEach((entry) => {
+      const entryStatus = entry.status || delivery.status;
+      const icon = statusIcons[entryStatus] || "📍";
+
+      // Combine status, description, and location
+      let combinedTitle = "";
+
+      if (entry.status) {
+        combinedTitle += `${entry.status}`;
+      }
+
+      if (entry.description) {
+        combinedTitle += (combinedTitle ? " - " : "") + entry.description;
+      }
+
+      if (entry.city || entry.country) {
+        const location = entry.city
+          ? `${entry.city}, ${entry.country || ""}`
+          : entry.country;
+        combinedTitle += (combinedTitle ? " - " : "") + location;
+      }
+
+      processedHistory.push({
+        id: `history-${processedHistory.length + 1}`,
+        title: combinedTitle || "Location Update",
+        location: entry.city
+          ? `${entry.city}, ${entry.country || ""}`
+          : entry.country || "Unknown Location",
+        date: formatDate(entry.time || entry.date),
+        time: formatTime(entry.time || entry.date),
+        completed: true,
+        coordinates: entry.location
+          ? {
+              lat: entry.location.lat,
+              lng: entry.location.lng,
+            }
+          : null,
+        description: entry.description,
+        status: entry.status,
+        icon: icon,
+      });
+    });
   }
+
+  // If no history, create default timeline
+  if (processedHistory.length === 0) {
+    return statusTimeline.map((statusItem, index) => ({
+      id: (index + 1).toString(),
+      title: `${statusItem.icon} ${statusItem.status} - ${statusItem.title}`,
+      location: statusItem.defaultLocation,
+      date:
+        index <= currentStatusIndex
+          ? new Date().toISOString().split("T")[0]
+          : null,
+      time:
+        index <= currentStatusIndex
+          ? new Date().toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "Pending",
+      completed: index <= currentStatusIndex,
+      coordinates: null,
+      description: null,
+      status: statusItem.status,
+      icon: statusItem.icon,
+    }));
+  }
+
+  return processedHistory;
 };
+
+// Replace the old generateTimeline function with this new one
+export const generateTimeline = generateTimelineWithIcons;
+
+// // Admin: update status with enhanced email notification
+// export const updateStatus = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { error, value } = updateStatusSchema.validate(req.body);
+//     if (error) return res.status(400).json({ message: error.message });
+
+//     const doc = await Delivery.findByIdAndUpdate(
+//       id,
+//       { $set: { status: value.status } },
+//       {
+//         new: true,
+//         projection:
+//           "trackingCode status receiver.email receiver.name sender.email sender.name",
+//       }
+//     ).lean();
+
+//     if (!doc) return res.status(404).json({ message: "Not found" });
+
+//     // Update cache
+//     await cacheTracking(doc.trackingCode, doc, CACHE_TTL);
+
+//     await pushAdminLog({
+//       type: "UPDATE_STATUS",
+//       adminId: req.user?._id,
+//       trackingCode: doc.trackingCode,
+//       status: doc.status,
+//     });
+
+//     // Enhanced status update notification
+//     if (value.checkEmail) {
+//       const statusMessages = {
+//         Pending: "Your delivery is pending and being prepared for shipment.",
+//         Shipped: "Your delivery has been shipped and is on its way!",
+//         "In Transit":
+//           "Your delivery is currently in transit to the destination.",
+//         "On Hold":
+//           "Your delivery is temporarily on hold. We will update you soon.",
+//         Delivered: "Your delivery has been successfully delivered!",
+//       };
+
+//       const statusMessage =
+//         statusMessages[doc.status] || "Your delivery status has been updated.";
+
+//       // Send to both receiver and sender
+//       const recipients = [doc.receiver?.email, doc.sender?.email].filter(
+//         Boolean
+//       );
+
+//       if (recipients.length > 0) {
+//         try {
+//           await sendEmail({
+//             to: recipients,
+//             subject: `Delivery Update: ${doc.trackingCode} is now ${doc.status}`,
+//             html: `
+//               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+//                 <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
+//                   <h1 style="margin: 0; font-size: 24px;">Delivery Status Update</h1>
+//                   <p style="margin: 8px 0 0 0; opacity: 0.9;">TechAgba Logistics</p>
+//                 </div>
+
+//                 <div style="background: white; padding: 30px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+//                   <div style="background: #f8fafc; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px;">
+//                     <div style="font-size: 20px; font-weight: bold; color: #16a34a; margin-bottom: 8px;">${
+//                       doc.trackingCode
+//                     }</div>
+//                     <div style="font-size: 16px; font-weight: bold; color: #1f2937;">Status: ${
+//                       doc.status
+//                     }</div>
+//                   </div>
+
+//                   <p style="font-size: 16px; line-height: 1.6; color: #374151;">${statusMessage}</p>
+
+//                   <div style="text-align: center; margin-top: 30px;">
+//                     <a href="${
+//                       process.env.FRONTEND_URL || "http://localhost:5173"
+//                     }/track/${doc.trackingCode}"
+//                        style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+//                       Track Your Package
+//                     </a>
+//                   </div>
+
+//                   <p style="margin-top: 30px; font-size: 12px; color: #6b7280; text-align: center;">
+//                     This is an automated message from TechAgba Logistics. Please do not reply to this email.
+//                   </p>
+//                 </div>
+//               </div>
+//             `,
+//           });
+//           console.log(`Status update email sent for ${doc.trackingCode}`);
+//         } catch (emailError) {
+//           console.error("Status update email failed:", emailError.message);
+//         }
+//       }
+//     }
+
+//     res.json(doc);
+//   } catch (err) {
+//     console.error("Update Status Error:", err);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
+
+// // Admin: add location update
+// export const addLocationUpdate = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { error, value } = updateLocationSchema.validate(req.body);
+//     if (error) return res.status(400).json({ message: error.message });
+
+//     const update = {
+//       description: value.description,
+//       time: value.time ? new Date(value.time) : new Date(),
+//       city: value.city,
+//       country: value.country,
+//       location: { lat: value.lat, lng: value.lng },
+//     };
+
+//     const doc = await Delivery.findByIdAndUpdate(
+//       id,
+//       { $push: { history: update } },
+//       {
+//         new: true,
+//         projection:
+//           "trackingCode history receiver.email receiver.name sender.email sender.name",
+//       }
+//     ).lean();
+
+//     if (!doc) return res.status(404).json({ message: "Not found" });
+
+//     await cacheTracking(doc.trackingCode, doc, CACHE_TTL);
+
+//     await pushAdminLog({
+//       type: "ADD_LOCATION",
+//       adminId: req.user?._id,
+//       trackingCode: doc.trackingCode,
+//       point: update,
+//     });
+
+//     res.json(doc);
+//   } catch (err) {
+//     console.error("Add Location Error:", err);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
 
 // Admin: delete delivery
 export const deleteDelivery = async (req, res) => {
@@ -950,136 +1292,40 @@ export const testDeliveryEmail = async (req, res) => {
   }
 };
 
-// Add this timeline generation function to your delivery controller
+export const getByTrackingCodeAndId = async (req, res) => {
+  try {
+    const { code } = req.params;
 
-// Timeline generation utility functions
-const generateTimeline = (delivery) => {
-  // Base timeline structure with status mapping
-  const statusTimeline = [
-    {
-      status: "Pending",
-      title: "Package Received",
-      defaultLocation: delivery.sender?.country || "Origin",
-    },
-    {
-      status: "Processing",
-      title: "Processing",
-      defaultLocation: delivery.sender?.country || "Origin",
-    },
-    {
-      status: "Shipped",
-      title: "Package Shipped",
-      defaultLocation: "Shipping Facility",
-    },
-    {
-      status: "In Transit",
-      title: "In Transit",
-      defaultLocation: "Distribution Center",
-    },
-    {
-      status: "On Hold",
-      title: "Package On Hold",
-      defaultLocation: "Transit Hub",
-    },
-    {
-      status: "Delivered",
-      title: "Delivered",
-      defaultLocation: delivery.receiver?.country || "Destination",
-    },
-  ];
-
-  // Get current status index to determine completed states
-  const currentStatusIndex = statusTimeline.findIndex(
-    (item) => item.status === delivery.status
-  );
-
-  // Generate timeline from history or use defaults
-  const timeline = statusTimeline.map((statusItem, index) => {
-    // Check if we have a history entry for this status/stage
-    const historyEntry = delivery.history?.find(
-      (h) =>
-        h.description?.toLowerCase().includes(statusItem.title.toLowerCase()) ||
-        h.description?.toLowerCase().includes(statusItem.status.toLowerCase())
-    );
-
-    // Use history data if available, otherwise create default entry
-    if (historyEntry) {
-      return {
-        id: (index + 1).toString(),
-        title: statusItem.title,
-        location: historyEntry.city
-          ? `${historyEntry.city}, ${historyEntry.country || ""}`
-          : statusItem.defaultLocation,
-        date: new Date(historyEntry.time).toISOString().split("T")[0],
-        time: new Date(historyEntry.time).toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        completed: index <= currentStatusIndex,
-        coordinates: historyEntry.location
-          ? {
-              lat: historyEntry.location.lat,
-              lng: historyEntry.location.lng,
-            }
-          : null,
-        description: historyEntry.description,
+    // First try cache
+    const cached = await getCachedTracking(code);
+    if (cached) {
+      // Return full delivery information with timeline for admin use
+      const fullDeliveryInfo = {
+        ...cached,
+        timeline: generateTimeline(cached),
       };
-    } else {
-      // Create default/placeholder entry for statuses not yet reached
-      return {
-        id: (index + 1).toString(),
-        title: statusItem.title,
-        location: statusItem.defaultLocation,
-        date:
-          index <= currentStatusIndex
-            ? new Date().toISOString().split("T")[0]
-            : null,
-        time:
-          index <= currentStatusIndex
-            ? new Date().toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "Pending",
-        completed: index <= currentStatusIndex,
-        coordinates: null,
-        description: null,
-      };
+      return res.json(fullDeliveryInfo);
     }
-  });
 
-  // Add any additional history entries that don't match standard statuses
-  const additionalEntries = delivery.history
-    ?.filter(
-      (h) =>
-        !statusTimeline.some(
-          (s) =>
-            h.description?.toLowerCase().includes(s.title.toLowerCase()) ||
-            h.description?.toLowerCase().includes(s.status.toLowerCase())
-        )
-    )
-    .map((entry, index) => ({
-      id: (timeline.length + index + 1).toString(),
-      title: entry.description || "Location Update",
-      location: entry.city
-        ? `${entry.city}, ${entry.country || ""}`
-        : "Unknown Location",
-      date: new Date(entry.time).toISOString().split("T")[0],
-      time: new Date(entry.time).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      completed: true,
-      coordinates: entry.location
-        ? {
-            lat: entry.location.lat,
-            lng: entry.location.lng,
-          }
-        : null,
-      description: entry.description,
-    }));
+    // Find by tracking code
+    const doc = await Delivery.findOne({ trackingCode: code }).lean();
 
-  return [...timeline, ...(additionalEntries || [])];
+    if (!doc) return res.status(404).json({ message: "Delivery not found" });
+
+    // Cache full document
+    await cacheTracking(code, doc, CACHE_TTL);
+
+    // Return full delivery information with timeline
+    const fullDeliveryInfo = {
+      ...doc,
+      timeline: generateTimeline(doc),
+    };
+
+    res.json(fullDeliveryInfo);
+  } catch (err) {
+    console.error("Get Delivery by Tracking Code and ID Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 // Enhanced getByTrackingCode with timeline

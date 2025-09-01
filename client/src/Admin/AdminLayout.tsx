@@ -4,7 +4,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarInset,
   SidebarProvider,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
@@ -16,8 +15,7 @@ import { SiteHeader } from "@/components/site-header";
 const AdminLayout = () => {
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full overflow-hidden">
-        {/* Sidebar */}
+      <div className="flex min-h-screen w-full">
         <Sidebar
           variant="sidebar"
           collapsible="offcanvas"
@@ -41,14 +39,12 @@ const AdminLayout = () => {
             </p>
           </SidebarFooter>
         </Sidebar>
-
-        {/* Main Content */}
-        <SidebarInset>
+        <div className="flex-1 w-full h-full">
           <SiteHeader />
-          <div className="flex-1 overflow-auto">
+          <main>
             <Outlet />
-          </div>
-        </SidebarInset>
+          </main>
+        </div>
       </div>
     </SidebarProvider>
   );

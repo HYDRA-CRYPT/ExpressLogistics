@@ -1,53 +1,54 @@
 import { useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, PlusCircle } from "lucide-react";
 import { SectionCards } from "@/components/section-cards";
 import { SearchAndFilters } from "../../components/SearchAndFilters";
 import ShipmentCard from "../../components/ShipmentCard";
 import { DataTable } from "@/components/data-table";
-import { useFetch } from "../../hooks/useFetch"; // Adjust import path as needed
-import LoadingSpinner from "@/components/LoadingSpinner"; // Adjust import path as needed
-import BeautifulErrorUI from "@/components/BeautifulErrorUI"; // Adjust import path as needed
+import { useFetch } from "../../hooks/useFetch";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import BeautifulErrorUI from "@/components/BeautifulErrorUI";
+import NoDataUI from "@/components/NoDataUI";
 import type { CardDelivery, TableDelivery } from "@/types/shipment";
 
 const SHIPMENTS_PER_PAGE = 6;
 
-// Define the response type based on your actual API response
 interface ShipmentResponse {
   page: number;
   limit: number;
   total: number;
   pages: number;
-  items: Array<{
-    id: number;
-    _id: string;
-    name: string;
-    Package: string;
-    Weight: number;
-    status: string;
-    receiver: string;
-    sender: string;
-    origin: string;
-    destination: string;
-    trackingCode: string;
-  }>;
+  items: Array<ShipmentAPIItem>;
 }
+
+type ShipmentAPIItem = {
+  id: number;
+  _id: string;
+  name?: string;
+  Package?: string;
+  Weight?: number;
+  status: string;
+  receiver: string;
+  sender: string;
+  origin: string;
+  destination: string;
+  trackingCode: string;
+  pickupDate?: string;
+  createdAt?: string;
+  deliveryDate?: string;
+  expectedDelivery?: string;
+};
 
 function AllShipments() {
   const [searchTerm, setSearchTerm] = useState("");
-
   const [viewMode, setViewMode] = useState<"card" | "table">("card");
   const [visibleCount, setVisibleCount] = useState(SHIPMENTS_PER_PAGE);
 
-  // Use the useFetch hook for data fetching
   const { data, isLoading, error } = useFetch<ShipmentResponse>({
-    url: "/deliveries", // Adjust your API endpoint
+    url: "/deliveries",
   });
 
-  console.log(data);
-  // Handle loading state
   if (isLoading) return <LoadingSpinner />;
 
-  // Handle error state
   if (error) {
     return (
       <BeautifulErrorUI
@@ -57,53 +58,45 @@ function AllShipments() {
     );
   }
 
-  // Extract shipments from response (API returns 'items' not 'shipments')
-  const shipments = data?.items || [];
+  const allShipments = data?.items || [];
 
-  // Filter shipments based on search and filters
-  const filteredShipments = shipments.filter((shipment) => {
+  const filteredShipments = allShipments.filter((shipment) => {
     const matchesSearch =
       searchTerm === "" ||
       shipment.trackingCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      shipment.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       shipment.name?.toLowerCase().includes(searchTerm.toLowerCase());
-
     return matchesSearch;
   });
 
   const handleRefresh = () => window.location.reload();
 
-  // Only show up to visibleCount shipments for card view
   const visibleShipments = filteredShipments.slice(0, visibleCount);
 
-  // Transform shipments data for different view modes
-  const transformToCardData = (shipment: any): CardDelivery => {
-    return {
-      _id: shipment._id || shipment.id?.toString() || `temp-${Date.now()}`,
-      id: shipment.id,
-      trackingCode: shipment.trackingCode || "N/A",
-      status: shipment.status || "pending",
-      sender: {
-        name: shipment.sender || "Unknown Sender",
-        city: shipment.origin || "Unknown City",
+  const transformToCardData = (shipment: ShipmentAPIItem): CardDelivery => ({
+    _id: shipment._id || shipment.id?.toString() || `temp-${Date.now()}`,
+    id: shipment.id,
+    trackingCode: shipment.trackingCode || "N/A",
+    status: shipment.status || "pending",
+    sender: {
+      name: shipment.sender || "Unknown Sender",
+      city: shipment.origin || "Unknown City",
+    },
+    receiver: {
+      name: shipment.receiver || "Unknown Receiver",
+      city: shipment.destination || "Unknown City",
+    },
+    shipmentType: shipment.Package || "Standard Package",
+    pickupDate: shipment.pickupDate || shipment.createdAt,
+    deliveryDate: shipment.deliveryDate || shipment.expectedDelivery,
+    items: [
+      {
+        weight: shipment.Weight || 0,
+        quantity: 1,
       },
-      receiver: {
-        name: shipment.receiver || "Unknown Receiver",
-        city: shipment.destination || "Unknown City",
-      },
-      shipmentType: shipment.Package || "Standard Package",
-      pickupDate: shipment.pickupDate || shipment.createdAt,
-      deliveryDate: shipment.deliveryDate || shipment.expectedDelivery,
-      items: [
-        {
-          weight: shipment.Weight || 0,
-          quantity: 1,
-        },
-      ],
-    };
-  };
+    ],
+  });
 
-  const transformToTableData = (shipment: any): TableDelivery => ({
+  const transformToTableData = (shipment: ShipmentAPIItem): TableDelivery => ({
     id: shipment.id || 0,
     _id: shipment._id || shipment.id?.toString(),
     Package: shipment.Package || "Standard Package",
@@ -116,8 +109,6 @@ function AllShipments() {
     trackingCode: shipment.trackingCode,
   });
 
-  console.log(transformToCardData);
-  console.log(transformToTableData);
   const handleLoadMore = () => {
     setVisibleCount((prev) => prev + SHIPMENTS_PER_PAGE);
   };
@@ -146,11 +137,6 @@ function AllShipments() {
           </div>
         </div>
 
-        {/* Site cards */}
-        <div className="my-12">
-          <SectionCards />
-        </div>
-
         {/* Search and Filters */}
         <SearchAndFilters
           searchTerm={searchTerm}
@@ -164,6 +150,7 @@ function AllShipments() {
         {viewMode === "card" ? (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mt-6">
+              <SectionCards />
               {visibleShipments.map((shipment) => (
                 <ShipmentCard
                   key={shipment.id}
@@ -175,9 +162,10 @@ function AllShipments() {
               <div className="flex justify-center mt-6">
                 <button
                   onClick={handleLoadMore}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400 transition-colors font-semibold text-lg"
                 >
-                  Load More
+                  <PlusCircle className="w-5 h-5" />
+                  Load More Shipments
                 </button>
               </div>
             )}
@@ -191,13 +179,13 @@ function AllShipments() {
         )}
 
         {filteredShipments.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-zinc-600 dark:text-zinc-400 text-lg mb-2">
-              No shipments found
-            </div>
-            <div className="text-zinc-500 dark:text-zinc-500">
-              Try adjusting your search or filters
-            </div>
+          <div className="py-12">
+            <NoDataUI
+              title="No Shipments Found"
+              message="We couldn't find any shipments matching your search or filters."
+              icon="search"
+              onRefresh={handleRefresh}
+            />
           </div>
         )}
       </div>

@@ -59,6 +59,7 @@ import {
 
 import ShipmentActions from "./ShipmentActions";
 import type { TableDelivery } from "@/types/shipment"; // Updated Shipment type
+import { getStatusIcon } from "../utils/getIcon";
 
 export function DataTable({ data: initialData }: { data: TableDelivery[] }) {
   const [data, setData] = React.useState<TableDelivery[]>(initialData || []);
@@ -109,8 +110,17 @@ export function DataTable({ data: initialData }: { data: TableDelivery[] }) {
     },
     { accessorKey: "id", header: "ID" },
     { accessorKey: "Package", header: "Package" },
-    { accessorKey: "weight", header: "Weight (kg)" },
-    { accessorKey: "status", header: "Status" },
+
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          {getStatusIcon(row.original.status)}
+          <span>{row.original.status}</span>
+        </div>
+      ),
+    },
     { accessorKey: "receiver", header: "Receiver" },
     { accessorKey: "sender", header: "Sender" },
     { accessorKey: "origin", header: "Origin" },

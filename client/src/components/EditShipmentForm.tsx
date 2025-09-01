@@ -10,7 +10,7 @@ import {
 import DatePickerDemo from "../components/date-time";
 import { currencies } from "../assets/data/api";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { CreateShipmentData } from "@/types/shipmentTypes";
+import type { EditShipmentData } from "@/types/shipmentTypes";
 
 interface ShipmentData {
   shipmentType: string;
@@ -44,15 +44,15 @@ interface ShipmentData {
 }
 // Updated ShipmentForm props interface
 interface ShipmentFormProps {
-  initialData?: Partial<CreateShipmentData>;
-  onSubmit?: (data: Partial<CreateShipmentData>) => void | Promise<void>;
+  initialData?: Partial<EditShipmentData>;
+  onSubmit?: (data: Partial<EditShipmentData>) => void | Promise<void>;
   isLoading?: boolean;
   isEditing?: boolean;
 }
 
 const SHIPMENT_TYPES = ["Parcel", "Document", "Freight", "Other"];
 
-const ShipmentForm: React.FC<ShipmentFormProps> = ({
+const EditShipmentForm: React.FC<ShipmentFormProps> = ({
   initialData = {},
   onSubmit,
   isLoading = false,
@@ -946,4 +946,4 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
   );
 };
 
-export default ShipmentForm;
+export default EditShipmentForm;
