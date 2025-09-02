@@ -1,8 +1,6 @@
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
-// Update the import path if the theme-provider file is in a different location, for example:
 import { useTheme } from "../context/ThemeProvider";
-// Or, if the file does not exist, create 'theme-provider.tsx' in the '../context' directory and export useTheme from it.
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -13,11 +11,16 @@ export function ThemeToggle() {
   };
 
   return (
-    <Button variant="ghost" size="lg" onClick={toggleTheme}>
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggleTheme}
+      className="hover:bg-gray-100 dark:hover:bg-zinc-800"
+    >
       {theme === "dark" ? (
-        <Sun className="h-8 w-8" />
+        <Sun className="h-5 w-5 text-gray-700 dark:text-gray-300" />
       ) : (
-        <Moon className="h-8 w-8" />
+        <Moon className="h-5 w-5 text-gray-700 dark:text-gray-300" />
       )}
     </Button>
   );

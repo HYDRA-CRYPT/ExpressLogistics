@@ -222,10 +222,10 @@ const TimelineComponent: React.FC<TimelineComponentProps> = ({ shipment }) => {
 
   return (
     <div>
-      <h3 className="text-xl font-semibold text-white mb-6">
+      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
         Shipment Timeline
       </h3>
-      <p className="text-zinc-400 mb-8">
+      <p className="text-gray-600 dark:text-gray-400 mb-8">
         Track the journey of your shipment from origin to destination
       </p>
 
@@ -235,74 +235,75 @@ const TimelineComponent: React.FC<TimelineComponentProps> = ({ shipment }) => {
           const statusColors =
             event.statusColor || getStatusColor(event.status);
           const [, bgColor] = statusColors.split(" ");
+          const isLastEvent = index === timeline.length - 1;
 
           // Show date/time if they exist and are not empty
           const showDateTime = event.date && event.date.trim() !== "";
 
           return (
-            <div key={event.id} className="flex items-start gap-4">
+            <div key={event.id} className="relative flex items-start space-x-4">
+              {/* Timeline Line */}
+              {!isLastEvent && (
+                <div className="absolute left-5 top-10 w-0.5 h-8 bg-gray-200 dark:bg-zinc-700"></div>
+              )}
+
+              {/* Status Icon */}
               <div className="flex-shrink-0">
                 <div
                   className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
                     event.completed
                       ? `${bgColor} border-current shadow-lg`
-                      : "bg-zinc-700 border-zinc-600"
+                      : "bg-gray-200 dark:bg-zinc-700 border-gray-300 dark:border-zinc-600"
                   } ${
                     event.isFixed && !event.completed
-                      ? "ring-2 ring-zinc-500 ring-opacity-50"
+                      ? "ring-2 ring-gray-300 dark:ring-zinc-500 ring-opacity-50"
                       : ""
                   }`}
                 >
                   <div
                     className={`transition-colors duration-300 ${
-                      event.completed ? "text-white" : "text-zinc-400"
+                      event.completed
+                        ? "text-white"
+                        : "text-gray-400 dark:text-zinc-400"
                     }`}
                   >
                     {statusIcon}
                   </div>
                 </div>
-
-                {/* Timeline connector line */}
-                {index < timeline.length - 1 && (
-                  <div
-                    className={`w-0.5 h-8 mx-auto mt-2 transition-colors duration-300 ${
-                      event.completed
-                        ? bgColor.replace("bg-", "bg-")
-                        : "bg-zinc-700"
-                    }`}
-                  />
-                )}
               </div>
 
+              {/* Event Content */}
               <div className="flex-1 pb-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h4
-                      className={`font-semibold mb-1 text-lg transition-colors duration-300 ${
-                        event.completed ? "text-white" : "text-zinc-400"
-                      } ${event.isFixed ? "font-bold" : ""}`}
+                      className={`text-lg font-semibold transition-colors duration-300 ${
+                        event.completed
+                          ? "text-gray-900 dark:text-white"
+                          : "text-gray-600 dark:text-gray-300"
+                      }`}
                     >
                       {event.title}
                     </h4>
 
-                    <p className="text-zinc-400 text-sm mb-2 flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      {event.location}
-                    </p>
+                    {event.location && (
+                      <p className="text-sm text-gray-600 dark:text-gray-300 flex items-center mt-1">
+                        <MapPin className="w-4 h-4 mr-1" />
+                        {event.location}
+                      </p>
+                    )}
 
-                    {/* Date and time display */}
+                    {/* Show date and time for completed and current events */}
                     {showDateTime && (
-                      <p className="text-zinc-500 text-sm">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                         {event.date}
-                        {event.time &&
-                          event.time.trim() !== "" &&
-                          ` at ${event.time}`}
+                        {event.time && ` at ${event.time}`}
                       </p>
                     )}
 
                     {/* Show status for pending items without dates */}
                     {!showDateTime && !event.completed && (
-                      <p className="text-zinc-500 text-sm italic">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm italic mt-1">
                         {event.status === "delivered"
                           ? "Awaiting delivery..."
                           : "Processing..."}
@@ -313,10 +314,10 @@ const TimelineComponent: React.FC<TimelineComponentProps> = ({ shipment }) => {
                   {/* Status indicator for fixed events */}
                   {event.isFixed && (
                     <div
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
                         event.completed
-                          ? "bg-green-900/30 text-green-400 border border-green-800"
-                          : "bg-zinc-700/50 text-zinc-400 border border-zinc-600"
+                          ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800"
+                          : "bg-gray-100 dark:bg-zinc-700/50 text-gray-600 dark:text-zinc-400 border border-gray-200 dark:border-zinc-600"
                       }`}
                     >
                       {event.completed ? "Completed" : "Pending"}
@@ -330,15 +331,15 @@ const TimelineComponent: React.FC<TimelineComponentProps> = ({ shipment }) => {
       </div>
 
       {/* Timeline Summary */}
-      <div className="mt-8 p-4 bg-zinc-800/30 border border-zinc-700 rounded-lg">
+      <div className="mt-8 p-4 bg-gray-50 dark:bg-zinc-800/30 border border-gray-200 dark:border-zinc-700 rounded-lg">
         <div className="flex justify-between items-center text-sm">
-          <span className="text-zinc-400">
+          <span className="text-gray-600 dark:text-zinc-400">
             Total Updates: {timeline.length - 2}{" "}
             {/* Exclude fixed pending/delivery */}
           </span>
-          <span className="text-zinc-400">
+          <span className="text-gray-600 dark:text-zinc-400">
             Status:{" "}
-            <span className="text-white font-medium capitalize">
+            <span className="text-gray-900 dark:text-white font-medium capitalize">
               {shipment.status}
             </span>
           </span>

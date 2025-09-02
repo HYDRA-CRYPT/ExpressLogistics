@@ -15,6 +15,7 @@ import AllShipments from "@/Admin/pages/AllShipment.tsx";
 import TrackShipments from "../Admin/pages/TrackShipments.tsx";
 import OwnerTrackDetails from "@/Admin/pages/OwnerTrackDetails.tsx";
 import EditShipment from "@/Admin/pages/EditShipment.tsx";
+import Services from "@/pages/Service.tsx";
 
 const router = createBrowserRouter([
   {
@@ -27,8 +28,7 @@ const router = createBrowserRouter([
       { path: "track", element: <Track /> },
       { path: "track/:code", element: <TrackDetails /> },
       { path: "contact", element: <Contact /> },
-      { path: "service", element: <Contact /> },
-      { path: "team", element: <Contact /> },
+      { path: "services", element: <Services /> },
     ],
   },
   {

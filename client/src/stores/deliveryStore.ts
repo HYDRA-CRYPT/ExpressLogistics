@@ -208,15 +208,31 @@ const validateDeliveryId = (deliveryId: string): boolean => {
 };
 
 const validateShipmentData = (data: unknown): data is ShipmentData => {
+  console.log("DeliveryStore: Validating shipment data:", data);
+
   if (!isObject(data)) {
     console.warn("Invalid shipment data: not an object", data);
     return false;
   }
 
   const shipmentData = data as Record<string, unknown>;
-  const hasId = typeof shipmentData._id === "string";
-  const hasTrackingCode = typeof shipmentData.trackingCode === "string";
-  const hasTrackingNumber = typeof shipmentData.trackingNumber === "string";
+  const hasId =
+    typeof shipmentData._id === "string" && shipmentData._id.length > 0;
+  const hasTrackingCode =
+    typeof shipmentData.trackingCode === "string" &&
+    shipmentData.trackingCode.length > 0;
+  const hasTrackingNumber =
+    typeof shipmentData.trackingNumber === "string" &&
+    shipmentData.trackingNumber.length > 0;
+
+  console.log("DeliveryStore: Validation checks:", {
+    hasId,
+    hasTrackingCode,
+    hasTrackingNumber,
+    _id: shipmentData._id,
+    trackingCode: shipmentData.trackingCode,
+    trackingNumber: shipmentData.trackingNumber,
+  });
 
   const isValid = hasId || hasTrackingCode || hasTrackingNumber;
 
@@ -227,6 +243,8 @@ const validateShipmentData = (data: unknown): data is ShipmentData => {
       hasTrackingNumber,
       data: shipmentData,
     });
+  } else {
+    console.log("DeliveryStore: Shipment data validation passed");
   }
 
   return isValid;
@@ -254,7 +272,7 @@ const normalizeShipmentData = (rawData: unknown): ShipmentData => {
   }
 
   const data = rawData as Record<string, unknown>;
-  console.debug("Normalizing shipment data:", data);
+  console.log("Normalizing shipment data:", data);
 
   const senderObj = isObject(data.sender)
     ? (data.sender as Record<string, unknown>)
@@ -357,7 +375,7 @@ const normalizeShipmentData = (rawData: unknown): ShipmentData => {
     })(),
   };
 
-  console.debug("Normalized shipment data:", normalized);
+  console.log("Normalized shipment data:", normalized);
   return normalized;
 };
 
@@ -385,7 +403,7 @@ const normalizeCoordinates = (coords: unknown): Coordinates | undefined => {
 
 const normalizeHistory = (history: unknown): LocationUpdate[] => {
   if (!Array.isArray(history)) {
-    console.debug("History is not an array:", history);
+    console.log("History is not an array:", history);
     return [];
   }
 
@@ -417,7 +435,7 @@ const normalizeRouteCoordinates = (
   date?: string;
 }> => {
   if (!Array.isArray(routeCoords)) {
-    console.debug("Route coordinates is not an array:", routeCoords);
+    console.log("Route coordinates is not an array:", routeCoords);
     return [];
   }
 
@@ -525,7 +543,7 @@ export const useDeliveryStore = create<DeliveryStoreState>()(
         lastFetchedTrackingCode: null,
 
         fetchShipment: async (trackingCode: string) => {
-          console.debug(
+          console.log(
             "DeliveryStore: fetchShipment called with:",
             trackingCode
           );
@@ -547,7 +565,7 @@ export const useDeliveryStore = create<DeliveryStoreState>()(
 
           // Cancel previous request if still pending
           if (currentRequest) {
-            console.debug("DeliveryStore: Cancelling previous request");
+            console.log("DeliveryStore: Cancelling previous request");
             currentRequest.abort();
           }
 
@@ -561,7 +579,7 @@ export const useDeliveryStore = create<DeliveryStoreState>()(
           });
 
           try {
-            console.debug(
+            console.log(
               "DeliveryStore: Making API request for tracking code:",
               trackingCode.trim()
             );
@@ -573,18 +591,28 @@ export const useDeliveryStore = create<DeliveryStoreState>()(
               { signal: currentRequest.signal }
             );
 
-            console.debug(
-              "DeliveryStore: Received API response:",
-              response.data
+            console.log("DeliveryStore: Received API response:", response.data);
+            console.log("DeliveryStore: Response status:", response.status);
+            console.log(
+              "DeliveryStore: Response data type:",
+              typeof response.data
+            );
+            console.log(
+              "DeliveryStore: Response data keys:",
+              Object.keys(response.data || {})
             );
 
             // Validate and normalize response data
             if (!validateShipmentData(response.data)) {
+              console.error(
+                "DeliveryStore: Validation failed for response data:",
+                response.data
+              );
               throw new Error("Invalid shipment data received from server");
             }
 
             const normalizedShipment = normalizeShipmentData(response.data);
-            console.debug(
+            console.log(
               "DeliveryStore: Normalized shipment data:",
               normalizedShipment
             );
@@ -595,14 +623,14 @@ export const useDeliveryStore = create<DeliveryStoreState>()(
               error: null,
             });
 
-            console.debug("DeliveryStore: Shipment data successfully stored");
+            console.log("DeliveryStore: Shipment data successfully stored");
           } catch (error: unknown) {
             // Don't set error if request was cancelled
             if (
               error instanceof Error &&
               (error.name === "CanceledError" || error.name === "AbortError")
             ) {
-              console.debug("DeliveryStore: Request was cancelled");
+              console.log("DeliveryStore: Request was cancelled");
               return;
             }
 
@@ -622,7 +650,7 @@ export const useDeliveryStore = create<DeliveryStoreState>()(
           deliveryId: string,
           payload: UpdatePayload
         ) => {
-          console.debug("DeliveryStore: updateStatusAndLocation called:", {
+          console.log("DeliveryStore: updateStatusAndLocation called:", {
             deliveryId,
             payload,
           });
@@ -655,16 +683,14 @@ export const useDeliveryStore = create<DeliveryStoreState>()(
 
           // Cancel any ongoing fetch requests
           if (currentRequest) {
-            console.debug(
-              "DeliveryStore: Cancelling ongoing request for update"
-            );
+            console.log("DeliveryStore: Cancelling ongoing request for update");
             currentRequest.abort();
           }
 
           set({ isLoading: true, error: null });
 
           try {
-            console.debug("DeliveryStore: Making update API request");
+            console.log("DeliveryStore: Making update API request");
 
             // Use the api service for consistency
             const response = await api.put<ShipmentData>(
@@ -674,7 +700,7 @@ export const useDeliveryStore = create<DeliveryStoreState>()(
               payload
             );
 
-            console.debug(
+            console.log(
               "DeliveryStore: Received update response:",
               response.data
             );
@@ -685,7 +711,7 @@ export const useDeliveryStore = create<DeliveryStoreState>()(
             }
 
             const normalizedShipment = normalizeShipmentData(response.data);
-            console.debug(
+            console.log(
               "DeliveryStore: Normalized updated shipment data:",
               normalizedShipment
             );
@@ -697,7 +723,7 @@ export const useDeliveryStore = create<DeliveryStoreState>()(
               error: null,
             });
 
-            console.debug("DeliveryStore: Shipment update successful");
+            console.log("DeliveryStore: Shipment update successful");
           } catch (error: unknown) {
             console.error("DeliveryStore: Error updating shipment:", error);
             const formattedError = formatError(error);
@@ -709,12 +735,12 @@ export const useDeliveryStore = create<DeliveryStoreState>()(
         },
 
         clearError: () => {
-          console.debug("DeliveryStore: Clearing error");
+          console.log("DeliveryStore: Clearing error");
           set({ error: null });
         },
 
         clearShipment: () => {
-          console.debug("DeliveryStore: Clearing shipment data");
+          console.log("DeliveryStore: Clearing shipment data");
 
           // Cancel any pending requests
           if (currentRequest) {
@@ -732,7 +758,7 @@ export const useDeliveryStore = create<DeliveryStoreState>()(
 
         retry: async () => {
           const { lastFetchedTrackingCode } = get();
-          console.debug(
+          console.log(
             "DeliveryStore: Retry called with last tracking code:",
             lastFetchedTrackingCode
           );
