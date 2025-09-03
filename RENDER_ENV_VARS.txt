@@ -1,0 +1,22 @@
+# Copy and paste these environment variables in Render:
+
+NODE_ENV=production
+PORT=10000
+MONGO_URI=mongodb+srv://techagbadev:7X7Vql0Q0t2gZVOv@aegisexpresslogistics.nj62fnk.mongodb.net/logisticsDB?retryWrites=true&w=majority&appName=AegisExpressLogistics
+MONGODB_URI=mongodb+srv://techagbadev:7X7Vql0Q0t2gZVOv@aegisexpresslogistics.nj62fnk.mongodb.net/logisticsDB?retryWrites=true&w=majority&appName=AegisExpressLogistics
+JWT_SECRET=your_secure_jwt_secret_change_this_in_production
+JWT_EXPIRES=7d
+REDIS_URL=rediss://default:AdZnAAIncDFkYzg1MTViMzVmMGI0MTFhYjhmZGQxMTczOTk5OTYzNnAxNTQ4ODc@full-skylark-54887.upstash.io:6379
+REDIS_CACHE_TTL=3600
+EMAIL_USER=techagbadev@gmail.com
+EMAIL_PASS=zimtqbuzrypfmkgk
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+FROM_EMAIL=boltdropa@gmail.com
+CLOUDINARY_CLOUD_NAME=dk1cria0z
+CLOUDINARY_API_KEY=747368826295982
+CLOUDINARY_API_SECRET=HbljlQwEoDR6ndvo98KNQy6Lbyk
+FRONTEND_URL=https://aegis-express.vercel.app
+ADMIN_SEED_TOKEN=CHANGE_ME
+ADMIN_EMAIL=owner@example.com
+ADMIN_PASSWORD=Passw0rd!

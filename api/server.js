@@ -6,11 +6,15 @@ import app from "./app.js";
 import connectDB from "./config/db.js";
 import { connectRedis } from "./config/redis.js";
 import { seedAdminIfRequested } from "./controllers/auth.controller.js";
+import validateEnvironment from "./utils/validateEnv.js";
 
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
+    // Validate environment variables first
+    validateEnvironment();
+
     // connect MongoDB
     await connectDB();
 

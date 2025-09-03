@@ -5,11 +5,13 @@
 ### Step 1: Deploy API to Render
 
 #### A. Sign up for Render
+
 1. Go to [render.com](https://render.com) and sign up
 2. Connect your GitHub account
 3. Import your `ExpressLogistics` repository
 
 #### B. Create Web Service
+
 1. Click "New +" → "Web Service"
 2. Select your `ExpressLogistics` repository
 3. Configure the service:
@@ -25,6 +27,7 @@ Plan: Free (for testing)
 ```
 
 #### C. Add Environment Variables
+
 In the Render dashboard, add these environment variables:
 
 ```env
@@ -46,6 +49,7 @@ FRONTEND_URL=https://your-app-name.vercel.app
 ```
 
 #### D. Deploy API
+
 1. Click "Create Web Service"
 2. Wait for deployment (5-10 minutes)
 3. Note your API URL: `https://your-service-name.onrender.com`
@@ -55,10 +59,12 @@ FRONTEND_URL=https://your-app-name.vercel.app
 ### Step 2: Deploy Client to Vercel
 
 #### A. Sign up for Vercel
+
 1. Go to [vercel.com](https://vercel.com) and sign up
 2. Import your `ExpressLogistics` repository
 
 #### B. Configure Project
+
 ```yaml
 Framework Preset: Vite
 Root Directory: client
@@ -68,6 +74,7 @@ Install Command: npm install
 ```
 
 #### C. Add Environment Variables
+
 ```env
 VITE_API_URL=https://your-render-api-url.onrender.com/api
 VITE_CLOUDINARY_CLOUD_NAME=dk1cria0z
@@ -75,6 +82,7 @@ VITE_CLOUDINARY_UPLOAD_PRESET=delivery_invoices
 ```
 
 #### D. Deploy Client
+
 1. Click "Deploy"
 2. Wait for deployment (3-5 minutes)
 3. Note your app URL: `https://your-app-name.vercel.app`
@@ -84,11 +92,14 @@ VITE_CLOUDINARY_UPLOAD_PRESET=delivery_invoices
 ### Step 3: Update Configuration
 
 #### Update API with Client URL
+
 1. Go back to Render dashboard
 2. Update `FRONTEND_URL` environment variable:
+
 ```env
 FRONTEND_URL=https://your-app-name.vercel.app
 ```
+
 3. Redeploy the API service
 
 ---
@@ -96,12 +107,15 @@ FRONTEND_URL=https://your-app-name.vercel.app
 ## Quick Test Commands
 
 ### Test API Health
+
 ```bash
 curl https://your-api-url.onrender.com/api/health
 ```
 
 ### Test Client
+
 Open your Vercel URL in browser and test:
+
 1. Home page loads
 2. Tracking input works
 3. Admin login works
@@ -111,11 +125,13 @@ Open your Vercel URL in browser and test:
 ## Alternative: One-Click Deploy
 
 ### Render Deploy Button
+
 Click this button to deploy API instantly:
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/RabbitDaCoder/ExpressLogistics)
 
 ### Vercel Deploy Button
+
 Click this button to deploy Client instantly:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/RabbitDaCoder/ExpressLogistics&root-directory=client&env=VITE_API_URL&envDescription=API%20endpoint%20URL&envLink=https://your-api.onrender.com/api)
@@ -127,15 +143,19 @@ Click this button to deploy Client instantly:
 ### Common Issues
 
 #### 1. API Build Fails with npm ci Error
+
 **Solution:** The render.yaml is configured to use `npm install` instead of `npm ci`
 
 #### 2. Client Can't Connect to API
+
 **Solution:** Check CORS settings and update `FRONTEND_URL` in API environment variables
 
 #### 3. Email Service Not Working
+
 **Solution:** Verify SMTP credentials in Render environment variables
 
 #### 4. PDF Generation Fails
+
 **Solution:** Check Cloudinary credentials in both API and Client
 
 ---
