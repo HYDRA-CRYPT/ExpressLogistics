@@ -5,12 +5,14 @@
 ### Option 1: Deploy from GitHub (Recommended)
 
 1. **Connect Repository to Netlify:**
+
    - Go to [Netlify](https://app.netlify.com/)
    - Click "New site from Git"
    - Choose GitHub and authorize Netlify
    - Select your repository: `RabbitDaCoder/ExpressLogistics`
 
 2. **Build Settings:**
+
    ```
    Base directory: client
    Build command: npm run build
@@ -25,11 +27,13 @@
 ### Option 2: Deploy via Netlify CLI
 
 1. **Install Netlify CLI:**
+
    ```bash
    npm install -g netlify-cli
    ```
 
 2. **Login to Netlify:**
+
    ```bash
    netlify login
    ```
@@ -43,6 +47,7 @@
 ### Option 3: Drag & Drop Deploy
 
 1. **Build locally:**
+
    ```bash
    cd client
    npm install --legacy-peer-deps
@@ -63,15 +68,17 @@
 ✅ **Security Headers** - XSS protection, frame options, etc.  
 ✅ **Cache Control** - Optimized caching for static assets  
 ✅ **Node.js 18** - Stable Node version for builds  
-✅ **Legacy Peer Deps** - Handles npm dependency conflicts  
+✅ **Legacy Peer Deps** - Handles npm dependency conflicts
 
 ## Post-Deployment Steps
 
 1. **Update API URL:**
+
    - Set `VITE_API_URL` to your Render API URL
    - Example: `https://your-api-name.onrender.com/api`
 
 2. **Configure Custom Domain (Optional):**
+
    - Site settings → Domain management
    - Add your custom domain
 
