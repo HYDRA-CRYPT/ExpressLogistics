@@ -8,7 +8,7 @@
 
 1. Go to [render.com](https://render.com) and sign up
 2. Connect your GitHub account
-3. Import your `ExpressLogistics` repository
+3. Import your `aegis-express` repository
 
 #### B. Create Web Service
 
