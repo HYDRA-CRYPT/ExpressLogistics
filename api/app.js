@@ -39,10 +39,14 @@ app.use("/api/invoices", invoiceRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
+  const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
   res.status(200).json({
     status: "OK",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
+    mongoUri: mongoUri ? "✅ Set" : "❌ Missing",
+    redisUrl: process.env.REDIS_URL ? "✅ Set" : "❌ Missing",
+    emailUser: process.env.EMAIL_USER ? "✅ Set" : "❌ Missing",
   });
 });
 

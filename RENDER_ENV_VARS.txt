@@ -1,4 +1,5 @@
-# Copy and paste these environment variables in Render:
+# CRITICAL: Copy and paste these environment variables in Render:
+# Make sure BOTH MongoDB variables are set (for compatibility)
 
 NODE_ENV=production
 PORT=10000
