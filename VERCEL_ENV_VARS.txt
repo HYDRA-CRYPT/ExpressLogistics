@@ -1,5 +1,19 @@
-# Copy and paste these environment variables in Vercel:
+# Environment Variables for Vercel (Client Deployment)
+# Copy and paste these in Vercel dashboard under "Environment Variables"
 
-VITE_API_URL=https://your-render-api-url.onrender.com/api
+# API Configuration - CRITICAL: Replace with your actual Render API URL
+VITE_API_URL=https://aegis-express-api.onrender.com/api
+
+# Cloudinary Configuration for PDF Storage
 VITE_CLOUDINARY_CLOUD_NAME=dk1cria0z
 VITE_CLOUDINARY_UPLOAD_PRESET=delivery_invoices
+
+# Optional: Analytics and Monitoring
+VITE_ENVIRONMENT=production
+
+# Instructions:
+# 1. Go to Vercel Dashboard
+# 2. Select your project
+# 3. Go to Settings → Environment Variables
+# 4. Add each variable above (Name = Key, Value = the value after =)
+# 5. Make sure to set them for "Production", "Preview", and "Development" environments

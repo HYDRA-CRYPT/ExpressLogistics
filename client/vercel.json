@@ -1,28 +1,8 @@
 {
-  "name": "AegisExpress Logistics",
-  "description": "Enterprise logistics management system with real-time tracking, email notifications, and PDF generation",
   "framework": "vite",
-  "build": {
-    "command": "npm run build",
-    "output": "dist"
-  },
-  "install": {
-    "command": "npm install"
-  },
-  "env": {
-    "VITE_API_URL": {
-      "description": "API endpoint URL (e.g., https://your-api.onrender.com/api)",
-      "required": true
-    },
-    "VITE_CLOUDINARY_CLOUD_NAME": {
-      "description": "Cloudinary cloud name for PDF storage",
-      "value": "dk1cria0z"
-    },
-    "VITE_CLOUDINARY_UPLOAD_PRESET": {
-      "description": "Cloudinary upload preset for invoices",
-      "value": "delivery_invoices"
-    }
-  },
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
   "functions": {},
   "redirects": [
     {
