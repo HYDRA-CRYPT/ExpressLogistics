@@ -5,6 +5,25 @@
   # Directory that contains the deploy-ready HTML files and assets
   publish = "dist/"
   
+  # Build command with proper dependency installation
+  command = "npm install --include=optional && npm run build"
+
+[build.environment]
+  # Node.js version
+  NODE_VERSION = "18.20.8"
+  # Force npm to install optional dependencies (native binaries)
+  NPM_CONFIG_INCLUDE = "optional"
+
+# Redirect rules for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200ory to change to before starting a build
+  base = "client/"
+  
+  # Directory that contains the deploy-ready HTML files and assets
+  publish = "dist/"
+  
   # Default build command
   command = "npm run build"
 
