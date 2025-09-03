@@ -12,22 +12,22 @@ import { currencies } from "../assets/data/api";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { EditShipmentData } from "@/types/shipmentTypes";
 
+import LocationAutocomplete from "./LocationAutocomplete";
+
 interface ShipmentData {
   shipmentType: string;
   pickupDate: string;
   deliveryDate: string;
   sender: {
     name: string;
-    city: string;
-    country: string;
+    location: string; // city, country as a single string
     phone: string;
     address: string;
     email: string;
   };
   receiver: {
     name: string;
-    city: string;
-    country: string;
+    location: string; // city, country as a single string
     phone: string;
     address: string;
     email: string;
@@ -68,16 +68,20 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
     deliveryDate: initialData?.deliveryDate ?? "",
     sender: {
       name: initialData?.sender?.name ?? "",
-      city: initialData?.sender?.city ?? "",
-      country: initialData?.sender?.country ?? "",
+      location:
+        [initialData?.sender?.city, initialData?.sender?.country]
+          .filter(Boolean)
+          .join(", ") ?? "",
       phone: initialData?.sender?.phone ?? "",
       address: initialData?.sender?.address ?? "",
       email: initialData?.sender?.email ?? "",
     },
     receiver: {
       name: initialData?.receiver?.name ?? "",
-      city: initialData?.receiver?.city ?? "",
-      country: initialData?.receiver?.country ?? "",
+      location:
+        [initialData?.receiver?.city, initialData?.receiver?.country]
+          .filter(Boolean)
+          .join(", ") ?? "",
       phone: initialData?.receiver?.phone ?? "",
       address: initialData?.receiver?.address ?? "",
       email: initialData?.receiver?.email ?? "",
@@ -228,6 +232,19 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
     </div>
   );
 
+  const handleLocationChange = (
+    type: "sender" | "receiver",
+    location: string
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [type]: {
+        ...prev[type],
+        location,
+      },
+    }));
+  };
+
   const renderStep2 = () => (
     <div className="space-y-8 p-6 rounded-lg bg-zinc-50 dark:bg-zinc-900">
       {/* Sender Address */}
@@ -280,44 +297,18 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
             />
           </div>
         </div>
-
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
-              City
+              Sender Location (City, Country)
             </label>
-            <input
-              type="text"
-              value={formData.sender.city}
-              onChange={(e) =>
-                handleInputChange("sender", {
-                  ...formData.sender,
-                  city: e.target.value,
-                })
-              }
-              className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-400 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-              placeholder="Enter city"
-            />
-          </div>
-          <div>
-            <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
-              Country
-            </label>
-            <input
-              type="text"
-              value={formData.sender.country}
-              onChange={(e) =>
-                handleInputChange("sender", {
-                  ...formData.sender,
-                  country: e.target.value,
-                })
-              }
-              className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-400 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-              placeholder="Enter country"
+            <LocationAutocomplete
+              value={formData.sender.location}
+              onChange={(location) => handleLocationChange("sender", location)}
+              placeholder="Search city, country..."
             />
           </div>
         </div>
-
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
@@ -403,48 +394,24 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
                   })
                 }
                 className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-400 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-                placeholder="Enter reciever address"
+                placeholder="Enter receiver address"
               />
             </div>
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
-                City
+                Receiver Location (City, Country)
               </label>
-              <input
-                type="text"
-                value={formData.receiver.city}
-                onChange={(e) =>
-                  handleInputChange("receiver", {
-                    ...formData.receiver,
-                    city: e.target.value,
-                  })
+              <LocationAutocomplete
+                value={formData.receiver.location}
+                onChange={(location) =>
+                  handleLocationChange("receiver", location)
                 }
-                className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-400 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-                placeholder="Enter city"
-              />
-            </div>
-            <div>
-              <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
-                Country
-              </label>
-              <input
-                type="text"
-                value={formData.receiver.country}
-                onChange={(e) =>
-                  handleInputChange("receiver", {
-                    ...formData.receiver,
-                    country: e.target.value,
-                  })
-                }
-                className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-400 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-                placeholder="Enter country"
+                placeholder="Search city, country..."
               />
             </div>
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
@@ -751,15 +718,13 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
                 <div className="flex gap-2 items-center">
                   <span className="text-zinc-400 text-sm w-12">From:</span>
                   <div className="text-white flex gap-1">
-                    {formData.sender.city || "Sender City"},
-                    {formData.sender.country || "Sender Country"}
+                    {formData.sender.location || "Sender Location"}
                   </div>
                 </div>
                 <div className="flex gap-2 items-center">
                   <span className="text-zinc-400 text-sm w-12">To:</span>
                   <div className="text-white flex gap-1">
-                    {formData.receiver.city || "Receiver City"},
-                    {formData.receiver.country || "Receiver Country"}
+                    {formData.receiver.location || "Receiver Location"}
                   </div>
                 </div>
               </div>
@@ -909,7 +874,29 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
             </div>
             {currentStep === 4 ? (
               <button
-                onClick={() => onSubmit?.(formData)}
+                onClick={() => {
+                  // Helper to parse city, country from location string
+                  function parseLocation(loc: string) {
+                    const [city = "", country = ""] = loc
+                      .split(",")
+                      .map((s) => s.trim());
+                    return { city, country };
+                  }
+                  const sender = {
+                    ...formData.sender,
+                    ...parseLocation(formData.sender.location),
+                  };
+                  const receiver = {
+                    ...formData.receiver,
+                    ...parseLocation(formData.receiver.location),
+                  };
+                  const payload = {
+                    ...formData,
+                    sender,
+                    receiver,
+                  };
+                  onSubmit?.(payload);
+                }}
                 disabled={isLoading}
                 className={`flex items-center space-x-2 px-6 py-2 rounded-lg transition-colors ${
                   isLoading

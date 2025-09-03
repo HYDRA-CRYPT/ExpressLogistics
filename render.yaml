@@ -1,0 +1,36 @@
+# Render Configuration for API Deployment
+version: 1
+
+services:
+  - type: web
+    name: aegis-express-api
+    env: node
+    plan: free # Change to starter/standard for production
+    buildCommand: cd api && npm install
+    startCommand: cd api && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        sync: false # Add your Vercel URL manually
+      - key: MONGODB_URI
+        sync: false # Add your MongoDB connection string
+      - key: JWT_SECRET
+        sync: false # Add your JWT secret
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false # Add Cloudinary credentials
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: SMTP_HOST
+        sync: false # Add email configuration
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+    healthCheckPath: /api/health
+    autoDeploy: true
+    branch: main

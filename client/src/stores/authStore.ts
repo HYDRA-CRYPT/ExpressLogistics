@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { api } from "../services/api";
 import axios from "axios";
 import type { User } from "@/types/auth";
+import { toast } from "sonner";
 
 interface AuthState {
   user: User | null;
@@ -22,6 +23,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   // ===== LOGIN =====
   login: async (email: string, password: string) => {
     set({ loading: true, error: null });
+
+    toast.loading("Signing in...", { id: "login" });
+
     try {
       const { data } = await api.post("/auth/login", { email, password });
 
@@ -50,6 +54,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
 
       console.log("Login successful, tokens stored");
+      toast.success("Welcome back!", { id: "login" });
       return true;
     } catch (err: unknown) {
       let message = "Login failed";
@@ -60,6 +65,10 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       console.error("Login error:", err);
       set({ loading: false, error: message });
+      toast.error("Login failed", {
+        id: "login",
+        description: message,
+      });
       return false;
     }
   },
@@ -76,6 +85,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem("adminUser");
 
     delete api.defaults.headers.common["Authorization"];
+
+    toast.info("You have been logged out");
 
     // Redirect to login
     window.location.href = "/owner/login";

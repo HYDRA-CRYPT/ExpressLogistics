@@ -1,0 +1,47 @@
+# Health check endpoint
+/health
+
+# Development files
+.env.local
+.env.development
+.env.test
+
+# Build artifacts
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+
+# Coverage reports
+coverage/
+
+# Deployment specific
+.vercel
+.render
+
+# API specific ignores
+api/.env
+api/uploads/
+api/logs/
+
+# Client specific ignores  
+client/.env.local
+client/dist/
+client/build/

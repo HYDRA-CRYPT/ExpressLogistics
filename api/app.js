@@ -37,6 +37,15 @@ app.use("/api/auth", authRoutes);
 app.use("/api/deliveries", deliveryRoutes);
 app.use("/api/invoices", invoiceRoutes);
 
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+  });
+});
+
 // (Optional) serve client build from ../client/dist
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

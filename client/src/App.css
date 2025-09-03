@@ -3,6 +3,39 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Modern Typography for Logistics Site */
+:root {
+  --font-heading: "Outfit", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-accent: "Poppins", system-ui, -apple-system, sans-serif;
+}
+
+/* Base font configuration */
+body {
+  font-family: var(--font-body);
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Heading fonts */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-heading {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* Accent font for buttons and highlights */
+.font-accent {
+  font-family: var(--font-accent);
+}
+
 @theme {
   --color-background: white;
   --color-background-dark: #18181b; /* zinc-900 */

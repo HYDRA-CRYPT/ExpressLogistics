@@ -1,3 +1,5 @@
+import type { ShipmentItem } from "./shipment";
+
 // export interface TrackingEvent {
 //   id: string;
 //   title: string;
@@ -132,14 +134,7 @@ export interface Party {
   coordinates?: Coordinates;
 }
 
-export interface ShipmentItem {
-  name?: string;
-  description?: string;
-  quantity?: number;
-  weight?: number;
-  value?: number;
-  category?: string;
-}
+// ShipmentItem is exported from shipment.ts - import from there to avoid conflicts
 
 export interface LocationUpdate {
   _id?: string;

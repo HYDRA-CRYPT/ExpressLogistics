@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Settings, MapPin, Send } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getStatusIcon } from "@/utils/getIcon";
 import { useDeliveryStore } from "@/stores/deliveryStore"; // Import your store
+import LocationAutocomplete from "./LocationAutocomplete";
 
 /**
  * Local/internal types (drop external type dependencies here)
@@ -25,8 +26,7 @@ interface AdminPanelProps {
 interface CombinedUpdatePayload {
   status: ShipmentStatus | string;
   description: string;
-  city: string;
-  country: string;
+  location: string; // city, country as a single string
   lat: number;
   lng: number;
   checkEmail: boolean;
@@ -75,8 +75,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [updateData, setUpdateData] = useState<CombinedUpdatePayload>({
     status: currentStatus,
     description: "",
-    city: "",
-    country: "",
+    location: "",
     lat: 0,
     lng: 0,
     checkEmail: true,
@@ -114,48 +113,70 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   };
 
   // Function to fetch delivery details and extract deliveryId
-  const fetchDeliveryId = async (trackingNumber: string): Promise<string> => {
-    setIsLoadingDeliveryId(true);
-    try {
-      const token = localStorage.getItem("adminToken");
-      const response = await fetch(
-        `http://localhost:5000/api/deliveries/track/${trackingNumber}/full`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+  const fetchDeliveryId = useCallback(
+    async (trackingNumber: string): Promise<string> => {
+      setIsLoadingDeliveryId(true);
+      try {
+        const token = localStorage.getItem("adminToken");
+        const response = await fetch(
+          `http://localhost:5000/api/deliveries/track/${trackingNumber}/full`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch delivery details: ${response.status}`
+          );
         }
-      );
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch delivery details: ${response.status}`);
+        const deliveryData = await response.json();
+        const deliveryId = deliveryData._id || deliveryData.id;
+        console.log(deliveryId);
+        console.log(deliveryData);
+        if (!deliveryId) {
+          throw new Error("DeliveryId not found in response");
+        }
+
+        setResolvedDeliveryId(deliveryId);
+        return deliveryId;
+      } catch (error) {
+        console.error("Failed to fetch deliveryId:", error);
+        throw error;
+      } finally {
+        setIsLoadingDeliveryId(false);
       }
+    },
+    []
+  );
 
-      const deliveryData = await response.json();
-      const deliveryId = deliveryData._id || deliveryData.id;
-      console.log(deliveryId);
-      console.log(deliveryData);
-      if (!deliveryId) {
-        throw new Error("DeliveryId not found in response");
-      }
+  // Helper function to parse location string into city and country
+  const parseLocation = (location: string) => {
+    const [city = "", country = ""] = location.split(",").map((s) => s.trim());
+    return { city, country };
+  };
 
-      setResolvedDeliveryId(deliveryId);
-      return deliveryId;
-    } catch (error) {
-      console.error("Failed to fetch deliveryId:", error);
-      throw error;
-    } finally {
-      setIsLoadingDeliveryId(false);
-    }
+  // Handle location change from LocationAutocomplete
+  const handleLocationChange = (location: string) => {
+    setUpdateData((prev) => ({
+      ...prev,
+      location,
+    }));
   };
 
   const handleCombinedUpdate = async () => {
     setApiMessage("");
     setIsUpdating(true);
 
+    // Parse location into city and country
+    const { city, country } = parseLocation(updateData.location);
+
     // Defensive: Ensure all required fields
-    if (!updateData.description || !updateData.city || !updateData.country) {
-      setApiMessage("Please fill in all required fields.");
+    if (!updateData.description || !updateData.location || !city || !country) {
+      setApiMessage("Please fill in all required fields including location.");
       setIsUpdating(false);
       setTimeout(() => setApiMessage(""), 3000);
       return;
@@ -182,7 +203,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     let coordinates = { lat: updateData.lat, lng: updateData.lng };
     if (!useManualCoords && (coordinates.lat === 0 || coordinates.lng === 0)) {
       try {
-        const fullAddress = `${updateData.city}, ${updateData.country}`;
+        const fullAddress = updateData.location;
         const geocoded = await geocodeAddress(fullAddress);
         coordinates = {
           lat: geocoded.lat,
@@ -198,8 +219,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     const payload = {
       status: selectedStatus,
       description: updateData.description,
-      city: updateData.city,
-      country: updateData.country,
+      city: city,
+      country: country,
       lat: coordinates.lat,
       lng: coordinates.lng,
       checkEmail: updateData.checkEmail,
@@ -213,8 +234,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       setUpdateData({
         status: selectedStatus,
         description: "",
-        city: "",
-        country: "",
+        location: "",
         lat: 0,
         lng: 0,
         checkEmail: true,
@@ -234,15 +254,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   };
 
   const handleAutoGeocode = async () => {
-    if (!updateData.city || !updateData.country) {
-      setApiMessage("Please enter city and country first");
+    if (!updateData.location) {
+      setApiMessage("Please enter location first");
       setTimeout(() => setApiMessage(""), 3000);
       return;
     }
 
     try {
-      const fullAddress = `${updateData.city}, ${updateData.country}`;
-      const geocoded = await geocodeAddress(fullAddress);
+      const geocoded = await geocodeAddress(updateData.location);
 
       setUpdateData((prev) => ({
         ...prev,
@@ -279,8 +298,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     if (!resolvedDeliveryId && trackingNumber) {
       fetchDeliveryId(trackingNumber);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resolvedDeliveryId, trackingNumber]);
+  }, [resolvedDeliveryId, trackingNumber, fetchDeliveryId]);
 
   return (
     <div className="bg-zinc-800/30 border border-zinc-700 rounded-2xl p-6">
@@ -365,41 +383,16 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-zinc-400 text-sm mb-2">
-                  City *
-                </label>
-                <input
-                  type="text"
-                  value={updateData.city}
-                  onChange={(e) =>
-                    setUpdateData((prev) => ({
-                      ...prev,
-                      city: e.target.value,
-                    }))
-                  }
-                  placeholder="e.g., Abuja"
-                  className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-zinc-400 text-sm mb-2">
-                  Country *
-                </label>
-                <input
-                  type="text"
-                  value={updateData.country}
-                  onChange={(e) =>
-                    setUpdateData((prev) => ({
-                      ...prev,
-                      country: e.target.value,
-                    }))
-                  }
-                  placeholder="e.g., Nigeria"
-                  className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+            <div>
+              <label className="block text-zinc-400 text-sm mb-2">
+                Location (City, Country) *
+              </label>
+              <LocationAutocomplete
+                value={updateData.location}
+                onChange={handleLocationChange}
+                placeholder="Search city, country..."
+                className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
             </div>
 
             {/* Coordinate Options */}
@@ -408,7 +401,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 <button
                   type="button"
                   onClick={handleAutoGeocode}
-                  disabled={!updateData.city || !updateData.country}
+                  disabled={!updateData.location}
                   className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-zinc-600 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors duration-200"
                 >
                   Auto-Find Coordinates
@@ -502,8 +495,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
               onClick={handleCombinedUpdate}
               disabled={
                 !updateData.description ||
-                !updateData.city ||
-                !updateData.country ||
+                !updateData.location ||
                 isUpdating ||
                 isLoadingDeliveryId ||
                 selectedStatus === currentStatus ||

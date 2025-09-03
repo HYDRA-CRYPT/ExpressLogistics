@@ -1,8 +1,12 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { api } from "@/services/api";
-import { BASE_URL } from "@/utils/Url";
 import axios, { AxiosError, type AxiosResponse } from "axios";
+
+// Define BASE_URL for this store
+const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD ? "/api" : "http://localhost:5000/api");
 
 type ShipmentStatus =
   | "Pending"
@@ -162,7 +166,7 @@ interface DeliveryStoreState {
 const createAxiosInstance = () => {
   const instance = axios.create({
     baseURL: BASE_URL,
-    timeout: 30000, // Increased to 30 seconds
+    timeout: 60000, // Increased to 60 seconds for delivery operations
     headers: {
       "Content-Type": "application/json",
     },

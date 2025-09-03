@@ -61,7 +61,13 @@ import ShipmentActions from "./ShipmentActions";
 import type { TableDelivery } from "@/types/shipment"; // Updated Shipment type
 import { getStatusIcon } from "../utils/getIcon";
 
-export function DataTable({ data: initialData }: { data: TableDelivery[] }) {
+export function DataTable({
+  data: initialData,
+  onDelete,
+}: {
+  data: TableDelivery[];
+  onDelete?: (id: string) => void;
+}) {
   const [data, setData] = React.useState<TableDelivery[]>(initialData || []);
 
   // Update data when initialData changes (for API refetches)
@@ -132,7 +138,12 @@ export function DataTable({ data: initialData }: { data: TableDelivery[] }) {
       cell: ({ row }) => (
         <ShipmentActions
           shipment={row.original} // row.original is TableDelivery
-          onDelete={(id) => setData((prev) => prev.filter((p) => p._id !== id))}
+          onDelete={(id) => {
+            // Update local state for immediate UI feedback
+            setData((prev) => prev.filter((p) => p._id !== id));
+            // Call parent onDelete if provided for external state management
+            if (onDelete) onDelete(id);
+          }}
           onEdit={(shipment) => console.log("Edit:", shipment)}
           onUpdateLocation={(code) => console.log("Track:", code)}
         />
@@ -171,15 +182,39 @@ export function DataTable({ data: initialData }: { data: TableDelivery[] }) {
         data-state={row.getIsSelected() && "selected"}
         data-dragging={isDragging}
         ref={setNodeRef}
-        className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+        className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
         style={{
           transform: CSS.Transform.toString(transform),
           transition: transition,
         }}
       >
         {row.getVisibleCells().map((cell) => (
-          <TableCell key={cell.id}>
-            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          <TableCell
+            key={cell.id}
+            className="px-2 py-3 text-sm border-r border-zinc-200 dark:border-zinc-700 last:border-r-0"
+            style={{
+              width: cell.column.getSize(),
+              minWidth:
+                cell.column.id === "drag"
+                  ? "40px"
+                  : cell.column.id === "select"
+                  ? "40px"
+                  : cell.column.id === "actions"
+                  ? "100px"
+                  : "100px",
+              maxWidth:
+                cell.column.id === "trackingCode"
+                  ? "140px"
+                  : cell.column.id === "Package"
+                  ? "160px"
+                  : cell.column.id === "id"
+                  ? "60px"
+                  : "140px",
+            }}
+          >
+            <div className="truncate">
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </div>
           </TableCell>
         ))}
       </TableRow>
@@ -270,63 +305,89 @@ export function DataTable({ data: initialData }: { data: TableDelivery[] }) {
   }
 
   return (
-    <div className="w-full flex-col justify-start gap-6">
-      <div className="w-full overflow-x-auto rounded-lg border">
-        <DndContext
-          collisionDetection={closestCenter}
-          modifiers={[restrictToVerticalAxis]}
-          onDragEnd={handleDragEnd}
-          sensors={sensors}
-          id={sortableId}
-        >
-          <Table className="min-w-full table-auto">
-            <TableHeader className="bg-muted sticky top-0 z-20">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      colSpan={header.colSpan}
-                      className="whitespace-nowrap px-4 py-2"
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getPaginationRowModel().rows?.length ? (
-                <SortableContext
-                  items={paginatedIds}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {table.getPaginationRowModel().rows.map((row) => (
-                    <DraggableRow key={row.id} row={row} />
-                  ))}
-                </SortableContext>
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
+    <div className="w-full space-y-4 max-w-full overflow-hidden">
+      <div className="w-full overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-600 scrollbar-track-transparent">
+          <DndContext
+            collisionDetection={closestCenter}
+            modifiers={[restrictToVerticalAxis]}
+            onDragEnd={handleDragEnd}
+            sensors={sensors}
+            id={sortableId}
+          >
+            <Table className="w-full min-w-[800px]">
+              <TableHeader className="bg-zinc-50 dark:bg-zinc-800 sticky top-0 z-20">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow
+                    key={headerGroup.id}
+                    className="border-b border-zinc-200 dark:border-zinc-700"
                   >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </DndContext>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead
+                        key={header.id}
+                        colSpan={header.colSpan}
+                        className="whitespace-nowrap px-2 py-3 text-xs font-medium text-zinc-600 dark:text-zinc-400 border-r border-zinc-200 dark:border-zinc-700 last:border-r-0"
+                        style={{
+                          width: header.getSize(),
+                          minWidth:
+                            header.id === "drag"
+                              ? "40px"
+                              : header.id === "select"
+                              ? "40px"
+                              : header.id === "actions"
+                              ? "100px"
+                              : "100px",
+                          maxWidth:
+                            header.id === "trackingCode"
+                              ? "140px"
+                              : header.id === "Package"
+                              ? "160px"
+                              : header.id === "id"
+                              ? "60px"
+                              : "140px",
+                        }}
+                      >
+                        <div className="truncate">
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </div>
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getPaginationRowModel().rows?.length ? (
+                  <SortableContext
+                    items={paginatedIds}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {table.getPaginationRowModel().rows.map((row) => (
+                      <DraggableRow key={row.id} row={row} />
+                    ))}
+                  </SortableContext>
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center text-zinc-500 dark:text-zinc-400"
+                    >
+                      No results found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </DndContext>
+        </div>
       </div>
 
       {/* Pagination and row selection controls */}
-      <div className="flex items-center justify-between px-4 py-2">
+      <div className="flex items-center justify-between px-4 py-2 border-t border-zinc-200 dark:border-zinc-800">
         <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.

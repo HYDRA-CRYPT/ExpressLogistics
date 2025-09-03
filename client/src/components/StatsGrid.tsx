@@ -6,6 +6,8 @@ import {
   BarChart2,
 } from "lucide-react";
 import { useFetch } from "@/hooks/useFetch";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import BeautifulErrorUI from "@/components/BeautifulErrorUI";
 
 interface StatsData {
   totalRevenue: number;
@@ -24,9 +26,7 @@ export function StatsGrid() {
   if (isLoading) {
     return (
       <div className="w-full flex justify-center items-center py-8">
-        <span className="text-zinc-400 dark:text-zinc-500">
-          Loading stats...
-        </span>
+        <LoadingSpinner />
       </div>
     );
   }
@@ -34,9 +34,13 @@ export function StatsGrid() {
   if (error || !data) {
     return (
       <div className="w-full flex justify-center items-center py-8">
-        <span className="text-red-500 dark:text-red-400">
-          Failed to load stats
-        </span>
+        <BeautifulErrorUI
+          error={
+            error || { message: "Failed to load stats", code: "STATS_ERROR" }
+          }
+          onRetry={() => window.location.reload()}
+          className="max-w-md"
+        />
       </div>
     );
   }

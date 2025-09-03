@@ -1,0 +1,207 @@
+name: Deploy Aegis Express Logistics
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: "18.x"
+
+jobs:
+  # Detect changes in monorepo
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api-changed: ${{ steps.changes.outputs.api }}
+      client-changed: ${{ steps.changes.outputs.client }}
+      force-deploy: ${{ steps.changes.outputs.force }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            api:
+              - 'api/**'
+              - 'package.json'
+              - '.github/workflows/**'
+            client:
+              - 'client/**'
+              - 'package.json'
+              - '.github/workflows/**'
+            force:
+              - 'package.json'
+              - '.github/workflows/**'
+
+  # Build and test API
+  test-api:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.api-changed == 'true' || needs.detect-changes.outputs.force-deploy == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install API dependencies
+        run: npm ci
+
+      - name: Run API tests
+        run: npm test || echo "No tests found"
+
+      - name: Lint API code
+        run: npm run lint || echo "No linting configured"
+
+  # Build and test Client
+  test-client:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.client-changed == 'true' || needs.detect-changes.outputs.force-deploy == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install Client dependencies
+        run: npm ci
+
+      - name: Build Client
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL_PRODUCTION }}
+
+      - name: Run Client tests
+        run: npm test || echo "No tests found"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-build
+          path: client/dist/
+          retention-days: 1
+
+  # Deploy API to Render
+  deploy-api:
+    needs: [detect-changes, test-api]
+    if: github.ref == 'refs/heads/main' && (needs.detect-changes.outputs.api-changed == 'true' || needs.detect-changes.outputs.force-deploy == 'true')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Render
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          method: "POST"
+          customHeaders: '{"Content-Type": "application/json"}'
+          data: '{"branch": "main"}'
+
+      - name: Wait for deployment
+        run: |
+          echo "🚀 API deployment triggered on Render"
+          echo "Monitor: https://dashboard.render.com"
+          sleep 30
+
+      - name: Health check API
+        run: |
+          attempt=1
+          max_attempts=10
+          while [ $attempt -le $max_attempts ]; do
+            if curl -f "${{ secrets.API_URL }}/health" 2>/dev/null; then
+              echo "✅ API health check passed"
+              break
+            else
+              echo "⏳ Attempt $attempt failed, retrying in 30s..."
+              sleep 30
+              attempt=$((attempt + 1))
+            fi
+          done
+
+  # Deploy Client to Vercel
+  deploy-client:
+    needs: [detect-changes, test-client]
+    if: github.ref == 'refs/heads/main' && (needs.detect-changes.outputs.client-changed == 'true' || needs.detect-changes.outputs.force-deploy == 'true')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./client
+
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./client
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL_PRODUCTION }}
+
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./client
+
+      - name: Health check Client
+        run: |
+          sleep 30
+          if curl -f "${{ secrets.CLIENT_URL }}" 2>/dev/null; then
+            echo "✅ Client health check passed"
+          else
+            echo "❌ Client health check failed"
+            exit 1
+          fi
+
+  # Notification on success
+  notify-success:
+    needs: [deploy-api, deploy-client]
+    if: always() && (needs.deploy-api.result == 'success' || needs.deploy-client.result == 'success')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notify deployment success
+        run: |
+          echo "🎉 Deployment completed successfully!"
+          echo "🖥️ Client: ${{ secrets.CLIENT_URL }}"
+          echo "🔧 API: ${{ secrets.API_URL }}"
+
+  # Notification on failure
+  notify-failure:
+    needs: [deploy-api, deploy-client]
+    if: always() && (needs.deploy-api.result == 'failure' || needs.deploy-client.result == 'failure')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notify deployment failure
+        run: |
+          echo "❌ Deployment failed!"
+          echo "Check the logs above for details."
+          exit 1

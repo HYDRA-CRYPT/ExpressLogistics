@@ -2,14 +2,18 @@ import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import ShipmentDetails from "@/Admin/pages/ShipmentDetails";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import BeautifulErrorUI from "@/components/BeautifulErrorUI";
+import NoDataUI from "@/components/NoDataUI";
 import { useDeliveryStore } from "../../stores/deliveryStore";
+import { toast } from "sonner";
 
 const OwnerTrackDetails: React.FC = () => {
   const { code } = useParams<{ code: string }>();
-  const { shipment, fetchShipment, isLoading, error } = useDeliveryStore();
+  const { shipment, fetchShipment, isLoading } = useDeliveryStore();
 
   useEffect(() => {
     if (code) {
+      toast.info("Loading shipment details...");
       fetchShipment(code);
     }
   }, [code, fetchShipment]);
@@ -17,36 +21,43 @@ const OwnerTrackDetails: React.FC = () => {
   // Show loading state
   if (isLoading) return <LoadingSpinner />;
 
-  // Show error state if there's an error from the store
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center text-red-500 p-6">
-          Error loading shipment:{" "}
-          {error.message || error.toString() || "An unexpected error occurred"}
-        </div>
-      </div>
-    );
-  }
-
   // Show not found state
   if (!shipment) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center text-red-500 p-6">
-          No shipment found for tracking number: {code}
-        </div>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <NoDataUI
+          title="No Shipment Found"
+          message={`We couldn't find any shipment with tracking code: ${code}`}
+          icon="search"
+          onRefresh={() => {
+            if (code) {
+              toast.info("Searching again...");
+              fetchShipment(code);
+            }
+          }}
+          className="max-w-lg"
+        />
       </div>
     );
   }
 
   // Validate that shipment has required properties before rendering
-  if (!shipment || typeof shipment !== "object") {
+  if (typeof shipment !== "object") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center text-red-500 p-6">
-          Invalid shipment data received
-        </div>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <BeautifulErrorUI
+          error={{
+            message: "Invalid shipment data received",
+            code: "INVALID_DATA",
+          }}
+          onRetry={() => {
+            if (code) {
+              toast.info("Retrying...");
+              fetchShipment(code);
+            }
+          }}
+          className="max-w-lg"
+        />
       </div>
     );
   }
@@ -60,10 +71,20 @@ const OwnerTrackDetails: React.FC = () => {
   } catch (renderError) {
     console.error("Error rendering ShipmentDetails:", renderError);
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center text-red-500 p-6">
-          Error displaying shipment details. Please try again.
-        </div>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <BeautifulErrorUI
+          error={{
+            message: "Error displaying shipment details. Please try again.",
+            code: "RENDER_ERROR",
+          }}
+          onRetry={() => {
+            if (code) {
+              toast.info("Retrying...");
+              fetchShipment(code);
+            }
+          }}
+          className="max-w-lg"
+        />
       </div>
     );
   }

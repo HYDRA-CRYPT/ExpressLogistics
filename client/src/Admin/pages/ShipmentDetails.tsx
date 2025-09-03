@@ -237,14 +237,14 @@ class ShipmentProcessor {
   private static getProgressPercentage(status?: string): number {
     const statusLower = this.safeString(status).toLowerCase();
     const progressMap: Record<string, number> = {
-      pending: 10,
-      processing: 25,
-      shipped: 40,
-      "in transit": 70,
-      "on hold": 50,
+      pending: 15,
+      processing: 30,
+      shipped: 45,
+      "in transit": 75,
+      "on hold": 60,
       delivered: 100,
     };
-    return progressMap[statusLower] || 10;
+    return progressMap[statusLower] || 15;
   }
 
   private static getCurrentLocation(shipment: ShipmentData): string {

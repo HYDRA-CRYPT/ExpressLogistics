@@ -1,0 +1,37 @@
+{
+  "name": "aegisexpress-logistics",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd client && npm install && npm run build",
+    "build:api": "cd api && npm install",
+    "build:client": "cd client && npm install && npm run build",
+    "start": "cd api && npm start",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:client\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:api": "cd api && npm run dev",
+    "test": "npm run test:api && npm run test:client",
+    "test:api": "cd api && npm test",
+    "test:client": "cd client && npm test",
+    "install:all": "concurrently \"cd client && npm install\" \"cd api && npm install\"",
+    "deploy": "npm run build && npm run start",
+    "deploy:api": "cd api && npm run deploy",
+    "deploy:client": "cd client && npm run build",
+    "health:api": "curl -f $API_URL/health || exit 1",
+    "health:client": "curl -f $CLIENT_URL || exit 1",
+    "lint": "npm run lint:api && npm run lint:client",
+    "lint:api": "cd api && npm run lint",
+    "lint:client": "cd client && npm run lint"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "workspaces": [
+    "client",
+    "api"
+  ]
+}

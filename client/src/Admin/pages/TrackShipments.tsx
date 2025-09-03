@@ -1,12 +1,21 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Send } from "lucide-react";
+import { Send, Search, FileSearch } from "lucide-react";
 import TrackingInput from "../../components/TrackingInput";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import BeautifulErrorUI from "../../components/BeautifulErrorUI";
 import ShipmentDetails from "./ShipmentDetails";
 import type { ShipmentData } from "./ShipmentDetails";
 import { useFetch } from "../../hooks/useFetch";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 // Extend ShipmentData compatibility by allowing extra keys
 interface AdminShipmentData extends Record<string, unknown> {
@@ -380,75 +389,116 @@ function TrackShipments() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 dark:bg-zinc-900 dark:text-white px-2">
-      <div className="container mx-auto px-4 py-8 lg:py-16">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-6">
-            <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mr-4">
-              <Send className="w-6 h-6 text-white transform rotate-45" />
-            </div>
-            <h1 className="text-4xl lg:text-5xl font-bold">
-              Track Shipment (Admin)
-            </h1>
-          </div>
-          <p className="text-zinc-600 dark:text-zinc-400 text-lg lg:text-xl max-w-2xl mx-auto">
-            Enter tracking number to access full delivery information and
-            management tools
-          </p>
-        </div>
-
-        <div className="space-y-8">
-          {/* Search Section */}
-          <TrackingInput
-            onTrack={handleTrack}
-            isLoading={isLoading}
-            trackingNumber={trackingNumber}
-            setTrackingNumber={setTrackingNumber}
-            navigate={navigate}
-          />
-
-          {isLoading && <LoadingSpinner />}
-
-          {error && (
-            <div className="w-full max-w-6xl mx-auto">
-              <div className="bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-2xl p-8 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-red-200 dark:bg-red-900/50 rounded-full flex items-center justify-center">
-                  <Send className="w-8 h-8 text-red-600 dark:text-red-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-red-700 dark:text-red-400 mb-2">
-                  Tracking Error
-                </h3>
-                <p className="text-red-600 dark:text-red-300 mb-6">{error}</p>
-                <button
-                  onClick={handleReset}
-                  className="px-6 py-3 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white rounded-lg font-medium transition-colors duration-200"
-                >
-                  Try Again
-                </button>
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
+      <div className="p-6 space-y-8">
+        {/* Header Section */}
+        <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
+          <CardHeader className="text-center">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-zinc-700 dark:bg-zinc-600 rounded-xl flex items-center justify-center mr-4">
+                <Send className="w-6 h-6 text-white transform rotate-45" />
               </div>
+              <CardTitle className="text-4xl lg:text-5xl font-bold text-zinc-900 dark:text-zinc-100">
+                Track Shipment
+              </CardTitle>
             </div>
-          )}
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Badge
+                variant="secondary"
+                className="bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+              >
+                Admin Access
+              </Badge>
+              <Badge
+                variant="outline"
+                className="border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
+              >
+                <FileSearch className="h-3 w-3 mr-1" />
+                Full Details
+              </Badge>
+            </div>
+            <CardDescription className="text-zinc-600 dark:text-zinc-400 text-lg max-w-2xl mx-auto">
+              Enter tracking number to access full delivery information and
+              management tools
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
-          {shipmentData && !isLoading && (
-            <ShipmentDetails
-              shipment={shipmentData as unknown as ShipmentData}
-              onShipmentUpdate={handleShipmentUpdate}
-              isAdmin={true}
+        {/* Search Section */}
+        <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <Search className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
+              Tracking Search
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TrackingInput
+              onTrack={handleTrack}
+              isLoading={isLoading}
+              trackingNumber={trackingNumber}
+              setTrackingNumber={setTrackingNumber}
+              navigate={navigate}
             />
-          )}
+          </CardContent>
+        </Card>
 
-          {!isLoading && !shipmentData && !error && trackingNumber === "" && (
-            <div className="w-full max-w-6xl mx-auto text-center py-16">
+        {isLoading && (
+          <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
+            <CardContent className="py-12">
+              <LoadingSpinner />
+            </CardContent>
+          </Card>
+        )}
+
+        {error && (
+          <Card className="border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10 backdrop-blur-sm">
+            <CardContent className="py-12 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-red-200 dark:bg-red-900/50 rounded-full flex items-center justify-center">
+                <Send className="w-8 h-8 text-red-600 dark:text-red-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-red-700 dark:text-red-400 mb-2">
+                Tracking Error
+              </h3>
+              <p className="text-red-600 dark:text-red-300 mb-6">{error}</p>
+              <Button
+                onClick={handleReset}
+                variant="destructive"
+                className="bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
+              >
+                Try Again
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {shipmentData && !isLoading && (
+          <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
+            <CardContent className="p-0">
+              <ShipmentDetails
+                shipment={shipmentData as unknown as ShipmentData}
+                onShipmentUpdate={handleShipmentUpdate}
+                isAdmin={true}
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        {!isLoading && !shipmentData && !error && trackingNumber === "" && (
+          <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
+            <CardContent className="py-16 text-center">
               <div className="w-20 h-20 mx-auto mb-6 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center">
                 <Send className="w-10 h-10 text-zinc-600 dark:text-zinc-400 transform rotate-45" />
               </div>
-              <h3 className="text-2xl font-semibold mb-3">
+              <h3 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
                 Admin Tracking Ready
               </h3>
-            </div>
-          )}
-        </div>
+              <p className="text-zinc-600 dark:text-zinc-400">
+                Enter a tracking number above to get started
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

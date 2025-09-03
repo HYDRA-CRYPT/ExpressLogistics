@@ -10,6 +10,7 @@ import {
 import DatePickerDemo from "../components/date-time";
 import { currencies } from "../assets/data/api";
 import { Checkbox } from "@/components/ui/checkbox";
+import LocationAutocomplete from "./LocationAutocomplete";
 import type { CreateShipmentData } from "@/types/shipmentTypes";
 
 interface ShipmentData {
@@ -20,6 +21,7 @@ interface ShipmentData {
     name: string;
     city: string;
     country: string;
+    location: string; // Combined city, country
     phone: string;
     address: string;
     email: string;
@@ -28,6 +30,7 @@ interface ShipmentData {
     name: string;
     city: string;
     country: string;
+    location: string; // Combined city, country
     phone: string;
     address: string;
     email: string;
@@ -60,7 +63,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [autoEmail, setAutoEmail] = useState<boolean>(
-    initialData?.checkEmail || false
+    initialData?.checkEmail ?? true // Default to true for email notifications
   );
   const [formData, setFormData] = useState<ShipmentData>({
     shipmentType: initialData?.shipmentType ?? "Parcel",
@@ -70,6 +73,10 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
       name: initialData?.sender?.name ?? "",
       city: initialData?.sender?.city ?? "",
       country: initialData?.sender?.country ?? "",
+      location:
+        initialData?.sender?.city && initialData?.sender?.country
+          ? `${initialData.sender.city}, ${initialData.sender.country}`
+          : "",
       phone: initialData?.sender?.phone ?? "",
       address: initialData?.sender?.address ?? "",
       email: initialData?.sender?.email ?? "",
@@ -78,6 +85,10 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
       name: initialData?.receiver?.name ?? "",
       city: initialData?.receiver?.city ?? "",
       country: initialData?.receiver?.country ?? "",
+      location:
+        initialData?.receiver?.city && initialData?.receiver?.country
+          ? `${initialData.receiver.city}, ${initialData.receiver.country}`
+          : "",
       phone: initialData?.receiver?.phone ?? "",
       address: initialData?.receiver?.address ?? "",
       email: initialData?.receiver?.email ?? "",
@@ -96,7 +107,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
       symbol: "$",
       name: "US Dollar",
     },
-    checkEmail: initialData?.checkEmail ?? false,
+    checkEmail: initialData?.checkEmail ?? true, // Default to true for email notifications
   });
 
   console.log("Form Data ==>", formData);
@@ -160,6 +171,34 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
           value: 0,
         },
       ],
+    }));
+  };
+
+  // Helper function to handle location changes and update city/country
+  const handleLocationChange = (
+    field: "sender" | "receiver",
+    location: string
+  ) => {
+    // Parse location string to extract city and country
+    const parts = location.split(", ");
+    let city = "";
+    let country = "";
+
+    if (parts.length >= 2) {
+      city = parts[0].trim();
+      country = parts[parts.length - 1].trim();
+    } else if (parts.length === 1) {
+      city = parts[0].trim();
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: {
+        ...prev[field],
+        location,
+        city,
+        country,
+      },
     }));
   };
 
@@ -281,41 +320,14 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
-              City
-            </label>
-            <input
-              type="text"
-              value={formData.sender.city}
-              onChange={(e) =>
-                handleInputChange("sender", {
-                  ...formData.sender,
-                  city: e.target.value,
-                })
-              }
-              className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-400 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-              placeholder="Enter city"
-            />
-          </div>
-          <div>
-            <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
-              Country
-            </label>
-            <input
-              type="text"
-              value={formData.sender.country}
-              onChange={(e) =>
-                handleInputChange("sender", {
-                  ...formData.sender,
-                  country: e.target.value,
-                })
-              }
-              className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-400 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-              placeholder="Enter country"
-            />
-          </div>
+        <div className="grid grid-cols-1 gap-4">
+          <LocationAutocomplete
+            label="Sender Location"
+            value={formData.sender.location}
+            onChange={(location) => handleLocationChange("sender", location)}
+            placeholder="Search for sender's city, country..."
+            required
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -403,46 +415,21 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
                   })
                 }
                 className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-400 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-                placeholder="Enter reciever address"
+                placeholder="Enter receiver address"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
-                City
-              </label>
-              <input
-                type="text"
-                value={formData.receiver.city}
-                onChange={(e) =>
-                  handleInputChange("receiver", {
-                    ...formData.receiver,
-                    city: e.target.value,
-                  })
-                }
-                className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-400 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-                placeholder="Enter city"
-              />
-            </div>
-            <div>
-              <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
-                Country
-              </label>
-              <input
-                type="text"
-                value={formData.receiver.country}
-                onChange={(e) =>
-                  handleInputChange("receiver", {
-                    ...formData.receiver,
-                    country: e.target.value,
-                  })
-                }
-                className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-400 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-                placeholder="Enter country"
-              />
-            </div>
+          <div className="grid grid-cols-1 gap-4">
+            <LocationAutocomplete
+              label="Receiver Location"
+              value={formData.receiver.location}
+              onChange={(location) =>
+                handleLocationChange("receiver", location)
+              }
+              placeholder="Search for receiver's city, country..."
+              required
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -905,7 +892,12 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
                   setFormData((prev) => ({ ...prev, checkEmail: value }));
                 }}
               />
-              <label htmlFor="autoEmail">Accept Auto Notification</label>
+              <label
+                htmlFor="autoEmail"
+                className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
+                Send Email Notifications to Customer
+              </label>
             </div>
             {currentStep === 4 ? (
               <button
@@ -920,7 +912,13 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
                 {isLoading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>{isEditing ? "Updating..." : "Creating..."}</span>
+                    <span>
+                      {isEditing
+                        ? "Updating shipment..."
+                        : formData.checkEmail
+                        ? "Creating shipment, generating PDF & sending email..."
+                        : "Creating shipment & generating PDF..."}
+                    </span>
                   </>
                 ) : (
                   <>

@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import EditShipmentForm from "@/components/EditShipmentForm";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import BeautifulErrorUI from "@/components/BeautifulErrorUI";
 import { getDeliveryById, editDeliveryById } from "@/services/deliveryService";
 import type { EditShipmentData } from "@/types/shipmentTypes";
+import { toast } from "sonner";
 
 const EditShipmentPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,14 +31,22 @@ const EditShipmentPage = () => {
     setIsLoading(true);
     setIsError(false);
     setError(null);
+
+    toast.info("Loading shipment details...");
+
     getDeliveryById(id)
       .then((data) => {
         // cast to expected shape (service should ideally return this type)
         setDeliveryData(data as EditShipmentData);
+        toast.success("Shipment details loaded");
       })
       .catch((err: unknown) => {
         setIsError(true);
-        setError(getErrorMessage(err) || "Failed to fetch delivery");
+        const errorMsg = getErrorMessage(err) || "Failed to fetch delivery";
+        setError(errorMsg);
+        toast.error("Failed to load shipment", {
+          description: errorMsg,
+        });
       })
       .finally(() => setIsLoading(false));
   }, [id]);
@@ -45,17 +55,46 @@ const EditShipmentPage = () => {
   const handleUpdate = (updatedData: Partial<EditShipmentData>) => {
     if (!id) return;
     setIsUpdating(true);
+
+    toast.loading("Updating shipment...", { id: "update-shipment" });
+
     editDeliveryById(id, updatedData)
-      .then(() => navigate("/owner/shipments"))
-      .catch((err: unknown) =>
-        setError(getErrorMessage(err) || "Failed to update delivery")
-      )
+      .then(() => {
+        toast.success("Shipment updated successfully!", {
+          id: "update-shipment",
+        });
+        navigate("/owner/shipments");
+      })
+      .catch((err: unknown) => {
+        const errorMsg = getErrorMessage(err) || "Failed to update delivery";
+        setError(errorMsg);
+        toast.error("Failed to update shipment", {
+          id: "update-shipment",
+          description: errorMsg,
+        });
+      })
       .finally(() => setIsUpdating(false));
   };
 
   if (isLoading) return <LoadingSpinner />;
-  if (isError) return <div>Error: {error}</div>;
-  if (!deliveryData) return <div>Not found</div>;
+  if (isError)
+    return (
+      <div className="flex justify-center p-8">
+        <BeautifulErrorUI
+          error={{ message: error || "Unknown error", code: "EDIT_ERROR" }}
+          onRetry={() => window.location.reload()}
+        />
+      </div>
+    );
+  if (!deliveryData)
+    return (
+      <div className="flex justify-center p-8">
+        <BeautifulErrorUI
+          error={{ message: "Shipment not found", code: "NOT_FOUND" }}
+          onRetry={() => navigate("/owner/shipments")}
+        />
+      </div>
+    );
 
   return (
     <div>

@@ -15,7 +15,7 @@ import {
   getByTrackingCodeAndId,
   updateStatusAndLocation,
 } from "../controllers/delivery.controller.js";
-import { getInvoicePdf } from "../controllers/invoice.controller.js";
+import { downloadInvoiceByTrackingCode } from "../controllers/invoice.controller.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -28,7 +28,7 @@ router.get("/track/:code", getByTrackingCode);
 router.get("/track/:code/full", getByTrackingCodeAndId);
 
 // Public invoice download
-router.get("/track/:id/invoice.pdf", getInvoicePdf);
+router.get("/track/:id/invoice.pdf", downloadInvoiceByTrackingCode);
 
 // Test routes (temporary for testing)
 router.get("/test-email", testEmail);

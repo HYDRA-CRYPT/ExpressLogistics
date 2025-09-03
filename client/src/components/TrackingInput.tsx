@@ -32,13 +32,13 @@ const TrackingInput: React.FC<TrackingInputProps> = ({
             value={trackingNumber}
             onChange={(e) => setTrackingNumber(e.target.value)}
             placeholder="Enter tracking code"
-            className="w-full pl-12 pr-4 py-4 bg-zinc-800/50 border border-zinc-700 rounded-xl text-white placeholder-zinc-400 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            className="w-full pl-12 pr-4 py-4 bg-zinc-800/20 border border-zinc-700 rounded-xl text-white placeholder-zinc-400 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
           />
         </div>
         <button
           type="submit"
           disabled={isLoading || !trackingNumber.trim()}
-          className="px-8 py-4 bg-white text-zinc-900 font-semibold rounded-xl hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-lg"
+          className="px-8 py-4 bg-zinc-900 text-white font-semibold rounded-xl hover:bg-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-90 disabled:cursor-not-allowed transition-all duration-200 text-lg"
         >
           {isLoading ? "Tracking..." : "Track Shipment"}
         </button>

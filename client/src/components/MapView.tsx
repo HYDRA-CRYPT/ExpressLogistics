@@ -1,17 +1,5 @@
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
-  useMemo,
-} from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  Polyline,
-} from "react-leaflet";
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -96,7 +84,6 @@ interface RoutePoint {
 /* === Constants === */
 const DEFAULT_CENTER: [number, number] = [6.5244, 3.3792]; // Lagos, Nigeria
 const DEFAULT_ZOOM = 6;
-const GEOCODING_DELAY = 1000;
 
 /* === Geocoding with caching === */
 const geocodeCache = new Map<string, Coordinates | null>();
@@ -162,19 +149,37 @@ const geocodeAddress = async (address: string): Promise<Coordinates | null> => {
 };
 
 /* === Custom Icons === */
-const createCustomIcon = (color: string, iconSymbol: string) => {
+// const createCustomIcon = (color: string, iconSymbol: string) => {
+//   return L.divIcon({
+//     className: "custom-div-icon",
+//     html: `<div style="background-color: ${color}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; font-weight: bold;">${iconSymbol}</div>`,
+//     iconSize: [30, 30],
+//     iconAnchor: [15, 15],
+//   });
+// };
+
+const createPulsingIcon = (color: string, iconSymbol: string) => {
   return L.divIcon({
     className: "custom-div-icon",
-    html: `<div style="background-color: ${color}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; font-weight: bold;">${iconSymbol}</div>`,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
+    html: `
+      <div style="position: relative; width: 30px; height: 30px;">
+        <div style="position: absolute; top: 0; left: 0; width: 30px; height: 30px; background-color: ${color}; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; font-weight: bold; z-index: 2;">${iconSymbol}</div>
+        <div style="position: absolute; top: -10px; left: -10px; width: 50px; height: 50px; background-color: ${color}; border-radius: 50%; opacity: 0.3; animation: pulse 2s infinite;"></div>
+      </div>
+      <style>
+        @keyframes pulse {
+          0% { transform: scale(0.8); opacity: 0.3; }
+          50% { transform: scale(1.2); opacity: 0.1; }
+          100% { transform: scale(1.4); opacity: 0; }
+        }
+      </style>
+    `,
+    iconSize: [50, 50],
+    iconAnchor: [25, 25],
   });
 };
 
-const senderIcon = createCustomIcon("#10b981", "📤"); // Green with send icon
-const receiverIcon = createCustomIcon("#ef4444", "📥"); // Red with receive icon
-const historyIcon = createCustomIcon("#3b82f6", "📍"); // Blue with location pin
-const currentIcon = createCustomIcon("#f59e0b", "✈️"); // Orange with plane icon
+const receiverIcon = createPulsingIcon("#ef4444", "📥"); // Red with receive icon - PULSING
 
 /* === Enhanced MapView Component === */
 const MapView: React.FC<MapViewProps> = ({
@@ -260,142 +265,26 @@ const MapView: React.FC<MapViewProps> = ({
     return new Date(value as string | number);
   }, []);
 
-  // Create route points from shipment data
+  // Create route points from shipment data - ONLY RECEIVER LOCATION
   const createRoutePoints = useCallback(
     async (data: ShipmentData): Promise<RoutePoint[]> => {
       const points: RoutePoint[] = [];
 
-      console.log("MapView: Creating route points for shipment data:", {
-        sender: data.sender,
-        receiver: data.receiver,
-        history: data.history?.length || 0,
-      });
+      console.log(
+        "MapView: Creating receiver-only route point for shipment data:",
+        {
+          receiver: data.receiver,
+        }
+      );
 
       try {
-        // Add origin (sender) point
-        if (data.sender) {
-          const senderLocation = parseLocation(
-            data.sender.address || `${data.sender.city}, ${data.sender.country}`
-          );
-
-          let senderCoords: Coordinates | null = null;
-
-          if (data.sender.coordinates) {
-            senderCoords = data.sender.coordinates;
-          } else {
-            senderCoords = await geocodeAddress(
-              senderLocation.city + ", " + senderLocation.country
-            );
-          }
-
-          // Only add sender point if we have valid coordinates
-          if (senderCoords) {
-            points.push({
-              lat: senderCoords.lat,
-              lng: senderCoords.lng,
-              city: senderLocation.city,
-              country: senderLocation.country,
-              description: `Origin: ${data.sender.name || "Sender"}`,
-              date: safeDate(data.dateSent).toISOString(),
-              isOrigin: true,
-            });
-          } else {
-            console.warn(
-              "MapView: Skipping sender point - no valid coordinates available"
-            );
-          }
-        }
-
-        // Add history points
-        if (data.history && Array.isArray(data.history)) {
-          console.log("MapView: Processing history entries:", data.history);
-
-          for (const entry of data.history) {
-            let coords: Coordinates | null = null;
-
-            // Check for coordinates in different possible locations
-            if (entry.coordinates) {
-              coords = entry.coordinates;
-            } else if (
-              entry.location &&
-              typeof entry.location === "object" &&
-              "lat" in entry.location &&
-              "lng" in entry.location
-            ) {
-              // Handle the case where location is an object with lat/lng (this is the new format)
-              coords = entry.location as Coordinates;
-              console.log(
-                "MapView: Using coordinates from location object:",
-                coords
-              );
-            } else if (typeof entry.location === "string") {
-              // Handle string-based location
-              const location = parseLocation(
-                entry.location as string,
-                entry.country
-              );
-              coords = await geocodeAddress(
-                `${location.city}, ${location.country}`
-              );
-              console.log("MapView: Geocoded string location:", coords);
-            } else {
-              // Last resort - try to use city/country
-              const location = parseLocation(
-                `${entry.city}, ${entry.country}`,
-                entry.country
-              );
-              coords = await geocodeAddress(
-                `${location.city}, ${location.country}`
-              );
-              console.log("MapView: Geocoded city/country:", coords);
-            }
-
-            console.log("MapView: Processing history point:", {
-              coords,
-              city: entry.city,
-              country: entry.country,
-              description: entry.description,
-              status: entry.status,
-            });
-
-            // Only add history point if we have valid coordinates
-            if (coords) {
-              points.push({
-                lat: coords.lat,
-                lng: coords.lng,
-                city:
-                  entry.city || parseLocation(entry.location as string).city,
-                country:
-                  entry.country ||
-                  parseLocation(entry.location as string).country,
-                description:
-                  entry.description || entry.status || "Location Update",
-                date: safeDate(entry.time || entry.date).toISOString(),
-                isHistory: true,
-                status: entry.status,
-              });
-            } else {
-              console.warn(
-                "MapView: Skipping history point - no valid coordinates available"
-              );
-            }
-
-            // Add a small delay to avoid overwhelming the geocoding service
-            await new Promise((resolve) =>
-              setTimeout(resolve, GEOCODING_DELAY)
-            );
-          }
-        }
-
-        // Add destination (receiver) point - ALWAYS add this if receiver data exists
+        // Only add destination (receiver) point
         if (data.receiver) {
           console.log("MapView: Processing receiver data:", data.receiver);
 
-          // Build receiver location string with fallbacks
+          // Use only city and country for receiver location (not address)
           let receiverLocationString = "";
-          if (data.receiver.address) {
-            receiverLocationString = data.receiver.address;
-          } else if (data.receiver.city && data.receiver.country) {
+          if (data.receiver.city && data.receiver.country) {
             receiverLocationString = `${data.receiver.city}, ${data.receiver.country}`;
           } else if (data.receiver.city) {
             receiverLocationString = data.receiver.city;
@@ -415,10 +304,9 @@ const MapView: React.FC<MapViewProps> = ({
             );
             receiverCoords = data.receiver.coordinates;
           } else {
-            // Try multiple geocoding approaches
+            // Try geocoding city and country only
             const addressesToTry = [
-              receiverLocationString,
-              `${receiverLocation.city}, ${receiverLocation.country}`,
+              `${data.receiver.city}, ${data.receiver.country}`,
               receiverLocation.country,
               receiverLocation.city,
             ].filter(
@@ -439,25 +327,12 @@ const MapView: React.FC<MapViewProps> = ({
               }
             }
 
-            // If all geocoding fails, use a reasonable default based on the most recent history location
-            if (!receiverCoords && points.length > 0) {
-              const lastHistoryPoint = points[points.length - 1];
-              console.warn(
-                "MapView: Using last history point as receiver fallback:",
-                lastHistoryPoint
-              );
-              receiverCoords = {
-                lat: lastHistoryPoint.lat + 0.1,
-                lng: lastHistoryPoint.lng + 0.1,
-              };
-            }
-
             // Final fallback - use a neutral location
             if (!receiverCoords) {
               console.warn(
                 "MapView: Using final fallback coordinates for receiver"
               );
-              receiverCoords = { lat: 40.7128, lng: -74.006 }; // New York City
+              receiverCoords = { lat: 52.52, lng: 13.405 }; // Berlin default
             }
           }
 
@@ -465,8 +340,8 @@ const MapView: React.FC<MapViewProps> = ({
           points.push({
             lat: receiverCoords.lat,
             lng: receiverCoords.lng,
-            city: receiverLocation.city || "Destination",
-            country: receiverLocation.country || "Unknown",
+            city: data.receiver.city || "Destination",
+            country: data.receiver.country || "Unknown",
             description: `Destination: ${data.receiver.name || "Receiver"}`,
             date: safeDate(data.deliveryDate || new Date()).toISOString(),
             isDestination: true,
@@ -475,16 +350,14 @@ const MapView: React.FC<MapViewProps> = ({
           console.log("MapView: Added receiver point:", {
             lat: receiverCoords.lat,
             lng: receiverCoords.lng,
-            city: receiverLocation.city,
-            country: receiverLocation.country,
+            city: data.receiver.city,
+            country: data.receiver.country,
           });
         } else {
           console.warn("MapView: No receiver data found in shipment");
         }
 
-        return points.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
+        return points;
       } catch (error) {
         console.error("Error creating route points:", error);
         return points;
@@ -509,94 +382,53 @@ const MapView: React.FC<MapViewProps> = ({
     }
   }, [shipmentData, createRoutePoints]);
 
-  // Effect to adjust map bounds when route points change
+  // Effect to adjust map bounds when route points change - CENTER ON RECEIVER
   useEffect(() => {
     if (routePoints.length > 0) {
-      const lats = routePoints.map((p) => p.lat);
-      const lngs = routePoints.map((p) => p.lng);
+      const receiverPoint = routePoints.find((point) => point.isDestination);
+      if (receiverPoint && mapRef.current) {
+        // Center the map on the receiver location with appropriate zoom
+        setMapCenter([receiverPoint.lat, receiverPoint.lng]);
+        setMapZoom(10); // Good zoom level to see the city area
 
-      if (lats.length > 1) {
-        const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
-        const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
-        setMapCenter([centerLat, centerLng]);
-        setMapZoom(6); // Adjusted zoom for better view of all points
-      } else if (lats.length === 1) {
-        setMapCenter([lats[0], lngs[0]]);
+        // Also update the map view if it's already initialized
+        const map = mapRef.current;
+        map.setView([receiverPoint.lat, receiverPoint.lng], 10);
+
+        console.log("MapView: Centered map on receiver location:", {
+          lat: receiverPoint.lat,
+          lng: receiverPoint.lng,
+          city: receiverPoint.city,
+          country: receiverPoint.country,
+        });
+      } else if (receiverPoint) {
+        // Set center even if map ref not available yet
+        setMapCenter([receiverPoint.lat, receiverPoint.lng]);
         setMapZoom(10);
+
+        console.log("MapView: Set center to receiver location:", {
+          lat: receiverPoint.lat,
+          lng: receiverPoint.lng,
+          city: receiverPoint.city,
+          country: receiverPoint.country,
+        });
       }
     }
   }, [routePoints]);
 
-  // Effect to set initial map center to sender's location
+  // Effect to set initial map center to receiver's location
   useEffect(() => {
-    if (shipmentData && shipmentData.sender) {
-      const setSenderAsCenter = async () => {
-        let senderCoords: Coordinates | null = null;
-
-        if (shipmentData.sender!.coordinates) {
-          senderCoords = shipmentData.sender!.coordinates;
-        } else {
-          const senderLocation = parseLocation(
-            shipmentData.sender!.address ||
-              `${shipmentData.sender!.city}, ${shipmentData.sender!.country}`
-          );
-          senderCoords = await geocodeAddress(
-            senderLocation.city + ", " + senderLocation.country
-          );
-        }
-
-        // Only set if we haven't set route points yet (initial load) and we have valid coordinates
-        if (routePoints.length === 0 && senderCoords) {
-          setMapCenter([senderCoords.lat, senderCoords.lng]);
-          setMapZoom(8);
-        }
-      };
-
-      setSenderAsCenter();
-    }
-  }, [shipmentData, parseLocation, routePoints.length]);
-
-  // Prepare polyline coordinates for route progression
-  const { completedRoute, remainingRoute } = useMemo(() => {
-    if (routePoints.length < 2) {
-      return { completedRoute: [], remainingRoute: [] };
-    }
-
-    // Sort points by date to ensure proper order
-    const sortedPoints = [...routePoints].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-
-    // Find the last non-destination point (current location)
-    let currentPointIndex = sortedPoints.findIndex(
-      (point) => point.isDestination
-    );
-    if (currentPointIndex === -1) {
-      currentPointIndex = sortedPoints.length;
-    } else {
-      currentPointIndex = currentPointIndex - 1; // Last point before destination
-    }
-
-    const completed: [number, number][] = [];
-    const remaining: [number, number][] = [];
-
-    sortedPoints.forEach((point, index) => {
-      const coord: [number, number] = [point.lat, point.lng];
-
-      if (index <= currentPointIndex) {
-        completed.push(coord);
+    if (shipmentData && shipmentData.receiver) {
+      // If we have receiver data, prepare to center on receiver location
+      const receiver = shipmentData.receiver;
+      if (receiver.city && receiver.country) {
+        console.log("MapView: Will center on receiver location:", {
+          city: receiver.city,
+          country: receiver.country,
+        });
       }
-
-      if (index >= currentPointIndex) {
-        remaining.push(coord);
-      }
-    });
-
-    return {
-      completedRoute: completed,
-      remainingRoute: remaining,
-    };
-  }, [routePoints]);
+    }
+  }, [shipmentData]);
 
   // Loading state
   if (isLoading) {
@@ -657,67 +489,36 @@ const MapView: React.FC<MapViewProps> = ({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* Polyline showing completed route (green/blue) */}
-        {completedRoute.length > 1 && (
-          <Polyline
-            positions={completedRoute}
-            color="#10b981"
-            weight={4}
-            opacity={0.8}
-          />
-        )}
-
-        {/* Polyline showing remaining route (dashed gray) */}
-        {remainingRoute.length > 1 && (
-          <Polyline
-            positions={remainingRoute}
-            color="#9ca3af"
-            weight={3}
-            opacity={0.6}
-            dashArray="10, 10"
-          />
-        )}
-
-        {/* Markers for each route point */}
+        {/* Only show receiver destination marker with pulsing animation */}
         {routePoints.map((point, index) => {
-          let icon = historyIcon;
-          if (point.isOrigin) {
-            icon = senderIcon;
-          } else if (point.isDestination) {
-            icon = receiverIcon;
-          } else if (point.status?.toLowerCase().includes("delivered")) {
-            icon = receiverIcon; // Use receiver icon for delivered status
-          } else if (
-            point.status?.toLowerCase().includes("shipped") ||
-            point.status?.toLowerCase().includes("transit") ||
-            point.status?.toLowerCase().includes("on hold") ||
-            index === routePoints.length - 2 // Second to last point (latest update before receiver)
-          ) {
-            icon = currentIcon;
-          }
-
-          return (
-            <Marker key={index} position={[point.lat, point.lng]} icon={icon}>
-              <Popup>
-                <div className="p-2">
-                  <h3 className="font-semibold text-gray-900">
-                    {point.description}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {point.city}, {point.country}
-                  </p>
-                  {point.status && (
-                    <p className="text-xs text-blue-600 mt-1">
-                      Status: {point.status}
+          // Only render destination markers
+          if (point.isDestination) {
+            return (
+              <Marker
+                key={index}
+                position={[point.lat, point.lng]}
+                icon={receiverIcon}
+              >
+                <Popup>
+                  <div className="p-2">
+                    <h3 className="font-semibold text-gray-900">
+                      📦 Package Destination
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {point.city}, {point.country}
                     </p>
-                  )}
-                  <p className="text-xs text-gray-500 mt-1">
-                    {new Date(point.date).toLocaleDateString()}
-                  </p>
-                </div>
-              </Popup>
-            </Marker>
-          );
+                    <p className="text-xs text-blue-600 mt-1">
+                      {point.description}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Expected: {new Date(point.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          }
+          return null;
         })}
       </MapContainer>
     </div>

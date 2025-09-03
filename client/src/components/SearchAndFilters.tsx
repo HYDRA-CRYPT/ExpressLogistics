@@ -21,14 +21,14 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
       <div className="flex-1 relative w-full">
         <Search
           size={20}
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 text-zinc-400 pointer-events-none"
         />
         <input
           type="text"
           placeholder="Search by Tracking Number"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 h-12 bg-zinc-800/60 border border-zinc-700 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+          className="w-full pl-12 pr-4 h-12 bg-zinc-800/20 border border-zinc-700 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
       </div>
 

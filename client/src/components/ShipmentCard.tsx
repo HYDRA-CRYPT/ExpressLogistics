@@ -5,9 +5,10 @@ import ShipmentActionCard from "./ShipmentActionCard";
 
 interface ShipmentCardProps {
   shipment: CardDelivery;
+  onDelete?: (id: string) => void;
 }
 
-const ShipmentCard: React.FC<ShipmentCardProps> = ({ shipment }) => {
+const ShipmentCard: React.FC<ShipmentCardProps> = ({ shipment, onDelete }) => {
   // Defensive fallback for nested data
   const receiver = shipment.receiver?.name || "N/A";
   const sender = shipment.sender?.name || "N/A";
@@ -33,7 +34,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = ({ shipment }) => {
         </div>
         <ShipmentActionCard
           shipment={shipment}
-          onDelete={(id) => console.log("Delete:", id)}
+          onDelete={onDelete || ((id) => console.log("Delete:", id))}
           onEdit={(shipment) => console.log("Edit:", shipment)}
           onUpdateLocation={(code) => console.log("Update location:", code)}
         />

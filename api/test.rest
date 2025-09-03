@@ -420,7 +420,56 @@ Content-Type: application/json
 }
 
 # =============================================================================
-# FAKE INVOICE TESTING
+# INVOICE ROUTES TESTING (jsPDF System) - FIXED FOR CLOUDINARY
+# =============================================================================
+
+### Test 1: Check if invoice exists for tracking code
+GET {{baseUrl}}/invoices/tracking/{{trackingCode}}
+
+### Test 2: Check if invoice exists for a different tracking code
+GET {{baseUrl}}/invoices/tracking/AGL1234567890
+
+### Test 3: Download invoice by tracking code (should return PDF or 404)
+GET {{baseUrl}}/invoices/download/{{trackingCode}}
+
+### Test 4: Download invoice for non-existent tracking code
+GET {{baseUrl}}/invoices/download/NONEXISTENT123
+
+### Test 5: Clear fake invoice URL from delivery (reset to null)
+PUT {{baseUrl}}/deliveries/{{deliveryId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "invoiceUrl": null
+}
+
+### Test 6: Check tracking code after clearing invoice URL (should show null)
+GET {{baseUrl}}/invoices/tracking/{{trackingCode}}
+
+### Test 7: Upload a test PDF invoice (requires PDF file)
+# Note: This requires multipart/form-data with a PDF file
+# You'll need to test this with a tool that supports file uploads like Postman
+# POST {{baseUrl}}/invoices/upload/{{trackingCode}}
+# Content-Type: multipart/form-data
+# Body: pdf file
+
+### Test 8: Health check to verify server is running
+GET {{baseUrl}}/health
+
+### Test 9: Get full delivery details to see current invoice URL
+GET {{baseUrl}}/deliveries/{{deliveryId}}
+Authorization: Bearer {{token}}
+
+### Test 10: Test direct URL access (replace with actual Cloudinary URL)
+# GET https://res.cloudinary.com/dk1cria0z/image/upload/v1756870819/invoices/invoice_AGL8072747111_1756870817567.pdf
+
+### Test 11: Verify invoice download works after new upload
+# After uploading via frontend, test the download endpoint
+# GET {{baseUrl}}/invoices/download/{{trackingCode}}
+
+# =============================================================================
+# FAKE INVOICE TESTING (Legacy)
 # =============================================================================
 
 ### Generate Fake Invoice for Delivery

@@ -16,6 +16,9 @@ import TrackShipments from "../Admin/pages/TrackShipments.tsx";
 import OwnerTrackDetails from "@/Admin/pages/OwnerTrackDetails.tsx";
 import EditShipment from "@/Admin/pages/EditShipment.tsx";
 import Services from "@/pages/Service.tsx";
+import InvoiceDownload from "../pages/InvoiceDownload.tsx";
+import InvoiceGeneratorDemo from "../pages/InvoiceGeneratorDemo.tsx";
+import InvoiceSystemTest from "../pages/InvoiceSystemTest.tsx";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +30,9 @@ const router = createBrowserRouter([
       { path: "about", element: <About /> },
       { path: "track", element: <Track /> },
       { path: "track/:code", element: <TrackDetails /> },
+      { path: "track/:code/invoice", element: <InvoiceDownload /> },
+      { path: "invoice-demo", element: <InvoiceGeneratorDemo /> },
+      { path: "invoice-test", element: <InvoiceSystemTest /> },
       { path: "contact", element: <Contact /> },
       { path: "services", element: <Services /> },
     ],

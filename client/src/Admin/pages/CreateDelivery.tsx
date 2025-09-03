@@ -2,6 +2,16 @@ import ShipmentForm from "@/components/ShipmentForm";
 import { useMutate } from "@/hooks/useMutate";
 import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
+import { toast } from "sonner";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Package, Plus } from "lucide-react";
 
 interface DeliveryRequest {
   sender: {
@@ -77,11 +87,34 @@ const CreateDelivery = () => {
   const createDelivery = useMutate<DeliveryResponse, DeliveryRequest>({
     invalidateQueries: ["fetch", "/deliveries"],
     onSuccess: (response) => {
-      alert(`✅ Delivery created!\nTracking Code: ${response.trackingCode}`);
+      toast.success("Delivery created successfully!", {
+        description: `Tracking Code: ${response.trackingCode}. PDF invoice and confirmation email are being processed in the background.`,
+        duration: 5000,
+      });
       resetForm();
     },
     onError: (error) => {
-      alert(`❌ Failed to create delivery.\nError: ${error.message}`);
+      console.error("CreateDelivery mutation error:", error);
+
+      // Handle timeout errors specifically
+      if (
+        error.message.includes("timeout") ||
+        error.message.includes("ECONNABORTED")
+      ) {
+        toast.warning(
+          "Request timeout - Your delivery might still be processing",
+          {
+            description:
+              "This can happen when generating PDFs and sending emails. Please check the shipments list to see if your delivery was created.",
+            duration: 8000,
+          }
+        );
+      } else {
+        toast.error("Failed to create delivery", {
+          description: error.message,
+          duration: 5000,
+        });
+      }
     },
   });
 
@@ -135,17 +168,59 @@ const CreateDelivery = () => {
 
       const requestData = transformFormData(form);
 
+      console.log("CreateDelivery: Submitting delivery creation request...");
+      console.log("Request data:", requestData);
+
+      // Show processing message
+      console.log(
+        "Processing delivery creation with PDF generation and email sending..."
+      );
+
       await createDelivery.mutateAsync({
         url: "/deliveries",
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "X-Request-Timeout": "60000", // Indicate we expect a longer processing time
+        },
         data: requestData,
       });
     } catch (err: unknown) {
+      console.error("CreateDelivery error:", err);
+
+      // Enhanced error handling for timeout and network issues
+      if (err && typeof err === "object" && "code" in err) {
+        const axiosErr = err as AxiosError<unknown>;
+
+        if (
+          axiosErr.code === "ECONNABORTED" ||
+          axiosErr.message?.includes("timeout")
+        ) {
+          console.warn(
+            "Request timed out - delivery might still be processing"
+          );
+          toast.warning("Request timed out!", {
+            description:
+              "Your delivery creation is still processing in the background. This is normal when generating PDFs and sending emails. Please wait a moment and check the shipments list to see if your delivery was created.",
+            duration: 8000,
+          });
+          return; // Don't show additional error
+        }
+
+        if (
+          !axiosErr.response &&
+          (axiosErr.code === "ERR_NETWORK" || !navigator.onLine)
+        ) {
+          toast.error("Network Error", {
+            description: "Please check your internet connection and try again.",
+            duration: 5000,
+          });
+          return;
+        }
+      }
+
       // Provide detailed error info for debugging
-      // axios error typing: err as AxiosError
-      let message = "Unknown error";
-      // try to extract axios response
+      let message = "Unknown error occurred";
       try {
         const axiosErr = err as unknown as AxiosError<unknown> | undefined;
         if (axiosErr?.response?.data) {
@@ -153,18 +228,20 @@ const CreateDelivery = () => {
             "CreateDelivery server response:",
             axiosErr.response.data
           );
-          // try to extract a sensible message from the response body
           const respData = axiosErr.response.data as Record<string, unknown>;
           message = (respData?.message as string) || JSON.stringify(respData);
         } else if (axiosErr?.message) {
           message = axiosErr.message;
         }
-      } catch (err) {
-        // fallback
+      } catch {
         if (err instanceof Error) message = err.message;
       }
-      console.error("CreateDelivery error:", err);
-      alert(`❌ Failed to create delivery.\nReason: ${message}`);
+
+      console.error("CreateDelivery detailed error:", { err, message });
+      toast.error("Failed to create delivery", {
+        description: `Reason: ${message}. If the error persists, please try again or contact support.`,
+        duration: 6000,
+      });
     }
   };
 
@@ -174,11 +251,52 @@ const CreateDelivery = () => {
   };
 
   return (
-    <div className="relative space-y-6">
-      <ShipmentForm
-        onSubmit={handleSubmit}
-        isLoading={createDelivery.isPending}
-      />
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
+      <div className="p-6 space-y-8">
+        {/* Header Section */}
+        <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-3xl font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-3">
+              <Plus className="h-8 w-8 text-zinc-600 dark:text-zinc-400" />
+              Create New Delivery
+            </CardTitle>
+            <CardDescription className="text-zinc-600 dark:text-zinc-400 text-base">
+              Create a new shipment and generate tracking information for your
+              customers
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        {/* Form Section */}
+        <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <Package className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
+              Shipment Details
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="secondary"
+                className="bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+              >
+                New Shipment
+              </Badge>
+              <Badge
+                variant="outline"
+                className="border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
+              >
+                Draft
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <ShipmentForm
+              onSubmit={handleSubmit}
+              isLoading={createDelivery.isPending}
+            />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
