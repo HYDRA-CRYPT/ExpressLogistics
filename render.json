@@ -1,0 +1,92 @@
+{
+  "name": "AegisExpress Logistics API",
+  "description": "Enterprise logistics management API with real-time tracking, email notifications, and PDF generation",
+  "website": "https://github.com/RabbitDaCoder/ExpressLogistics",
+  "repository": "https://github.com/RabbitDaCoder/ExpressLogistics",
+  "logo": "https://raw.githubusercontent.com/RabbitDaCoder/ExpressLogistics/main/client/public/react.svg",
+  "success_url": "/api/health",
+  "services": [
+    {
+      "type": "web",
+      "name": "aegis-express-api",
+      "env": "node",
+      "plan": "free",
+      "buildCommand": "cd api && npm install",
+      "startCommand": "cd api && npm start",
+      "healthCheckPath": "/api/health",
+      "envVars": [
+        {
+          "key": "NODE_ENV",
+          "value": "production"
+        },
+        {
+          "key": "PORT",
+          "value": "10000"
+        },
+        {
+          "key": "MONGODB_URI",
+          "description": "MongoDB connection string",
+          "required": true
+        },
+        {
+          "key": "JWT_SECRET",
+          "description": "JWT secret key for authentication",
+          "generateValue": true,
+          "required": true
+        },
+        {
+          "key": "JWT_EXPIRES",
+          "value": "7d"
+        },
+        {
+          "key": "REDIS_URL",
+          "description": "Redis connection string for caching",
+          "required": true
+        },
+        {
+          "key": "EMAIL_USER",
+          "description": "SMTP email username",
+          "required": true
+        },
+        {
+          "key": "EMAIL_PASS",
+          "description": "SMTP email password",
+          "required": true
+        },
+        {
+          "key": "SMTP_HOST",
+          "value": "smtp.gmail.com"
+        },
+        {
+          "key": "SMTP_PORT",
+          "value": "465"
+        },
+        {
+          "key": "FROM_EMAIL",
+          "description": "From email address for notifications",
+          "required": true
+        },
+        {
+          "key": "CLOUDINARY_CLOUD_NAME",
+          "description": "Cloudinary cloud name for file storage",
+          "required": true
+        },
+        {
+          "key": "CLOUDINARY_API_KEY",
+          "description": "Cloudinary API key",
+          "required": true
+        },
+        {
+          "key": "CLOUDINARY_API_SECRET",
+          "description": "Cloudinary API secret",
+          "required": true
+        },
+        {
+          "key": "FRONTEND_URL",
+          "description": "Frontend application URL (update after client deployment)",
+          "value": "https://localhost:5173"
+        }
+      ]
+    }
+  ]
+}

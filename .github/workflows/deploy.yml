@@ -58,7 +58,12 @@ jobs:
           cache-dependency-path: api/package-lock.json
 
       - name: Install API dependencies
-        run: npm ci
+        run: |
+          if [ ! -f package-lock.json ]; then
+            npm install
+          else
+            npm ci || npm install
+          fi
 
       - name: Run API tests
         run: npm test || echo "No tests found"
@@ -86,7 +91,12 @@ jobs:
           cache-dependency-path: client/package-lock.json
 
       - name: Install Client dependencies
-        run: npm ci
+        run: |
+          if [ ! -f package-lock.json ]; then
+            npm install
+          else
+            npm ci || npm install
+          fi
 
       - name: Build Client
         run: npm run build
