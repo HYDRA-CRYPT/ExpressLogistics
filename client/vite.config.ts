@@ -18,4 +18,21 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom"],
+          ui: [
+            "@radix-ui/react-alert-dialog",
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-dropdown-menu",
+          ],
+          utils: ["axios", "date-fns", "clsx"],
+        },
+      },
+    },
+    target: "esnext",
+    minify: "esbuild",
+  },
 });
