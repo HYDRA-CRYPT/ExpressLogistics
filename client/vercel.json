@@ -7,11 +7,6 @@
   "devCommand": "npm run dev",
   "cleanUrls": true,
   "trailingSlash": false,
-  "functions": {
-    "src/pages/api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "env": {
     "NODE_VERSION": "18"
   },
