@@ -2,6 +2,7 @@ export interface EditShipmentData {
   shipmentType: string;
   pickupDate: string;
   deliveryDate: string;
+  status: string;
   sender: {
     name: string;
     city: string;
@@ -33,6 +34,7 @@ export interface CreateShipmentData {
   shipmentType: string;
   pickupDate: string;
   deliveryDate: string;
+  status: string;
   sender: {
     name: string;
     city: string;

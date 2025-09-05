@@ -19,6 +19,7 @@ interface ShipmentData {
   shipmentType: string;
   pickupDate: string;
   deliveryDate: string;
+  status: string;
   sender: {
     name: string;
     location: string; // city, country as a single string
@@ -53,6 +54,15 @@ interface ShipmentFormProps {
 
 const SHIPMENT_TYPES = ["Parcel", "Document", "Freight", "Other"];
 
+const DELIVERY_STATUSES = [
+  "Pending",
+  "Processing",
+  "Shipped",
+  "In Transit",
+  "On Hold",
+  "Delivered",
+];
+
 const EditShipmentForm: React.FC<ShipmentFormProps> = ({
   initialData = {},
   onSubmit,
@@ -69,6 +79,7 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
     shipmentType: initialData?.shipmentType ?? "Parcel",
     pickupDate: initialData?.pickupDate ?? "",
     deliveryDate: initialData?.deliveryDate ?? "",
+    status: initialData?.status ?? "Pending",
     sender: {
       name: initialData?.sender?.name ?? "",
       location:
@@ -852,6 +863,41 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
                   {formData.currency.symbol}
                   {totalValue.toFixed(2)} {formData.currency.code}
                 </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-700 dark:text-zinc-400">
+                  Status:
+                </span>
+                <span className="text-zinc-900 dark:text-white font-medium">
+                  {formData.status}
+                </span>
+              </div>
+            </div>
+
+            {/* Status Selection */}
+            <div className="pt-4 border-t border-zinc-300 dark:border-zinc-700">
+              <h4 className="text-zinc-900 dark:text-white font-medium mb-3">
+                Delivery Status
+              </h4>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Update status for this shipment
+                </label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => handleInputChange("status", e.target.value)}
+                  className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {DELIVERY_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
+                  This status will be used for email notifications and tracking
+                  updates
+                </p>
               </div>
             </div>
 

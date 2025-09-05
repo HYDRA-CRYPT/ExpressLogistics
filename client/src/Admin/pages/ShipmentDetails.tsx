@@ -889,15 +889,8 @@ const ShipmentDetails: React.FC<ShipmentDetailsProps> = ({
           </div>
         </div>
 
-        {/* Package Details */}
-        <PackageItems
-          items={processedShipment.items || []}
-          currency={processedShipment.currency || "$"}
-          totalValue={processedShipment.totalValue}
-        />
-
         {/* Tabs */}
-        <div className="bg-zinc-100 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden">
+        <div className="bg-zinc-100 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden mb-6">
           <div className="border-b border-zinc-200 dark:border-zinc-700">
             <div className="flex">
               {tabConfig.map((tab) => (
@@ -932,6 +925,13 @@ const ShipmentDetails: React.FC<ShipmentDetailsProps> = ({
             )}
           </div>
         </div>
+
+        {/* Package Details */}
+        <PackageItems
+          items={processedShipment.items || []}
+          currency={processedShipment.currency || "$"}
+          totalValue={processedShipment.totalValue}
+        />
       </div>
     </div>
   );

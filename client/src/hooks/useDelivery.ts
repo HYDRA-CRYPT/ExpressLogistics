@@ -29,6 +29,7 @@ interface DeliveryRequest {
   dateSent: string;
   deliveryDate: string;
   checkEmail: boolean;
+  status: string;
 }
 
 interface DeliveryResponse {
