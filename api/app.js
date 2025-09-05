@@ -31,7 +31,20 @@ app.use(
       "Accept",
       "Origin",
       "X-Requested-With",
+      "x-request-timeout",
+      "X-Request-Timeout",
+      "Access-Control-Allow-Headers",
+      "Access-Control-Allow-Origin",
+      "Cache-Control",
+      "Pragma",
+      "X-HTTP-Method-Override",
+      "X-Forwarded-For",
+      "X-Real-IP",
+      "User-Agent",
+      "Referer"
     ],
+    exposedHeaders: ["Content-Length", "Content-Type"],
+    maxAge: 86400, // 24 hours
   })
 );
 
@@ -46,7 +59,19 @@ const publicLimiter = rateLimit({
 
 app.use("/api", publicLimiter);
 
-// Handle preflight requests
+// Specific handler for deliveries preflight (must come before general options handler)
+app.options("/api/deliveries", (req, res) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,PATCH,OPTIONS");
+  res.header("Access-Control-Allow-Headers", 
+    "Content-Type,Authorization,Accept,Origin,X-Requested-With,x-request-timeout,X-Request-Timeout,Access-Control-Allow-Headers,Access-Control-Allow-Origin,Cache-Control,Pragma,X-HTTP-Method-Override,X-Forwarded-For,X-Real-IP,User-Agent,Referer"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Max-Age", "86400");
+  res.sendStatus(204); // Use 204 No Content for preflight
+});
+
+// Handle preflight requests (general fallback)
 app.options("*", cors());
 
 app.use("/api/auth", authRoutes);

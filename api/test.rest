@@ -1,7 +1,7 @@
 # Delivery Tracking API Email Test Suite
 # Focused on email functionality testing with real emails
 
-@baseUrl = http://localhost:5000/api
+@baseUrl = https://aegis-express-api.onrender.com/api
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTQwY2UxZWZiYTQ1ZTc1NjVmODUwMCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NjM1NDI1MSwiZXhwIjoxNzU2OTU5MDUxfQ.uNGdd3X4jd-QnFZ0yiMwQ2osAcnntZEP_MnvpwxrKcs
 @deliveryId = 68b03e2dc3158b77359b0159
 @trackingCode = AGL2234712819
