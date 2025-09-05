@@ -9,19 +9,19 @@ import {
   Target,
   Heart,
   Zap,
-  Sparkles,
   TrendingUp,
   Shield,
   Rocket,
   Star,
   Building2,
   MapPin,
-  Calendar,
   Package,
+  Phone,
 } from "lucide-react";
 import SEOHelmet from "@/components/SEOHelmet";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const About = () => {
   const values = [
@@ -116,159 +116,221 @@ const About = () => {
     <div className="bg-white dark:bg-zinc-900 transition-colors">
       <SEOHelmet page="about" />
 
-      {/* Modern Hero Section */}
+      {/* Enhanced Hero Section with Better UX */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Animated Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-          <div className="absolute inset-0 bg-black/30"></div>
-
-          {/* Floating Elements */}
-          <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-
-          {/* Grid Pattern */}
-          <div className="absolute inset-0 opacity-10">
+        {/* Simplified, Professional Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-zinc-900 dark:via-blue-900/10 dark:to-slate-900">
+          {/* Subtle Pattern for Visual Interest */}
+          <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]">
             <svg className="w-full h-full" viewBox="0 0 100 100" fill="none">
               <defs>
                 <pattern
-                  id="aboutGrid"
-                  width="10"
-                  height="10"
+                  id="aboutPattern"
+                  width="20"
+                  height="20"
                   patternUnits="userSpaceOnUse"
                 >
                   <circle
-                    cx="5"
-                    cy="5"
-                    r="1"
+                    cx="10"
+                    cy="10"
+                    r="1.5"
                     fill="currentColor"
-                    className="text-white"
+                    className="text-blue-600"
                   />
                 </pattern>
               </defs>
-              <rect width="100" height="100" fill="url(#aboutGrid)" />
+              <rect width="100" height="100" fill="url(#aboutPattern)" />
             </svg>
           </div>
         </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <div className="mb-6">
-            <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white border-0 px-6 py-2 text-sm font-semibold">
-              <Sparkles className="h-4 w-4 mr-2" />
-              Since 2004
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* Trust Indicator Badge */}
+          <div className="mb-8">
+            <Badge className="bg-blue-600 text-white border-0 px-6 py-3 text-sm font-medium shadow-lg">
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Trusted by 10,000+ Businesses Since 2004
             </Badge>
           </div>
 
-          <h1 className="text-6xl lg:text-8xl font-bold mb-8 bg-gradient-to-r from-white via-blue-200 to-white bg-clip-text text-transparent">
-            About
-            <span className="block bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
-              Aegis Express
+          {/* Clear, Action-Oriented Headline */}
+          <h1 className="text-5xl lg:text-7xl font-bold mb-8 text-gray-900 dark:text-white leading-tight">
+            Your Logistics Partner for
+            <span className="block bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+              Global Success
             </span>
           </h1>
 
-          <p className="text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-12">
-            Leading the logistics revolution with innovative solutions,
-            unwavering commitment, and a passion for connecting businesses
-            worldwide through seamless transportation.
+          {/* Value Proposition */}
+          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed mb-12">
+            We transform complex logistics challenges into simple solutions,
+            connecting your business to opportunities worldwide with
+            reliability, speed, and transparency you can trust.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link
-              to="/services"
-              className="group bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transform hover:-translate-y-1"
+          {/* Clear Call-to-Actions */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            <Button
+              asChild
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
-              <Package className="h-5 w-5 mr-3 group-hover:rotate-12 transition-transform duration-300" />
-              Explore Our Services
-              <ArrowRight className="h-5 w-5 ml-3 group-hover:translate-x-1 transition-transform duration-300" />
-            </Link>
+              <Link to="/services">
+                <Package className="h-5 w-5 mr-3" />
+                Explore Our Services
+                <ArrowRight className="h-5 w-5 ml-3" />
+              </Link>
+            </Button>
 
-            <Link
-              to="/contact"
-              className="group bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/30 px-8 py-4 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center"
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 px-8 py-4 rounded-xl font-semibold transition-all duration-300"
             >
-              <Building2 className="h-5 w-5 mr-3" />
-              Contact Our Team
-            </Link>
+              <Link to="/contact">
+                <Phone className="h-5 w-5 mr-3" />
+                Talk to Our Experts
+              </Link>
+            </Button>
+          </div>
+
+          {/* Trust Indicators */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600 mb-2">200+</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Countries Served
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600 mb-2">
+                99.9%
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                On-Time Delivery
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-600 mb-2">
+                24/7
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Customer Support
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-600 mb-2">ISO</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Certified Quality
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Modern Mission Statement */}
+      {/* Enhanced Mission Section with Better Information Hierarchy */}
       <section className="py-24 bg-white dark:bg-zinc-900 relative overflow-hidden">
-        {/* Background Effects */}
+        {/* Subtle Background Effects */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-r from-orange-500/5 to-amber-500/5 rounded-full blur-3xl"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Content with Better Readability */}
             <div className="order-2 lg:order-1">
               <div className="mb-6">
-                <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 px-4 py-2">
+                <Badge className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border-0 px-4 py-2">
                   <Shield className="h-4 w-4 mr-2" />
                   Our Mission
                 </Badge>
               </div>
 
-              <h2 className="text-5xl font-bold text-gray-900 dark:text-white mb-8 leading-tight">
-                Delivering More Than
-                <span className="block bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                  Just Packages
+              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-8 leading-tight">
+                More Than Logistics—
+                <span className="block text-blue-600 dark:text-blue-400">
+                  We Deliver Dreams
                 </span>
               </h2>
 
               <div className="space-y-6 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                <p>
-                  At Aegis Express Logistics, we exist to simplify global
-                  commerce by providing exceptional transportation and logistics
-                  services. We believe that every package carries dreams,
-                  ambitions, and important connections between people and
-                  businesses.
+                <p className="text-xl font-medium text-gray-800 dark:text-gray-200">
+                  Every package tells a story. Every shipment connects people,
+                  businesses, and communities across the globe.
                 </p>
                 <p>
-                  Our mission is to deliver not just packages, but peace of
-                  mind, ensuring that every shipment reaches its destination
-                  safely, securely, and on time.
+                  At Aegis Express Logistics, we understand that behind every
+                  tracking number is someone's important moment—a birthday gift
+                  reaching family, critical supplies supporting a business, or
+                  life-changing medical equipment arriving just in time.
+                </p>
+                <p>
+                  That's why we've built our entire organization around one
+                  simple promise: <strong>your success is our success</strong>.
+                  We don't just move packages; we move possibilities.
                 </p>
               </div>
 
-              <div className="mt-10 p-6 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-2xl border border-blue-100 dark:border-blue-800">
-                <div className="flex items-center space-x-4">
-                  <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-3 rounded-2xl">
-                    <CheckCircle className="h-6 w-6 text-white" />
+              {/* Key Differentiators */}
+              <div className="mt-10 grid md:grid-cols-2 gap-6">
+                <div className="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                  <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
+                    <CheckCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">
-                      Trusted by 10,000+ businesses
-                    </h4>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      across 6 continents and growing
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                      Reliability First
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      99.9% on-time delivery rate with full transparency
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                  <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg">
+                    <Globe className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                      Global Reach
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      200+ countries with local expertise everywhere
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
+            {/* Enhanced Visual */}
             <div className="order-1 lg:order-2 relative">
               <div className="relative group">
                 <img
                   src="https://images.pexels.com/photos/4391470/pexels-photo-4391470.jpeg?auto=compress&cs=tinysrgb&w=800"
-                  alt="Our Mission"
-                  className="rounded-3xl shadow-2xl group-hover:scale-105 transition-transform duration-300"
+                  alt="Our Mission - Global Logistics Excellence"
+                  className="rounded-2xl shadow-2xl w-full h-[500px] object-cover group-hover:scale-105 transition-transform duration-300"
                 />
 
-                {/* Floating Badge */}
-                <div className="absolute -bottom-8 -left-8 bg-gradient-to-r from-orange-500 to-amber-500 p-6 rounded-3xl text-center text-white shadow-2xl">
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="h-6 w-6" />
+                {/* Performance Badge */}
+                <div className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-xl">
+                      <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    </div>
                     <div>
-                      <div className="text-3xl font-bold">20+</div>
-                      <div className="text-sm opacity-90">Years</div>
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        21 Years
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
+                        Of Excellence
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Floating Elements */}
-                <div className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center">
-                  <Star className="h-8 w-8 text-white" />
+                {/* Trust Indicator */}
+                <div className="absolute -top-4 -right-4 bg-blue-600 p-4 rounded-2xl shadow-lg">
+                  <Star className="h-6 w-6 text-white" />
                 </div>
               </div>
             </div>
@@ -355,22 +417,22 @@ const About = () => {
         </div>
       </section>
 
-      {/* Core Values with Modern Cards */}
-      <section className="py-24 bg-white dark:bg-zinc-900 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
+      {/* Enhanced Values Section with Focus on Benefits */}
+      <section className="py-24 bg-gray-50 dark:bg-zinc-800 relative overflow-hidden">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]">
           <svg className="w-full h-full" viewBox="0 0 100 100" fill="none">
             <defs>
               <pattern
                 id="valuesPattern"
-                width="20"
-                height="20"
+                width="24"
+                height="24"
                 patternUnits="userSpaceOnUse"
               >
                 <circle
-                  cx="10"
-                  cy="10"
-                  r="2"
+                  cx="12"
+                  cy="12"
+                  r="1"
                   fill="currentColor"
                   className="text-blue-500"
                 />
@@ -381,68 +443,113 @@ const About = () => {
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Clear Value Proposition Header */}
           <div className="text-center mb-20">
-            <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 px-6 py-3 mb-6">
+            <Badge className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 border-0 px-6 py-3 mb-6">
               <Heart className="h-4 w-4 mr-2" />
-              Our Values
+              Why Choose Us
             </Badge>
-            <h2 className="text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-              The Principles That
-              <span className="block bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                Guide Our Journey
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+              Values That Drive
+              <span className="block text-green-600 dark:text-green-400">
+                Your Success
               </span>
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Every decision we make is rooted in these core values that drive
-              our commitment to excellence
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              These aren't just company values—they're promises we make to every
+              customer, every day, with every shipment.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          {/* Enhanced Value Cards with Business Benefits */}
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
             {values.map((value, index) => (
               <Card
                 key={index}
-                className="group bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 hover:rotate-1 overflow-hidden"
+                className="group bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden"
               >
-                <CardContent className="p-8 text-center relative">
-                  {/* Background Gradient */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${value.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}
-                  ></div>
-
-                  {/* Icon Container */}
-                  <div
-                    className={`relative bg-gradient-to-r ${value.color} text-white p-6 rounded-3xl w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-lg`}
-                  >
-                    {value.icon}
+                <CardContent className="p-8 relative">
+                  {/* Enhanced Icon with Business Context */}
+                  <div className="flex items-center mb-6">
                     <div
-                      className={`absolute inset-0 bg-gradient-to-r ${value.color} rounded-3xl blur opacity-0 group-hover:opacity-50 transition-opacity duration-500`}
-                    ></div>
+                      className={`bg-gradient-to-r ${value.color} text-white p-4 rounded-2xl mr-4 group-hover:scale-110 transition-transform duration-300`}
+                    >
+                      {value.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {value.title}
+                      </h3>
+                      <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                        Our Promise to You
+                      </div>
+                    </div>
                   </div>
 
-                  <h3
-                    className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text transition-all duration-500"
-                    style={{
-                      backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))`,
-                    }}
-                  >
-                    {value.title}
-                  </h3>
-
-                  <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                  {/* Clear Description with Business Impact */}
+                  <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed mb-6">
                     {value.description}
                   </p>
 
-                  {/* Floating Sparkles */}
-                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <Sparkles className="h-4 w-4 text-yellow-400 animate-pulse" />
+                  {/* Business Benefit Highlight */}
+                  <div
+                    className={`${value.bgColor} p-4 rounded-xl border-l-4 border-blue-500`}
+                  >
+                    <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                      <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                      {index === 0 &&
+                        "Reduces risk, increases customer satisfaction"}
+                      {index === 1 &&
+                        "Faster delivery means faster business growth"}
+                      {index === 2 &&
+                        "Clear tracking builds trust and confidence"}
+                    </div>
                   </div>
-                  <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                    <Sparkles className="h-3 w-3 text-blue-400 animate-pulse delay-300" />
-                  </div>
+
+                  {/* Hover Effect Border */}
+                  <div
+                    className={`absolute inset-0 border-2 border-transparent group-hover:border-blue-200 dark:group-hover:border-blue-800 rounded-lg transition-colors duration-300`}
+                  ></div>
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          {/* Call-to-Action Section */}
+          <div className="mt-16 text-center">
+            <div className="bg-blue-600 text-white p-8 rounded-2xl shadow-xl">
+              <h3 className="text-2xl font-bold mb-4">
+                Experience These Values in Action
+              </h3>
+              <p className="text-blue-100 mb-6 text-lg">
+                Ready to see how our values translate into exceptional service
+                for your business?
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="lg"
+                  className="bg-white text-blue-600 hover:bg-gray-100"
+                >
+                  <Link to="/services">
+                    <Package className="h-5 w-5 mr-2" />
+                    Explore Services
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="border-white text-white hover:bg-white hover:text-blue-600"
+                >
+                  <Link to="/contact">
+                    <Phone className="h-5 w-5 mr-2" />
+                    Get Started Today
+                  </Link>
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>

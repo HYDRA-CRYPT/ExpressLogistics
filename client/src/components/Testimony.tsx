@@ -3,28 +3,36 @@ import { AnimatePresence, motion } from "motion/react";
 
 const testimonials = [
   {
-    quote: "SmoothUI is my go-to for fast, beautiful UIs.",
-    avatar: "https://github.com/shadcn.png",
-    name: "Shadcn",
-    role: "Creator of shadcn/ui",
+    quote:
+      "Aegis Express transformed our supply chain. Their same-day delivery service helped us reduce inventory costs by 30% while improving customer satisfaction.",
+    avatar:
+      "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=200",
+    name: "Sarah Chen",
+    role: "Operations Director, TechFlow Industries",
   },
   {
-    quote: "Incredible DX. Animations feel native!",
-    avatar: "https://github.com/midudev.png",
-    name: "Midudev",
-    role: "Dev & Educator",
+    quote:
+      "The real-time tracking and proactive communication kept our clients informed every step of the way. Game changer for our business.",
+    avatar:
+      "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=200",
+    name: "Michael Rodriguez",
+    role: "CEO, Global Manufacturing Solutions",
   },
   {
-    quote: "The best UI kit for React I've used.",
-    avatar: "https://github.com/rauchg.png",
-    name: "Rauch",
-    role: "Vercel CEO",
+    quote:
+      "From urgent medical supplies to routine deliveries, Aegis Express handles everything with incredible reliability. 99.5% on-time rate isn't just a number.",
+    avatar:
+      "https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?auto=compress&cs=tinysrgb&w=200",
+    name: "Dr. Amanda Foster",
+    role: "Chief Procurement Officer, Metropolitan Health",
   },
   {
-    quote: "So smooth, so easy. Instantly impressive.",
-    avatar: "https://github.com/pheralb.png",
-    name: "Pheralb",
-    role: "Open Source Dev",
+    quote:
+      "Their international shipping service expanded our market reach to 15 new countries. The customs handling alone saved us weeks of headaches.",
+    avatar:
+      "https://images.pexels.com/photos/1486064/pexels-photo-1486064.jpeg?auto=compress&cs=tinysrgb&w=200",
+    name: "James Thompson",
+    role: "Export Manager, Precision Electronics",
   },
 ];
 

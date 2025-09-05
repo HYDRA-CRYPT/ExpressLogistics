@@ -181,6 +181,14 @@ const Contact = () => {
               Send Message
               <ArrowRight className="h-5 w-5 ml-3 group-hover:translate-x-1 transition-transform duration-300" />
             </Button>
+
+            <Button
+              variant="outline"
+              className="group bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/30 px-8 py-4 rounded-2xl font-bold transition-all duration-300"
+            >
+              <Building2 className="h-5 w-5 mr-3" />
+              Visit Our Office
+            </Button>
           </div>
         </div>
       </section>
