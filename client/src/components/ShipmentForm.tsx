@@ -136,7 +136,9 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
 
     // Check dates
     if (!formData.pickupDate) {
-      errors.push("Pickup date is required");
+      // Auto-set pickup date to today if not provided
+      const today = new Date().toISOString();
+      setFormData((prev) => ({ ...prev, pickupDate: today }));
     }
     if (!formData.deliveryDate) {
       errors.push("Delivery date is required");
@@ -359,6 +361,9 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
           <div>
             <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
               Pickup Date
+              <span className="text-zinc-500 dark:text-zinc-400 text-xs ml-2">
+                (Today's date will be used if not selected)
+              </span>
             </label>
             <DatePickerDemo
               value={formData.pickupDate}
@@ -827,7 +832,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
               <div className="flex justify-between">
                 <span className="text-zinc-400">Pickup Date:</span>
                 <span className="text-white">
-                  {formData.pickupDate || "Not selected"}
+                  {formData.pickupDate || "Today's date"}
                 </span>
               </div>
               <div className="flex justify-between">

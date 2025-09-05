@@ -78,6 +78,8 @@ const TimelineComponent: React.FC<TimelineComponentProps> = ({ shipment }) => {
         return <Pause className="w-4 h-4" />;
       case "delivered":
         return <CheckCircle className="w-4 h-4" />;
+      case "pending-delivery":
+        return <Clock className="w-4 h-4" />;
       default:
         return <AlertCircle className="w-4 h-4" />;
     }
@@ -98,6 +100,8 @@ const TimelineComponent: React.FC<TimelineComponentProps> = ({ shipment }) => {
         return "text-orange-400 bg-orange-500";
       case "delivered":
         return "text-green-400 bg-green-500";
+      case "pending-delivery":
+        return "text-gray-400 bg-gray-500";
       default:
         return "text-gray-400 bg-gray-500";
     }
@@ -123,15 +127,6 @@ const TimelineComponent: React.FC<TimelineComponentProps> = ({ shipment }) => {
     });
   };
 
-  const STATUS_ORDER = [
-    "pending",
-    "processing",
-    "shipped",
-    "in transit",
-    "on hold",
-    "delivered",
-  ];
-
   const STATUS_LABELS: Record<string, string> = {
     pending: "Order Confirmed & Pending",
     processing: "Processing",
@@ -141,26 +136,16 @@ const TimelineComponent: React.FC<TimelineComponentProps> = ({ shipment }) => {
     delivered: "Delivered",
   };
 
-  // Build timeline events
+  // Build timeline events - chronological order based on actual history
   const buildTimeline = (): TimelineEvent[] => {
     const events: TimelineEvent[] = [];
     const sentDate = new Date(shipment.dateSent);
     const deliveryDate = new Date(shipment.deliveryDate);
 
-    // Group history by status (case-insensitive)
-    const historyByStatus: Record<string, LocationUpdate[]> = {};
-    (Array.isArray(shipment.history) ? shipment.history : []).forEach(
-      (entry) => {
-        const status = entry.status?.toLowerCase() || "pending";
-        if (!historyByStatus[status]) historyByStatus[status] = [];
-        historyByStatus[status].push(entry);
-      }
-    );
-
-    // Always add Pending (first)
+    // Always start with creation/pending event
     events.push({
-      id: "pending",
-      title: STATUS_LABELS["pending"],
+      id: "created",
+      title: "Order Created & Confirmed",
       location: `${shipment.sender?.city || "Unknown"}, ${
         shipment.sender?.country || "Unknown"
       }`,
@@ -171,49 +156,66 @@ const TimelineComponent: React.FC<TimelineComponentProps> = ({ shipment }) => {
       isFixed: true,
     });
 
-    // Add only statuses that exist in history (except pending/delivered)
-    STATUS_ORDER.slice(1, -1).forEach((status) => {
-      const entries = historyByStatus[status] || [];
-      if (entries.length > 0) {
-        // Use the latest entry for this status
-        const latest = entries.reduce((a, b) =>
-          new Date(a.time).getTime() > new Date(b.time).getTime() ? a : b
-        );
-        events.push({
-          id: status,
-          title:
-            STATUS_LABELS[status] +
-            (latest.description ? ` - ${latest.description}` : ""),
-          location:
-            latest.city && latest.country
-              ? `${latest.city}, ${latest.country}`
-              : latest.location
-              ? `${latest.location.lat?.toFixed(2) ?? ""}, ${
-                  latest.location.lng?.toFixed(2) ?? ""
-                }`
-              : "Unknown",
-          date: latest.time ? formatDate(latest.time) : "",
-          time: latest.time ? formatTime(latest.time) : "",
-          status,
-          completed: true,
-          isFixed: false,
-        });
-      }
-    });
+    // Add all history entries in chronological order
+    if (Array.isArray(shipment.history) && shipment.history.length > 0) {
+      // Sort history by time (chronological order)
+      const sortedHistory = [...shipment.history].sort(
+        (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
+      );
 
-    // Always add Delivered (last)
-    events.push({
-      id: "delivered",
-      title: STATUS_LABELS["delivered"],
-      location: `${shipment.receiver?.city || "Unknown"}, ${
-        shipment.receiver?.country || "Unknown"
-      }`,
-      date: formatDate(deliveryDate),
-      time: formatTime(deliveryDate),
-      status: "delivered",
-      completed: shipment.status?.toLowerCase() === "delivered",
-      isFixed: true,
-    });
+      sortedHistory.forEach((entry, index) => {
+        if (entry.status) {
+          const entryTime = new Date(entry.time);
+          events.push({
+            id: `history-${index}`,
+            title: STATUS_LABELS[entry.status.toLowerCase()] || entry.status,
+            location:
+              entry.city && entry.country
+                ? `${entry.city}, ${entry.country}`
+                : entry.location
+                ? `${entry.location.lat?.toFixed(2) ?? ""}, ${
+                    entry.location.lng?.toFixed(2) ?? ""
+                  }`
+                : entry.description || "Unknown",
+            date: formatDate(entryTime),
+            time: formatTime(entryTime),
+            status: entry.status.toLowerCase(),
+            completed: true,
+            isFixed: false,
+          });
+        }
+      });
+    }
+
+    // Add delivery event (only if status is delivered)
+    if (shipment.status?.toLowerCase() === "delivered") {
+      events.push({
+        id: "delivered",
+        title: STATUS_LABELS["delivered"],
+        location: `${shipment.receiver?.city || "Unknown"}, ${
+          shipment.receiver?.country || "Unknown"
+        }`,
+        date: formatDate(deliveryDate),
+        time: formatTime(deliveryDate),
+        status: "delivered",
+        completed: true,
+        isFixed: true,
+      });
+    } else {
+      // Add expected delivery as pending event
+      events.push({
+        id: "expected-delivery",
+        title: "Expected Delivery",
+        location: `${shipment.receiver?.city || "Unknown"}, ${
+          shipment.receiver?.country || "Unknown"
+        }`,
+        date: formatDate(deliveryDate),
+        time: formatTime(deliveryDate),
+        status: "pending-delivery",
+        completed: false,
+        isFixed: true,
+      });
+    }
 
     return events;
   };
@@ -334,11 +336,11 @@ const TimelineComponent: React.FC<TimelineComponentProps> = ({ shipment }) => {
       <div className="mt-8 p-4 bg-gray-50 dark:bg-zinc-800/30 border border-gray-200 dark:border-zinc-700 rounded-lg">
         <div className="flex justify-between items-center text-sm">
           <span className="text-gray-600 dark:text-zinc-400">
-            Total Updates: {timeline.length - 2}{" "}
-            {/* Exclude fixed pending/delivery */}
+            Total Updates: {timeline.filter((event) => !event.isFixed).length}{" "}
+            {/* Exclude fixed creation/delivery events */}
           </span>
           <span className="text-gray-600 dark:text-zinc-400">
-            Status:{" "}
+            Current Status:{" "}
             <span className="text-gray-900 dark:text-white font-medium capitalize">
               {shipment.status}
             </span>

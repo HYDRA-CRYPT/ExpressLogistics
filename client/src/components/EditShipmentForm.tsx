@@ -130,7 +130,9 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
 
     // Check dates
     if (!formData.pickupDate) {
-      errors.push("Pickup date is required");
+      // Auto-set pickup date to today if not provided
+      const today = new Date().toISOString();
+      setFormData((prev) => ({ ...prev, pickupDate: today }));
     }
     if (!formData.deliveryDate) {
       errors.push("Delivery date is required");
@@ -225,12 +227,21 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
       ...formData.receiver,
       ...parseLocation(formData.receiver.location),
     };
-    const payload = {
+
+    // Transform dates to ISO strings, use today for pickup if not provided
+    const transformedData = {
       ...formData,
       sender,
       receiver,
+      dateSent: formData.pickupDate
+        ? new Date(formData.pickupDate).toISOString()
+        : new Date().toISOString(), // Use today's date as fallback
+      deliveryDate: formData.deliveryDate
+        ? new Date(formData.deliveryDate).toISOString()
+        : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now as fallback
     };
-    onSubmit?.(payload);
+
+    onSubmit?.(transformedData);
   };
 
   const steps = [
@@ -347,6 +358,9 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
           <div>
             <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
               Pickup Date
+              <span className="text-zinc-500 dark:text-zinc-400 text-xs ml-2">
+                (Today's date will be used if not selected)
+              </span>
             </label>
             <DatePickerDemo
               value={formData.pickupDate}
@@ -830,7 +844,7 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
                   Pickup Date:
                 </span>
                 <span className="text-zinc-900 dark:text-white">
-                  {formData.pickupDate || "Not selected"}
+                  {formData.pickupDate || "Today's date"}
                 </span>
               </div>
               <div className="flex justify-between">

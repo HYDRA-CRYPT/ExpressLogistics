@@ -47,6 +47,21 @@ export const createDelivery = async (req, res) => {
 
     const delivery = await Delivery.create(value);
 
+    // If the delivery is created with a status other than "Pending",
+    // add an initial history entry to track when this status was set
+    if (value.status && value.status !== "Pending") {
+      const initialHistoryEntry = {
+        description: `Initial status set to ${value.status}`,
+        status: value.status,
+        time: new Date(),
+        updateDate: new Date().toISOString().slice(0, 10),
+        updateTime: new Date().toTimeString().slice(0, 5),
+      };
+
+      delivery.history.push(initialHistoryEntry);
+      await delivery.save();
+    }
+
     // Note: PDF generation is now handled on the frontend with jsPDF
     // Invoice URL will be set when PDF is generated and uploaded via the invoice controller
     let invoiceUrl = null;
@@ -333,14 +348,14 @@ export const updateStatusAndLocation = async (req, res) => {
       updateObj.status = value.status;
     }
 
-    // Build location update if any location data is provided
+    // Build location update if status is provided OR any location data is provided
     if (
+      value.status ||
       value.description ||
       value.city ||
       value.country ||
       value.lat ||
-      value.lng ||
-      value.status
+      value.lng
     ) {
       locationUpdate.description =
         value.description ||
@@ -360,6 +375,7 @@ export const updateStatusAndLocation = async (req, res) => {
           lng: value.lng,
         };
       }
+      // Always add status to history entry if provided
       if (value.status) {
         locationUpdate.status = value.status;
       }
