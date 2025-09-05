@@ -390,34 +390,34 @@ function TrackShipments() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
-      <div className="p-6 space-y-8">
+      <div className="p-3 sm:p-4 lg:p-6 space-y-6 sm:space-y-8">
         {/* Header Section */}
         <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
-          <CardHeader className="text-center">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-12 h-12 bg-zinc-700 dark:bg-zinc-600 rounded-xl flex items-center justify-center mr-4">
-                <Send className="w-6 h-6 text-white transform rotate-45" />
+          <CardHeader className="text-center px-4 sm:px-6 py-6 sm:py-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center mb-4 gap-3 sm:gap-0">
+              <div className="w-10 sm:w-12 h-10 sm:h-12 bg-zinc-700 dark:bg-zinc-600 rounded-xl flex items-center justify-center sm:mr-4">
+                <Send className="w-5 sm:w-6 h-5 sm:h-6 text-white transform rotate-45" />
               </div>
-              <CardTitle className="text-4xl lg:text-5xl font-bold text-zinc-900 dark:text-zinc-100">
+              <CardTitle className="text-3xl sm:text-4xl lg:text-5xl font-bold text-zinc-900 dark:text-zinc-100">
                 Track Shipment
               </CardTitle>
             </div>
-            <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mb-4">
               <Badge
                 variant="secondary"
-                className="bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+                className="bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm"
               >
                 Admin Access
               </Badge>
               <Badge
                 variant="outline"
-                className="border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
+                className="border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm"
               >
                 <FileSearch className="h-3 w-3 mr-1" />
                 Full Details
               </Badge>
             </div>
-            <CardDescription className="text-zinc-600 dark:text-zinc-400 text-lg max-w-2xl mx-auto">
+            <CardDescription className="text-zinc-600 dark:text-zinc-400 text-base sm:text-lg max-w-2xl mx-auto px-2 sm:px-0">
               Enter tracking number to access full delivery information and
               management tools
             </CardDescription>
@@ -426,13 +426,13 @@ function TrackShipments() {
 
         {/* Search Section */}
         <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-              <Search className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
+          <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+            <CardTitle className="text-lg sm:text-xl text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <Search className="h-4 sm:h-5 w-4 sm:w-5 text-zinc-600 dark:text-zinc-400" />
               Tracking Search
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 sm:px-6">
             <TrackingInput
               onTrack={handleTrack}
               isLoading={isLoading}
@@ -445,7 +445,7 @@ function TrackShipments() {
 
         {isLoading && (
           <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
-            <CardContent className="py-12">
+            <CardContent className="py-8 sm:py-12">
               <LoadingSpinner />
             </CardContent>
           </Card>
@@ -453,14 +453,16 @@ function TrackShipments() {
 
         {error && (
           <Card className="border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10 backdrop-blur-sm">
-            <CardContent className="py-12 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-red-200 dark:bg-red-900/50 rounded-full flex items-center justify-center">
-                <Send className="w-8 h-8 text-red-600 dark:text-red-400" />
+            <CardContent className="py-8 sm:py-12 text-center px-4 sm:px-6">
+              <div className="w-12 sm:w-16 h-12 sm:h-16 mx-auto mb-4 bg-red-200 dark:bg-red-900/50 rounded-full flex items-center justify-center">
+                <Send className="w-6 sm:w-8 h-6 sm:h-8 text-red-600 dark:text-red-400" />
               </div>
-              <h3 className="text-xl font-semibold text-red-700 dark:text-red-400 mb-2">
+              <h3 className="text-lg sm:text-xl font-semibold text-red-700 dark:text-red-400 mb-2">
                 Tracking Error
               </h3>
-              <p className="text-red-600 dark:text-red-300 mb-6">{error}</p>
+              <p className="text-red-600 dark:text-red-300 mb-6 text-sm sm:text-base">
+                {error}
+              </p>
               <Button
                 onClick={handleReset}
                 variant="destructive"
@@ -486,14 +488,14 @@ function TrackShipments() {
 
         {!isLoading && !shipmentData && !error && trackingNumber === "" && (
           <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
-            <CardContent className="py-16 text-center">
-              <div className="w-20 h-20 mx-auto mb-6 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center">
-                <Send className="w-10 h-10 text-zinc-600 dark:text-zinc-400 transform rotate-45" />
+            <CardContent className="py-12 sm:py-16 text-center px-4 sm:px-6">
+              <div className="w-16 sm:w-20 h-16 sm:h-20 mx-auto mb-6 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center">
+                <Send className="w-8 sm:w-10 h-8 sm:h-10 text-zinc-600 dark:text-zinc-400 transform rotate-45" />
               </div>
-              <h3 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
+              <h3 className="text-xl sm:text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
                 Admin Tracking Ready
               </h3>
-              <p className="text-zinc-600 dark:text-zinc-400">
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">
                 Enter a tracking number above to get started
               </p>
             </CardContent>

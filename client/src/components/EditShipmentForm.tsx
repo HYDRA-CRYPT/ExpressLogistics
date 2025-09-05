@@ -5,6 +5,7 @@ import {
   CreditCard,
   FileText,
   ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import DatePickerDemo from "../components/date-time";
@@ -62,6 +63,8 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
   const [autoEmail, setAutoEmail] = useState<boolean>(
     initialData?.checkEmail || false
   );
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [showErrors, setShowErrors] = useState(false);
   const [formData, setFormData] = useState<ShipmentData>({
     shipmentType: initialData?.shipmentType ?? "Parcel",
     pickupDate: initialData?.pickupDate ?? "",
@@ -105,6 +108,120 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
 
   console.log("Form Data ==>", formData);
 
+  // Validation function to check all required fields
+  const validateForm = (): string[] => {
+    const errors: string[] = [];
+
+    // Check shipment type
+    if (!formData.shipmentType.trim()) {
+      errors.push("Shipment type is required");
+    }
+
+    // Check dates
+    if (!formData.pickupDate) {
+      errors.push("Pickup date is required");
+    }
+    if (!formData.deliveryDate) {
+      errors.push("Delivery date is required");
+    }
+
+    // Check sender information
+    if (!formData.sender.name.trim()) {
+      errors.push("Sender name is required");
+    }
+    if (!formData.sender.location.trim()) {
+      errors.push("Sender location is required");
+    }
+    if (!formData.sender.phone.trim()) {
+      errors.push("Sender phone is required");
+    }
+    if (!formData.sender.address.trim()) {
+      errors.push("Sender address is required");
+    }
+    if (!formData.sender.email.trim()) {
+      errors.push("Sender email is required");
+    }
+
+    // Check receiver information
+    if (!formData.receiver.name.trim()) {
+      errors.push("Receiver name is required");
+    }
+    if (!formData.receiver.location.trim()) {
+      errors.push("Receiver location is required");
+    }
+    if (!formData.receiver.phone.trim()) {
+      errors.push("Receiver phone is required");
+    }
+    if (!formData.receiver.address.trim()) {
+      errors.push("Receiver address is required");
+    }
+    if (!formData.receiver.email.trim()) {
+      errors.push("Receiver email is required");
+    }
+
+    // Check items
+    if (formData.items.length === 0) {
+      errors.push("At least one item is required");
+    } else {
+      formData.items.forEach((item, index) => {
+        if (!item.description.trim()) {
+          errors.push(`Item ${index + 1} description is required`);
+        }
+        if (item.quantity <= 0) {
+          errors.push(`Item ${index + 1} quantity must be greater than 0`);
+        }
+        if (item.weight <= 0) {
+          errors.push(`Item ${index + 1} weight must be greater than 0`);
+        }
+        if (item.value <= 0) {
+          errors.push(`Item ${index + 1} value must be greater than 0`);
+        }
+      });
+    }
+
+    // Check delivery fee
+    if (formData.deliveryFee <= 0) {
+      errors.push("Delivery fee must be greater than 0");
+    }
+
+    return errors;
+  };
+
+  const parseLocation = (location: string) => {
+    const parts = location.split(", ");
+    return {
+      city: parts[0] || "",
+      country: parts[1] || "",
+    };
+  };
+
+  const handleSubmit = () => {
+    const errors = validateForm();
+    setValidationErrors(errors);
+
+    if (errors.length > 0) {
+      setShowErrors(true);
+      return;
+    }
+
+    setShowErrors(false);
+
+    const sender = {
+      ...formData.sender,
+      ...parseLocation(formData.sender.location),
+    };
+    const receiver = {
+      ...formData.receiver,
+      ...parseLocation(formData.receiver.location),
+    };
+    const payload = {
+      ...formData,
+      sender,
+      receiver,
+    };
+    onSubmit?.(payload);
+  };
+
   const steps = [
     { id: 1, name: "Shipment Type", icon: Package },
     { id: 2, name: "Addresses", icon: MapPin },
@@ -136,6 +253,12 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
       ...prev,
       [field]: value,
     }));
+
+    // Clear errors when user starts typing
+    if (showErrors) {
+      setShowErrors(false);
+      setValidationErrors([]);
+    }
   };
 
   const handleItemChange = (
@@ -149,6 +272,12 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
       [field]: value,
     };
     setFormData((prev) => ({ ...prev, items: updatedItems }));
+
+    // Clear errors when user starts typing
+    if (showErrors) {
+      setShowErrors(false);
+      setValidationErrors([]);
+    }
   };
 
   const addItem = () => {
@@ -168,18 +297,18 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
   };
 
   const renderStep1 = () => (
-    <div className="space-y-6 p-6 rounded-lg bg-zinc-50 dark:bg-zinc-900">
+    <div className="space-y-4 sm:space-y-6 px-2 py-4 sm:p-6 rounded-lg bg-zinc-50 dark:bg-zinc-900">
       <div className="flex items-center space-x-2 mb-4">
         <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-        <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
+        <h2 className="text-lg sm:text-xl font-semibold text-zinc-900 dark:text-white">
           Shipment Type & Priority
         </h2>
       </div>
-      <p className="text-zinc-700 dark:text-zinc-400 text-sm mb-6">
+      <p className="text-zinc-700 dark:text-zinc-400 text-sm mb-4 sm:mb-6">
         Select the type of shipment and delivery priority
       </p>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
           <h3 className="text-yellow-600 dark:text-yellow-400 text-sm font-medium mb-3">
             Shipment Type
@@ -197,13 +326,13 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
                   }
                   className="mr-3 text-blue-600 dark:text-blue-500 focus:ring-blue-600 dark:focus:ring-blue-500"
                 />
-                <span className="text-zinc-900 dark:text-zinc-300">{type}</span>
+                <span className="text-zinc-900 dark:text-white">{type}</span>
               </label>
             ))}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
               Pickup Date
@@ -246,15 +375,15 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
   };
 
   const renderStep2 = () => (
-    <div className="space-y-8 p-6 rounded-lg bg-zinc-50 dark:bg-zinc-900">
+    <div className="space-y-6 sm:space-y-8 p-0 lg:p-4 sm:p-6 rounded-lg bg-zinc-50 dark:bg-zinc-900">
       {/* Sender Address */}
       <div className="flex items-center space-x-2 mb-4">
         <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-        <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
+        <h2 className="text-lg sm:text-xl font-semibold text-zinc-900 dark:text-white">
           Sender Address
         </h2>
       </div>
-      <p className="text-zinc-700 dark:text-zinc-400 text-sm mb-6">
+      <p className="text-zinc-700 dark:text-zinc-400 text-sm mb-4 sm:mb-6">
         Enter the pickup location details
       </p>
 
@@ -297,19 +426,18 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
             />
           </div>
         </div>
+
         <div className="grid grid-cols-1 gap-4">
-          <div>
-            <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
-              Sender Location (City, Country)
-            </label>
-            <LocationAutocomplete
-              value={formData.sender.location}
-              onChange={(location) => handleLocationChange("sender", location)}
-              placeholder="Search city, country..."
-            />
-          </div>
+          <LocationAutocomplete
+            label="Sender Location"
+            value={formData.sender.location}
+            onChange={(location) => handleLocationChange("sender", location)}
+            placeholder="Search for sender's city, country..."
+            required
+          />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
               Phone Number
@@ -348,14 +476,14 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
       </div>
 
       {/* Receiver Address */}
-      <div className="mt-8 pt-6 border-t border-zinc-300 dark:border-zinc-700">
-        <div className="flex items-center space-x-2 mb-6">
+      <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-zinc-300 dark:border-zinc-700">
+        <div className="flex items-center space-x-2 mb-4 sm:mb-6">
           <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-          <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
+          <h2 className="text-lg sm:text-xl font-semibold text-zinc-900 dark:text-white">
             Receiver Address
           </h2>
         </div>
-        <p className="text-zinc-700 dark:text-zinc-400 text-sm mb-6">
+        <p className="text-zinc-700 dark:text-zinc-400 text-sm mb-4 sm:mb-6">
           Enter the delivery location details
         </p>
 
@@ -398,21 +526,20 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
               />
             </div>
           </div>
+
           <div className="grid grid-cols-1 gap-4">
-            <div>
-              <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
-                Receiver Location (City, Country)
-              </label>
-              <LocationAutocomplete
-                value={formData.receiver.location}
-                onChange={(location) =>
-                  handleLocationChange("receiver", location)
-                }
-                placeholder="Search city, country..."
-              />
-            </div>
+            <LocationAutocomplete
+              label="Receiver Location"
+              value={formData.receiver.location}
+              onChange={(location) =>
+                handleLocationChange("receiver", location)
+              }
+              placeholder="Search for receiver's city, country..."
+              required
+            />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-zinc-900 dark:text-white text-sm font-medium mb-2">
                 Phone Number
@@ -659,71 +786,93 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
     const totalCost = baseShipping + weightCharge + deliveryFee; // <-- Include delivery fee
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div className="flex items-center space-x-2 mb-4">
-          <FileText className="w-5 h-5 text-blue-400" />
-          <h2 className="text-xl font-semibold text-white">
+          <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <h2 className="text-lg sm:text-xl font-semibold text-zinc-900 dark:text-white">
             Review & Cost Estimate
           </h2>
         </div>
-        <p className="text-zinc-400 text-sm mb-6">
+        <p className="text-zinc-700 dark:text-zinc-400 text-sm mb-4 sm:mb-6">
           Review your shipment details and get a cost estimate
         </p>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Shipment Summary */}
           <div className="space-y-4">
-            <h3 className="text-yellow-400 text-lg font-medium">
+            <h3 className="text-yellow-600 dark:text-yellow-400 text-lg font-medium">
               Shipment Summary
             </h3>
 
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-zinc-400">Type:</span>
-                <span className="text-white">{formData.shipmentType}</span>
+                <span className="text-zinc-700 dark:text-zinc-400">Type:</span>
+                <span className="text-zinc-900 dark:text-white">
+                  {formData.shipmentType}
+                </span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-zinc-400">Pickup Date:</span>
-                <span className="text-white">
+                <span className="text-zinc-700 dark:text-zinc-400">
+                  Pickup Date:
+                </span>
+                <span className="text-zinc-900 dark:text-white">
                   {formData.pickupDate || "Not selected"}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Delivery Date:</span>
-                <span className="text-white">
+                <span className="text-zinc-700 dark:text-zinc-400">
+                  Delivery Date:
+                </span>
+                <span className="text-zinc-900 dark:text-white">
                   {formData.deliveryDate || "Not selected"}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Total Items:</span>
-                <span className="text-white">{formData.items.length}</span>
+                <span className="text-zinc-700 dark:text-zinc-400">
+                  Total Items:
+                </span>
+                <span className="text-zinc-900 dark:text-white">
+                  {formData.items.length}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Total Weight:</span>
-                <span className="text-white">{totalWeight.toFixed(1)} lbs</span>
+                <span className="text-zinc-700 dark:text-zinc-400">
+                  Total Weight:
+                </span>
+                <span className="text-zinc-900 dark:text-white">
+                  {totalWeight.toFixed(1)} lbs
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Total Value:</span>
-                <span className="text-white">
+                <span className="text-zinc-700 dark:text-zinc-400">
+                  Total Value:
+                </span>
+                <span className="text-zinc-900 dark:text-white">
                   {formData.currency.symbol}
                   {totalValue.toFixed(2)} {formData.currency.code}
                 </span>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-zinc-700">
-              <h4 className="text-white font-medium mb-2">Route</h4>
+            <div className="pt-4 border-t border-zinc-300 dark:border-zinc-700">
+              <h4 className="text-zinc-900 dark:text-white font-medium mb-2">
+                Route
+              </h4>
               <div className="space-y-2">
                 <div className="flex gap-2 items-center">
-                  <span className="text-zinc-400 text-sm w-12">From:</span>
-                  <div className="text-white flex gap-1">
+                  <span className="text-zinc-700 dark:text-zinc-400 text-sm w-12">
+                    From:
+                  </span>
+                  <div className="text-zinc-900 dark:text-white flex gap-1">
                     {formData.sender.location || "Sender Location"}
                   </div>
                 </div>
                 <div className="flex gap-2 items-center">
-                  <span className="text-zinc-400 text-sm w-12">To:</span>
-                  <div className="text-white flex gap-1">
+                  <span className="text-zinc-700 dark:text-zinc-400 text-sm w-12">
+                    To:
+                  </span>
+                  <div className="text-zinc-900 dark:text-white flex gap-1">
                     {formData.receiver.location || "Receiver Location"}
                   </div>
                 </div>
@@ -733,27 +882,43 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
 
           {/* Cost Breakdown */}
           <div className="space-y-4">
-            <h3 className="text-yellow-400 text-lg font-medium">
+            <h3 className="text-yellow-600 dark:text-yellow-400 text-lg font-medium">
               Cost Breakdown
             </h3>
 
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-zinc-400">Base Shipping:</span>
-                <span className="text-white">${baseShipping.toFixed(2)}</span>
+                <span className="text-zinc-700 dark:text-zinc-400">
+                  Base Shipping:
+                </span>
+                <span className="text-zinc-900 dark:text-white">
+                  ${baseShipping.toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Weight Charges:</span>
-                <span className="text-white">${weightCharge.toFixed(2)}</span>
+                <span className="text-zinc-700 dark:text-zinc-400">
+                  Weight Charges:
+                </span>
+                <span className="text-zinc-900 dark:text-white">
+                  ${weightCharge.toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Delivery Fee:</span>
-                <span className="text-white">${deliveryFee.toFixed(2)}</span>
+                <span className="text-zinc-700 dark:text-zinc-400">
+                  Delivery Fee:
+                </span>
+                <span className="text-zinc-900 dark:text-white">
+                  ${deliveryFee.toFixed(2)}
+                </span>
               </div>
-              <div className="border-t border-zinc-600 pt-3">
+              <div className="border-t border-zinc-300 dark:border-zinc-600 pt-3">
                 <div className="flex justify-between text-lg font-semibold">
-                  <span className="text-white">Total Estimated Cost:</span>
-                  <span className="text-white">${totalCost.toFixed(2)}</span>
+                  <span className="text-zinc-900 dark:text-white">
+                    Total Estimated Cost:
+                  </span>
+                  <span className="text-zinc-900 dark:text-white">
+                    ${totalCost.toFixed(2)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -779,25 +944,25 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-6 transition-colors">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-3 sm:p-6 transition-colors">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
-            Create New Shipment
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
+            Edit Shipment
           </h1>
-          <p className="text-zinc-600 dark:text-zinc-400">
-            Follow the steps below to create and schedule your shipment
+          <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
+            Follow the steps below to edit your shipment
           </p>
         </div>
 
         {/* Progress Section */}
-        <div className="bg-zinc-100 dark:bg-zinc-900 rounded-lg p-6 mb-8 transition-colors">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-zinc-100 dark:bg-zinc-900 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8 transition-colors">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-2 sm:space-y-0">
             <div className="text-zinc-900 dark:text-zinc-100">
-              <span className="text-sm">Step {currentStep} of 5</span>
+              <span className="text-sm">Step {currentStep} of 4</span>
             </div>
-            <div className="text-right">
+            <div className="text-left sm:text-right">
               <span className="text-sm text-zinc-500 dark:text-zinc-400">
                 {getCompletionPercentage()}% Complete
               </span>
@@ -805,7 +970,7 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-2 mb-6">
+          <div className="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-2 mb-4 sm:mb-6">
             <div
               className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
               style={{ width: `${getCompletionPercentage()}%` }}
@@ -813,11 +978,11 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
           </div>
 
           {/* Step Indicators */}
-          <div className="flex justify-between">
+          <div className="flex justify-between space-x-2">
             {steps.map((step) => (
-              <div key={step.id} className="flex flex-col items-center">
+              <div key={step.id} className="flex flex-col items-center flex-1">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium ${
                     currentStep >= step.id
                       ? "bg-blue-500 text-white"
                       : "bg-zinc-300 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
@@ -826,7 +991,7 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
                   {currentStep > step.id ? "✓" : step.id}
                 </div>
                 <span
-                  className={`mt-2 text-xs ${
+                  className={`mt-1 sm:mt-2 text-xs text-center leading-tight ${
                     currentStep >= step.id
                       ? "text-blue-500"
                       : "text-zinc-500 dark:text-zinc-400"
@@ -839,17 +1004,51 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
           </div>
         </div>
 
+        {/* Error Display */}
+        {showErrors && validationErrors.length > 0 && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                  Please fix the following errors:
+                </h3>
+                <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+                  <ul className="list-disc pl-5 space-y-1">
+                    {validationErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Step Content */}
-        <div className="bg-zinc-100 dark:bg-zinc-900 rounded-lg p-8 mb-8 transition-colors">
+        <div className="bg-zinc-100 dark:bg-zinc-900 rounded-lg p-4 sm:p-8 mb-6 sm:mb-8 transition-colors">
           {renderStepContent()}
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between space-y-4 sm:space-y-0">
           <button
             onClick={handlePrevious}
             disabled={currentStep === 1}
-            className={`flex items-center space-x-2 px-6 py-2 rounded-lg transition-colors ${
+            className={`flex items-center justify-center space-x-2 px-4 sm:px-6 py-2 rounded-lg transition-colors mt-2 order-2 sm:order-1 ${
               currentStep === 1
                 ? "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed"
                 : "bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-300 dark:hover:bg-zinc-600"
@@ -859,8 +1058,8 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
             <span>Previous</span>
           </button>
 
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 order-1 sm:order-2">
+            <div className="flex items-center gap-2 justify-center sm:justify-start">
               <Checkbox
                 id="autoEmail"
                 checked={autoEmail}
@@ -870,38 +1069,21 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
                   setFormData((prev) => ({ ...prev, checkEmail: value }));
                 }}
               />
-              <label htmlFor="autoEmail">Accept Auto Notification</label>
+              <label
+                htmlFor="autoEmail"
+                className="text-zinc-900 dark:text-white text-sm"
+              >
+                Accept Auto Notification
+              </label>
             </div>
             {currentStep === 4 ? (
               <button
-                onClick={() => {
-                  // Helper to parse city, country from location string
-                  function parseLocation(loc: string) {
-                    const [city = "", country = ""] = loc
-                      .split(",")
-                      .map((s) => s.trim());
-                    return { city, country };
-                  }
-                  const sender = {
-                    ...formData.sender,
-                    ...parseLocation(formData.sender.location),
-                  };
-                  const receiver = {
-                    ...formData.receiver,
-                    ...parseLocation(formData.receiver.location),
-                  };
-                  const payload = {
-                    ...formData,
-                    sender,
-                    receiver,
-                  };
-                  onSubmit?.(payload);
-                }}
+                onClick={handleSubmit}
                 disabled={isLoading}
-                className={`flex items-center space-x-2 px-6 py-2 rounded-lg transition-colors ${
+                className={`w-full sm:w-auto flex items-center justify-center space-x-2 px-4 sm:px-6 py-2 rounded-lg transition-colors ${
                   isLoading
                     ? "bg-zinc-400 text-zinc-200 cursor-not-allowed"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600"
                 }`}
               >
                 {isLoading ? (
@@ -921,9 +1103,10 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
             ) : (
               <button
                 onClick={handleNext}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2"
               >
-                Next
+                <span>Next</span>
+                <ChevronRight className="w-4 h-4" />
               </button>
             )}
           </div>

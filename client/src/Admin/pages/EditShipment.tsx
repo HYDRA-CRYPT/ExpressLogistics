@@ -79,7 +79,7 @@ const EditShipmentPage = () => {
   if (isLoading) return <LoadingSpinner />;
   if (isError)
     return (
-      <div className="flex justify-center p-8">
+      <div className="flex justify-center p-4 sm:p-6 lg:p-8">
         <BeautifulErrorUI
           error={{ message: error || "Unknown error", code: "EDIT_ERROR" }}
           onRetry={() => window.location.reload()}
@@ -88,7 +88,7 @@ const EditShipmentPage = () => {
     );
   if (!deliveryData)
     return (
-      <div className="flex justify-center p-8">
+      <div className="flex justify-center p-4 sm:p-6 lg:p-8">
         <BeautifulErrorUI
           error={{ message: "Shipment not found", code: "NOT_FOUND" }}
           onRetry={() => navigate("/owner/shipments")}
@@ -97,13 +97,15 @@ const EditShipmentPage = () => {
     );
 
   return (
-    <div>
-      <EditShipmentForm
-        initialData={deliveryData}
-        onSubmit={handleUpdate}
-        isLoading={isUpdating}
-        isEditing={true}
-      />
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
+      <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-6">
+        <EditShipmentForm
+          initialData={deliveryData}
+          onSubmit={handleUpdate}
+          isLoading={isUpdating}
+          isEditing={true}
+        />
+      </div>
     </div>
   );
 };

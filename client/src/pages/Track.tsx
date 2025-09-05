@@ -11,33 +11,23 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SEOHelmet from "@/components/SEOHelmet";
 
 const Track = () => {
-  const [trackingNumbers, setTrackingNumbers] = useState("");
+  const [trackingNumber, setTrackingNumber] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const numbers = trackingNumbers
-      .trim()
-      .split(/[\s,\n]+/)
-      .filter((num) => num);
+    const number = trackingNumber.trim();
 
-    if (numbers.length === 0) {
+    if (!number) {
       toast.error("Please enter a tracking number");
       return;
-    }
-
-    if (numbers.length > 1) {
-      toast.info(`Tracking first number: ${numbers[0]}`, {
-        description:
-          "Multiple tracking numbers found. We'll track the first one.",
-      });
     }
 
     setIsSearching(true);
@@ -46,7 +36,7 @@ const Track = () => {
     // Add a small delay to show loading state
     setTimeout(() => {
       toast.dismiss("search-tracking");
-      navigate(`/track/${numbers[0]}`);
+      navigate(`/track/${number}`);
       setIsSearching(false);
     }, 800);
   };
@@ -104,10 +94,6 @@ const Track = () => {
                       AGL1234567890
                     </Badge>
                   </p>
-                  <p className="text-blue-600 dark:text-blue-400 text-sm">
-                    Multiple tracking numbers can be separated by commas or line
-                    breaks.
-                  </p>
                 </div>
               </div>
             </CardContent>
@@ -120,7 +106,7 @@ const Track = () => {
                 Enter Tracking Details
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-300">
-                Track one or multiple packages simultaneously
+                Track your package with its unique tracking number
               </CardDescription>
             </CardHeader>
 
@@ -131,26 +117,25 @@ const Track = () => {
                     htmlFor="tracking"
                     className="text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
-                    Tracking Number(s)
+                    Tracking Number
                   </Label>
-                  <Textarea
+                  <Input
                     id="tracking"
-                    rows={4}
-                    value={trackingNumbers}
-                    onChange={(e) => setTrackingNumbers(e.target.value)}
-                    className="w-full text-lg placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-zinc-600 focus:border-blue-500 focus:ring-blue-500"
-                    placeholder="AGL1234567890, AGL1234567891..."
+                    type="text"
+                    value={trackingNumber}
+                    onChange={(e) => setTrackingNumber(e.target.value)}
+                    className="w-full h-14 text-lg placeholder-gray-400 dark:placeholder-gray-500 border-gray-300 dark:border-zinc-600 focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter tracking number (e.g., AGL1234567890)"
                     required
                   />
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Enter one or multiple tracking numbers separated by commas,
-                    spaces, or new lines
+                    Enter your tracking number to see real-time updates
                   </p>
                 </div>
 
                 <Button
                   type="submit"
-                  disabled={isSearching || !trackingNumbers.trim()}
+                  disabled={isSearching || !trackingNumber.trim()}
                   className="w-full h-14 text-lg font-semibold bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   {isSearching ? (

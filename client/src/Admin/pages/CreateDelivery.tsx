@@ -252,15 +252,15 @@ const CreateDelivery = () => {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
-      <div className="p-6 space-y-8">
+      <div className="p-3 sm:p-4 lg:p-6 space-y-6 sm:space-y-8">
         {/* Header Section */}
         <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-3xl font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-3">
-              <Plus className="h-8 w-8 text-zinc-600 dark:text-zinc-400" />
-              Create New Delivery
+          <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+              <Plus className="h-6 sm:h-8 w-6 sm:w-8 text-zinc-600 dark:text-zinc-400" />
+              <span>Create New Delivery</span>
             </CardTitle>
-            <CardDescription className="text-zinc-600 dark:text-zinc-400 text-base">
+            <CardDescription className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">
               Create a new shipment and generate tracking information for your
               customers
             </CardDescription>
@@ -269,27 +269,27 @@ const CreateDelivery = () => {
 
         {/* Form Section */}
         <Card className="border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-              <Package className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
+          <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+            <CardTitle className="text-lg sm:text-xl text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <Package className="h-4 sm:h-5 w-4 sm:w-5 text-zinc-600 dark:text-zinc-400" />
               Shipment Details
             </CardTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
               <Badge
                 variant="secondary"
-                className="bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+                className="bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm"
               >
                 New Shipment
               </Badge>
               <Badge
                 variant="outline"
-                className="border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
+                className="border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm"
               >
                 Draft
               </Badge>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-2 sm:px-4 lg:px-6">
             <ShipmentForm
               onSubmit={handleSubmit}
               isLoading={createDelivery.isPending}

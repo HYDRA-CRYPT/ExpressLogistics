@@ -760,7 +760,7 @@ const ShipmentDetails: React.FC<ShipmentDetailsProps> = ({
     <div className="min-h-full w-full max-w-full bg-white text-zinc-900 dark:bg-zinc-900 dark:text-white">
       <div className="container mx-auto px-2 py-6">
         {/* Shipment Header */}
-        <div className="bg-zinc-100 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700 rounded-2xl p-8 mb-6">
+        <div className="bg-zinc-100 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700 rounded-2xl lg:p-8 p-5 mb-6">
           <div className="flex justify-between items-start mb-6">
             <div>
               <h2 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
@@ -777,7 +777,7 @@ const ShipmentDetails: React.FC<ShipmentDetailsProps> = ({
                   ` • ${processedShipment.totalWeight}kg`}
               </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3">
               <button
                 onClick={handleCopy}
                 className="flex items-center gap-2 px-4 py-2 bg-zinc-700/50 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-600 rounded-lg transition-all duration-200"
@@ -916,7 +916,7 @@ const ShipmentDetails: React.FC<ShipmentDetailsProps> = ({
             </div>
           </div>
 
-          <div className="p-8">
+          <div className="lg:p-8 p-4">
             {activeTab === "timeline" && (
               <TimelineComponent shipment={timelineShipment} />
             )}

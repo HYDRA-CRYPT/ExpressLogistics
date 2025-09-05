@@ -1,5 +1,3 @@
-
-
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -18,9 +16,9 @@ const checkboxVariants = cva(
   {
     variants: {
       size: {
-        sm: "size-4.5 [&_svg]:size-3",
-        md: "size-5 [&_svg]:size-3.5",
-        lg: "size-5.5 [&_svg]:size-4",
+        sm: "h-4 w-4 [&_svg]:h-3 [&_svg]:w-3",
+        md: "h-5 w-5 [&_svg]:h-3.5 [&_svg]:w-3.5",
+        lg: "h-6 w-6 [&_svg]:h-4 [&_svg]:w-4",
       },
     },
     defaultVariants: {

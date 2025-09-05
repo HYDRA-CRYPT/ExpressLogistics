@@ -306,7 +306,9 @@ const About = () => {
                 >
                   <div
                     className={`w-1/2 ${
-                      index % 2 === 0 ? "pr-12 text-right" : "pl-12 text-left"
+                      index % 2 === 0
+                        ? "lg:pr-12 pr-2 text-right"
+                        : "lg:pl-12 pl-2 text-left"
                     }`}
                   >
                     <Card className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-0 shadow-lg">
@@ -317,11 +319,11 @@ const About = () => {
                           } mb-4`}
                         >
                           <div
-                            className={`bg-gradient-to-r ${item.color} p-3 rounded-2xl mr-4`}
+                            className={`bg-gradient-to-r ${item.color} lg:p-3 p-2 rounded-2xl lg:mr-4 mr-2`}
                           >
                             {item.icon}
                           </div>
-                          <div className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                          <div className="lg:text-4xl text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                             {item.year}
                           </div>
                         </div>

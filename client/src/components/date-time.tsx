@@ -81,23 +81,30 @@ export default function DatePickerDemo({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="relative w-[250px]">
+        <div className="relative w-full max-w-[250px]">
           <Button
             type="button"
             variant="outline"
             mode="input"
-            className="w-full"
+            className="w-full justify-start text-left font-normal bg-zinc-100 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700"
           >
-            <CalendarIcon />
+            <CalendarIcon className="mr-2 h-4 w-4" />
             {date ? (
-              format(date, "PPP") + (time ? ` - ${time}` : "")
+              <span className="text-zinc-900 dark:text-white">
+                {format(date, "PPP")} {time ? ` - ${time}` : ""}
+              </span>
             ) : (
-              <span>Pick a date and time</span>
+              <span className="text-zinc-500 dark:text-zinc-400">
+                Pick a date and time
+              </span>
             )}
           </Button>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent
+        className="w-auto p-0 bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700"
+        align="start"
+      >
         <div className="flex max-sm:flex-col">
           <Calendar
             mode="single"
@@ -107,11 +114,11 @@ export default function DatePickerDemo({
             disabled={[{ before: today }]}
           />
           <div className="relative w-full max-sm:h-48 sm:w-40">
-            <div className="absolute inset-0 py-4 max-sm:border-t">
-              <ScrollArea className="h-full sm:border-s">
+            <div className="absolute inset-0 py-4 max-sm:border-t border-zinc-200 dark:border-zinc-700">
+              <ScrollArea className="h-full sm:border-s border-zinc-200 dark:border-zinc-700">
                 <div className="space-y-3">
                   <div className="flex h-5 shrink-0 items-center px-5">
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-white">
                       {date ? format(date, "EEEE, d") : "Pick a date"}
                     </p>
                   </div>
@@ -121,7 +128,11 @@ export default function DatePickerDemo({
                         key={timeSlot}
                         variant={time === timeSlot ? "primary" : "outline"}
                         size="sm"
-                        className="w-full"
+                        className={`w-full ${
+                          time === timeSlot
+                            ? "bg-blue-600 text-white hover:bg-blue-700"
+                            : "bg-transparent border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                        }`}
                         onClick={() => handleTimeSelect(timeSlot)}
                         disabled={!available}
                       >

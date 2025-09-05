@@ -301,11 +301,17 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   }, [resolvedDeliveryId, trackingNumber, fetchDeliveryId]);
 
   return (
-    <div className="bg-zinc-800/30 border border-zinc-700 rounded-2xl p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <Settings className="w-6 h-6 text-blue-400" />
-        <h3 className="text-xl font-semibold text-white">Admin Panel</h3>
-        <span className="text-zinc-400 text-sm">({trackingNumber})</span>
+    <div className="bg-zinc-800/30 border border-zinc-700 rounded-2xl p-4 sm:p-2">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+        <div className="flex items-center gap-3">
+          <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
+          <h3 className="text-lg sm:text-xl font-semibold text-white">
+            Admin Panel
+          </h3>
+        </div>
+        <span className="text-zinc-400 text-xs sm:text-sm">
+          Code: ({trackingNumber})
+        </span>
       </div>
 
       {/* API Status Messages */}
@@ -324,10 +330,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Combined Update Form */}
         <div>
-          <h4 className="text-white font-medium mb-4 flex items-center gap-2">
+          <h4 className="text-white font-medium mb-3 sm:mb-4 flex items-center gap-2">
             <MapPin className="w-4 h-4" />
             Update Status & Location
           </h4>
@@ -337,12 +343,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
             <label className="block text-zinc-400 text-sm mb-3">
               Select New Status *
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
               {statusOptions.map((status) => (
                 <button
                   key={status}
                   onClick={() => handleStatusChange(status)}
-                  className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg border text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1 sm:gap-2 ${
                     selectedStatus === status
                       ? "bg-blue-600 border-blue-500 text-white"
                       : "bg-zinc-700/50 border-zinc-600 text-zinc-300 hover:bg-zinc-700 hover:text-white"
@@ -355,7 +361,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   <span className={getStatusColor(status)}>
                     {getStatusIcon(status)}
                   </span>
-                  {status}
+                  <span className="truncate">{status}</span>
                   {status === currentStatus && (
                     <span className="ml-1 text-xs text-green-400">●</span>
                   )}
@@ -379,7 +385,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   }))
                 }
                 placeholder="e.g., Package picked up from sender"
-                className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
               />
             </div>
 
@@ -391,35 +397,37 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 value={updateData.location}
                 onChange={handleLocationChange}
                 placeholder="Search city, country..."
-                className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
               />
             </div>
 
             {/* Coordinate Options */}
             <div className="space-y-3">
-              <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3">
                 <button
                   type="button"
                   onClick={handleAutoGeocode}
                   disabled={!updateData.location}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-zinc-600 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors duration-200"
+                  className="px-3 sm:px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-zinc-600 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                 >
                   Auto-Find Coordinates
                 </button>
-                <span className="text-zinc-400 text-sm">or</span>
-                <label className="flex items-center gap-2 text-zinc-400 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={useManualCoords}
-                    onChange={(e) => setUseManualCoords(e.target.checked)}
-                    className="rounded border-zinc-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
-                  />
-                  Enter manually
-                </label>
+                <div className="flex items-center gap-3">
+                  <span className="text-zinc-400 text-sm">or</span>
+                  <label className="flex items-center gap-2 text-zinc-400 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={useManualCoords}
+                      onChange={(e) => setUseManualCoords(e.target.checked)}
+                      className="rounded border-zinc-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+                    />
+                    Enter manually
+                  </label>
+                </div>
               </div>
 
               {useManualCoords && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-zinc-400 text-sm mb-2">
                       Latitude
@@ -435,7 +443,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                         }))
                       }
                       placeholder="e.g., 6.5244"
-                      className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                     />
                   </div>
                   <div>
@@ -453,7 +461,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                         }))
                       }
                       placeholder="e.g., 3.3792"
-                      className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 bg-zinc-700/50 border border-zinc-600 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                     />
                   </div>
                 </div>
@@ -461,7 +469,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
               {!useManualCoords &&
                 (updateData.lat !== 0 || updateData.lng !== 0) && (
-                  <div className="text-xs text-zinc-400">
+                  <div className="text-xs text-zinc-400 break-all">
                     Current coordinates: {updateData.lat.toFixed(4)},{" "}
                     {updateData.lng.toFixed(4)}
                   </div>
@@ -469,23 +477,25 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
             </div>
 
             {/* Email Notification Checkbox */}
-            <div className="flex items-center gap-2 p-4 bg-zinc-700/30 border border-zinc-600 rounded-lg">
-              <Checkbox
-                id="checkEmail"
-                checked={updateData.checkEmail}
-                onCheckedChange={(checked) => {
-                  const value = !!checked;
-                  setUpdateData((prev) => ({ ...prev, checkEmail: value }));
-                }}
-                className="border-zinc-500 text-blue-600 focus:ring-blue-500"
-              />
-              <label
-                htmlFor="checkEmail"
-                className="text-zinc-300 text-sm font-medium cursor-pointer"
-              >
-                Send Auto Email Notification
-              </label>
-              <span className="text-xs text-zinc-400 ml-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 sm:p-4 bg-zinc-700/30 border border-zinc-600 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="checkEmail"
+                  checked={updateData.checkEmail}
+                  onCheckedChange={(checked) => {
+                    const value = !!checked;
+                    setUpdateData((prev) => ({ ...prev, checkEmail: value }));
+                  }}
+                  className="border-zinc-500 text-blue-600 focus:ring-blue-500"
+                />
+                <label
+                  htmlFor="checkEmail"
+                  className="text-zinc-300 text-sm font-medium cursor-pointer"
+                >
+                  Send Auto Email Notification
+                </label>
+              </div>
+              <span className="text-xs text-zinc-400 sm:ml-2">
                 (Notify customer of this update)
               </span>
             </div>
@@ -501,7 +511,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 selectedStatus === currentStatus ||
                 !resolvedDeliveryId
               }
-              className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-zinc-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+              className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-zinc-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 text-sm sm:text-base"
             >
               <Send className="w-4 h-4" />
               {isLoadingDeliveryId
