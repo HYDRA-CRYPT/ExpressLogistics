@@ -77,7 +77,7 @@ const deliverySchema = new mongoose.Schema(
         "On Hold",
         "Delivered",
       ],
-      default: "Pending",
+      required: true, // Make it required so admin must choose
       index: true,
     },
 

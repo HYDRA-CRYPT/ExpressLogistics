@@ -53,7 +53,7 @@ export const createDeliverySchema = Joi.object({
       "On Hold",
       "Delivered"
     )
-    .default("Pending"),
+    .required(), // Make status required from frontend
 });
 
 export const updateStatusSchema = Joi.object({
