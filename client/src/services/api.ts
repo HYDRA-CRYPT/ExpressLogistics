@@ -65,7 +65,9 @@ api.interceptors.request.use(
       config.headers?.set?.("Authorization", `Bearer ${token}`);
 
       // Or fallback for older Axios (still safe)
-      (config.headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+      (config.headers as Record<string, string>)[
+        "Authorization"
+      ] = `Bearer ${token}`;
     }
     return config;
   },

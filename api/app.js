@@ -41,7 +41,7 @@ app.use(
       "X-Forwarded-For",
       "X-Real-IP",
       "User-Agent",
-      "Referer"
+      "Referer",
     ],
     exposedHeaders: ["Content-Length", "Content-Type"],
     maxAge: 86400, // 24 hours
@@ -62,8 +62,12 @@ app.use("/api", publicLimiter);
 // Specific handler for deliveries preflight (must come before general options handler)
 app.options("/api/deliveries", (req, res) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,PATCH,OPTIONS");
-  res.header("Access-Control-Allow-Headers", 
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,DELETE,PATCH,OPTIONS"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
     "Content-Type,Authorization,Accept,Origin,X-Requested-With,x-request-timeout,X-Request-Timeout,Access-Control-Allow-Headers,Access-Control-Allow-Origin,Cache-Control,Pragma,X-HTTP-Method-Override,X-Forwarded-For,X-Real-IP,User-Agent,Referer"
   );
   res.header("Access-Control-Allow-Credentials", "true");
