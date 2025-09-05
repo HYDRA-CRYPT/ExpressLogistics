@@ -365,6 +365,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
               onChange={(newValue) =>
                 setFormData((prev) => ({ ...prev, pickupDate: newValue }))
               }
+              allowTimeSelection={false} // Date-only for pickup
             />
           </div>
 
@@ -377,6 +378,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
               onChange={(newValue) =>
                 setFormData((prev) => ({ ...prev, deliveryDate: newValue }))
               }
+              allowTimeSelection={false} // Date-only for delivery
             />
           </div>
         </div>

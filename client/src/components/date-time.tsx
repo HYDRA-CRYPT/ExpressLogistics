@@ -10,11 +10,13 @@ import { CalendarIcon } from "lucide-react";
 interface DatePickerDemoProps {
   value: string; // ISO string from formData
   onChange: (value: string) => void; // callback to update formData
+  allowTimeSelection?: boolean; // Make time selection optional
 }
 
 export default function DatePickerDemo({
   value,
   onChange,
+  allowTimeSelection = true, // Default to true for backward compatibility
 }: DatePickerDemoProps) {
   const today = new Date();
   const [date, setDate] = useState<Date | undefined>(
@@ -72,8 +74,16 @@ export default function DatePickerDemo({
   const handleDateSelect = (newDate: Date | undefined) => {
     if (!newDate) return;
     setDate(newDate);
-    setTime(undefined);
 
+    if (!allowTimeSelection) {
+      // If time selection is not allowed, use start of day
+      const dateOnly = new Date(newDate);
+      dateOnly.setHours(0, 0, 0, 0);
+      onChange(dateOnly.toISOString());
+      return;
+    }
+
+    setTime(undefined);
     // Reset time in formData if time was previously set
     if (value) onChange("");
   };
@@ -91,11 +101,12 @@ export default function DatePickerDemo({
             <CalendarIcon className="mr-2 h-4 w-4" />
             {date ? (
               <span className="text-zinc-900 dark:text-white">
-                {format(date, "PPP")} {time ? ` - ${time}` : ""}
+                {format(date, "PPP")}{" "}
+                {allowTimeSelection && time ? ` - ${time}` : ""}
               </span>
             ) : (
               <span className="text-zinc-500 dark:text-zinc-400">
-                Pick a date and time
+                {allowTimeSelection ? "Pick a date and time" : "Pick a date"}
               </span>
             )}
           </Button>
@@ -113,37 +124,39 @@ export default function DatePickerDemo({
             className="p-2 sm:pe-5"
             disabled={[{ before: today }]}
           />
-          <div className="relative w-full max-sm:h-48 sm:w-40">
-            <div className="absolute inset-0 py-4 max-sm:border-t border-zinc-200 dark:border-zinc-700">
-              <ScrollArea className="h-full sm:border-s border-zinc-200 dark:border-zinc-700">
-                <div className="space-y-3">
-                  <div className="flex h-5 shrink-0 items-center px-5">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                      {date ? format(date, "EEEE, d") : "Pick a date"}
-                    </p>
+          {allowTimeSelection && (
+            <div className="relative w-full max-sm:h-48 sm:w-40">
+              <div className="absolute inset-0 py-4 max-sm:border-t border-zinc-200 dark:border-zinc-700">
+                <ScrollArea className="h-full sm:border-s border-zinc-200 dark:border-zinc-700">
+                  <div className="space-y-3">
+                    <div className="flex h-5 shrink-0 items-center px-5">
+                      <p className="text-sm font-medium text-zinc-900 dark:text-white">
+                        {date ? format(date, "EEEE, d") : "Pick a date"}
+                      </p>
+                    </div>
+                    <div className="grid gap-1.5 px-5 max-sm:grid-cols-2">
+                      {timeSlots.map(({ time: timeSlot, available }) => (
+                        <Button
+                          key={timeSlot}
+                          variant={time === timeSlot ? "primary" : "outline"}
+                          size="sm"
+                          className={`w-full ${
+                            time === timeSlot
+                              ? "bg-blue-600 text-white hover:bg-blue-700"
+                              : "bg-transparent border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                          }`}
+                          onClick={() => handleTimeSelect(timeSlot)}
+                          disabled={!available}
+                        >
+                          {timeSlot}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="grid gap-1.5 px-5 max-sm:grid-cols-2">
-                    {timeSlots.map(({ time: timeSlot, available }) => (
-                      <Button
-                        key={timeSlot}
-                        variant={time === timeSlot ? "primary" : "outline"}
-                        size="sm"
-                        className={`w-full ${
-                          time === timeSlot
-                            ? "bg-blue-600 text-white hover:bg-blue-700"
-                            : "bg-transparent border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                        }`}
-                        onClick={() => handleTimeSelect(timeSlot)}
-                        disabled={!available}
-                      >
-                        {timeSlot}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </ScrollArea>
+                </ScrollArea>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </PopoverContent>
     </Popover>

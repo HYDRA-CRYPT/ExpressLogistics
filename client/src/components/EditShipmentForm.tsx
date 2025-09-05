@@ -353,6 +353,7 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
               onChange={(newValue) =>
                 setFormData((prev) => ({ ...prev, pickupDate: newValue }))
               }
+              allowTimeSelection={true} // Allow both date and time selection
             />
           </div>
 
@@ -365,6 +366,7 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
               onChange={(newValue) =>
                 setFormData((prev) => ({ ...prev, deliveryDate: newValue }))
               }
+              allowTimeSelection={true} // Allow both date and time selection
             />
           </div>
         </div>

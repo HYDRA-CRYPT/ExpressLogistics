@@ -33,7 +33,7 @@ const tokenManager = {
 // --- Axios Instance ---
 export const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 60000, // Increased to 60 seconds for delivery creation with PDF/email
+  timeout: 60000, // 60 seconds for delivery creation with PDF/email
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -65,9 +65,7 @@ api.interceptors.request.use(
       config.headers?.set?.("Authorization", `Bearer ${token}`);
 
       // Or fallback for older Axios (still safe)
-      (config.headers as Record<string, string>)[
-        "Authorization"
-      ] = `Bearer ${token}`;
+      (config.headers as any)["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },

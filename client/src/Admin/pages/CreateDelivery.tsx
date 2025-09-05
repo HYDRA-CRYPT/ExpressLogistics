@@ -42,6 +42,7 @@ interface DeliveryRequest {
   dateSent: string;
   deliveryDate: string;
   checkEmail: boolean;
+  status: string; // Add status field
 }
 
 interface DeliveryResponse {
@@ -76,6 +77,7 @@ interface ShipmentData {
     weight: number;
     value: number;
   }>;
+  status: string;
   deliveryFee: number;
   currency: { code: string; symbol: string; name: string };
   checkEmail: boolean;
@@ -158,6 +160,7 @@ const CreateDelivery = () => {
         ? new Date(data.deliveryDate).toISOString()
         : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       checkEmail: Boolean(data.checkEmail),
+      status: data.status || "Pending", // Include status from form
     };
   };
 
@@ -181,7 +184,6 @@ const CreateDelivery = () => {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          "X-Request-Timeout": "60000", // Indicate we expect a longer processing time
         },
         data: requestData,
       });
