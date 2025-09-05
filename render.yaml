@@ -15,6 +15,8 @@ services:
         value: 10000
       - key: FRONTEND_URL
         sync: false # Add your Vercel URL manually
+      - key: CLIENT_ORIGIN
+        value: https://aegis-express.vercel.app
       - key: MONGODB_URI
         sync: false # Add your MongoDB connection string
       - key: JWT_SECRET

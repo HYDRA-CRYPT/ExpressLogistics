@@ -17,8 +17,21 @@ app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN || "*",
+    origin: [
+      process.env.CLIENT_ORIGIN || "http://localhost:5173",
+      "https://aegis-express.vercel.app",
+      "http://localhost:3000",
+      "http://localhost:5173",
+    ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept",
+      "Origin",
+      "X-Requested-With",
+    ],
   })
 );
 
@@ -32,6 +45,9 @@ const publicLimiter = rateLimit({
 });
 
 app.use("/api", publicLimiter);
+
+// Handle preflight requests
+app.options("*", cors());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/deliveries", deliveryRoutes);

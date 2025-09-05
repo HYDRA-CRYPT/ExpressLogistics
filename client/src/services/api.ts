@@ -34,7 +34,11 @@ const tokenManager = {
 export const api = axios.create({
   baseURL: BASE_URL,
   timeout: 60000, // Increased to 60 seconds for delivery creation with PDF/email
-  headers: { "Content-Type": "application/json" },
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+  withCredentials: true, // Include credentials for CORS
 });
 
 // --- Refresh Logic ---
