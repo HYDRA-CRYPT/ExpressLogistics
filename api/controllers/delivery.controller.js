@@ -1,4 +1,5 @@
 import Delivery from "../models/delivery.model.js";
+import mongoose from "mongoose";
 import {
   cacheTracking,
   getCachedTracking,
@@ -44,6 +45,9 @@ export const createDelivery = async (req, res) => {
     }).lean();
     if (exists)
       return res.status(409).json({ message: "Tracking code already exists" });
+
+    // Add the admin who created this delivery
+    value.createdBy = req.user.id;
 
     const delivery = await Delivery.create(value);
 
@@ -133,9 +137,11 @@ export const editDelivery = async (req, res) => {
     delete updateData.__v;
     delete updateData.createdAt;
     delete updateData.updatedAt;
+    delete updateData.createdBy; // Prevent changing ownership
 
-    const doc = await Delivery.findByIdAndUpdate(
-      id,
+    // Only allow admin to edit their own deliveries
+    const doc = await Delivery.findOneAndUpdate(
+      { _id: id, createdBy: req.user.id },
       { $set: updateData },
       {
         new: true,
@@ -167,7 +173,11 @@ export const getDeliveryById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const doc = await Delivery.findById(id).lean();
+    // Only allow admin to see their own deliveries
+    const doc = await Delivery.findOne({
+      _id: id,
+      createdBy: req.user.id,
+    }).lean();
 
     if (!doc) return res.status(404).json({ message: "Delivery not found" });
 
@@ -261,7 +271,9 @@ export const listDeliveries = async (req, res) => {
       100
     );
     const status = req.query.status;
-    const q = {};
+
+    // Filter by current admin
+    const q = { createdBy: req.user.id };
     if (status) q.status = status;
 
     // Include necessary fields
@@ -383,10 +395,15 @@ export const updateStatusAndLocation = async (req, res) => {
       updateObj.$push = { history: locationUpdate };
     }
 
-    const doc = await Delivery.findByIdAndUpdate(id, updateObj, {
-      new: true,
-      runValidators: true,
-    }).lean();
+    // Only allow admin to update their own deliveries
+    const doc = await Delivery.findOneAndUpdate(
+      { _id: id, createdBy: req.user.id },
+      updateObj,
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).lean();
 
     if (!doc) return res.status(404).json({ message: "Delivery not found" });
 
@@ -746,13 +763,21 @@ export const deleteDelivery = async (req, res) => {
     const { id } = req.params;
 
     // Find delivery before deleting to get tracking code for cache cleanup
-    const delivery = await Delivery.findById(id).lean();
+    // Only allow admin to delete their own deliveries
+    const delivery = await Delivery.findOne({
+      _id: id,
+      createdBy: req.user.id,
+    }).lean();
+
     if (!delivery) {
       return res.status(404).json({ message: "Delivery not found" });
     }
 
     // Delete from database
-    await Delivery.findByIdAndDelete(id);
+    await Delivery.findOneAndDelete({
+      _id: id,
+      createdBy: req.user.id,
+    });
 
     // TODO: Remove from cache when deleteCachedTracking is implemented
     // await deleteCachedTracking(delivery.trackingCode);
@@ -793,22 +818,31 @@ export const deleteDelivery = async (req, res) => {
 export const getDeliveryStats = async (req, res) => {
   try {
     const now = new Date();
+    const adminId = req.user.id;
 
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
 
-    // Revenue this month
+    // Revenue this month - only for current admin's deliveries
     const revenueThisMonthResult = await Delivery.aggregate([
-      { $match: { createdAt: { $gte: startOfMonth } } },
+      {
+        $match: {
+          createdBy: new mongoose.Types.ObjectId(adminId),
+          createdAt: { $gte: startOfMonth },
+        },
+      },
       { $group: { _id: null, revenue: { $sum: "$deliveryFee" } } },
     ]);
     const revenueThisMonth = revenueThisMonthResult[0]?.revenue || 0;
 
-    // Revenue last month
+    // Revenue last month - only for current admin's deliveries
     const revenueLastMonthResult = await Delivery.aggregate([
       {
-        $match: { createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } },
+        $match: {
+          createdBy: new mongoose.Types.ObjectId(adminId),
+          createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+        },
       },
       { $group: { _id: null, revenue: { $sum: "$deliveryFee" } } },
     ]);
@@ -820,11 +854,13 @@ export const getDeliveryStats = async (req, res) => {
         ((revenueThisMonth - revenueLastMonth) / revenueLastMonth) * 100;
     }
 
-    // Deliveries growth
+    // Deliveries growth - only for current admin's deliveries
     const deliveriesThisMonth = await Delivery.countDocuments({
+      createdBy: adminId,
       createdAt: { $gte: startOfMonth },
     });
     const deliveriesLastMonth = await Delivery.countDocuments({
+      createdBy: adminId,
       createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
     });
 
@@ -835,22 +871,25 @@ export const getDeliveryStats = async (req, res) => {
         100;
     }
 
-    // Count total deliveries
-    const totalPackages = await Delivery.countDocuments();
+    // Count total deliveries - only for current admin
+    const totalPackages = await Delivery.countDocuments({ createdBy: adminId });
 
-    // Count total items (packages) this month
+    // Count total items (packages) this month - only for current admin
     const packagesThisMonthResult = await Delivery.aggregate([
-      { $match: { createdAt: { $gte: startOfMonth } } },
+      { $match: { createdBy: adminId, createdAt: { $gte: startOfMonth } } },
       { $unwind: "$items" },
       { $count: "total" },
     ]);
 
     const packagesThisMonth = packagesThisMonthResult[0]?.total || 0;
 
-    // Count packages last month
+    // Count packages last month - only for current admin
     const packagesLastMonthResult = await Delivery.aggregate([
       {
-        $match: { createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } },
+        $match: {
+          createdBy: adminId,
+          createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+        },
       },
       { $unwind: "$items" },
       { $count: "total" },

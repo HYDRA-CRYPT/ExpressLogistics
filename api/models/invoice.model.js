@@ -8,6 +8,14 @@ const invoiceSchema = new mongoose.Schema(
       required: true,
     },
 
+    // Admin who created this invoice
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+
     company: { type: String, default: "My Logistics Co." },
 
     sender: {
@@ -35,5 +43,8 @@ const invoiceSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Index for admin-specific queries
+invoiceSchema.index({ createdBy: 1, createdAt: -1 });
 
 export default mongoose.model("Invoice", invoiceSchema);

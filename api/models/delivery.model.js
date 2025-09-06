@@ -40,6 +40,14 @@ const deliverySchema = new mongoose.Schema(
   {
     trackingCode: { type: String, unique: true, index: true },
 
+    // Admin who created this delivery
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+
     sender: {
       name: String,
       email: String,
@@ -91,8 +99,9 @@ const deliverySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Compound index for admin queries (status + recent first)
-deliverySchema.index({ status: 1, createdAt: -1 });
+// Compound index for admin queries (status + recent first + owner)
+deliverySchema.index({ createdBy: 1, status: 1, createdAt: -1 });
+deliverySchema.index({ createdBy: 1, createdAt: -1 });
 
 // ✅ Pre-save hook to generate 10-digit tracking code
 deliverySchema.pre("validate", async function (next) {

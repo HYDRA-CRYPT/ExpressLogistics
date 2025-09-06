@@ -1,6 +1,7 @@
 import Delivery from "../models/delivery.model.js";
 import { uploadInvoiceToCloudinary } from "../services/cloudinaryUpload.js";
 import { createRequire } from "module";
+import mongoose from "mongoose";
 
 // Use createRequire for CommonJS modules like multer
 const require = createRequire(import.meta.url);
@@ -29,7 +30,11 @@ export const uploadInvoicePDF = async (req, res) => {
       return res.status(400).json({ message: "No PDF file provided" });
     }
 
-    const delivery = await Delivery.findOne({ trackingCode });
+    // Filter by admin ownership
+    const delivery = await Delivery.findOne({
+      trackingCode,
+      createdBy: req.user.id,
+    });
     if (!delivery) {
       return res.status(404).json({ message: "Delivery not found" });
     }
@@ -59,7 +64,11 @@ export const uploadInvoicePDF = async (req, res) => {
 export const getInvoiceByTrackingCode = async (req, res) => {
   try {
     const { trackingCode } = req.params;
-    const delivery = await Delivery.findOne({ trackingCode }).lean();
+    // Filter by admin ownership
+    const delivery = await Delivery.findOne({
+      trackingCode,
+      createdBy: req.user.id,
+    }).lean();
 
     if (!delivery) {
       return res.status(404).json({ message: "Delivery not found" });
@@ -112,7 +121,11 @@ export const getInvoiceByTrackingCode = async (req, res) => {
 export const downloadInvoiceByTrackingCode = async (req, res) => {
   try {
     const { trackingCode } = req.params;
-    const delivery = await Delivery.findOne({ trackingCode }).lean();
+    // Filter by admin ownership
+    const delivery = await Delivery.findOne({
+      trackingCode,
+      createdBy: req.user.id,
+    }).lean();
 
     if (!delivery) {
       return res.status(404).json({ message: "Delivery not found" });
