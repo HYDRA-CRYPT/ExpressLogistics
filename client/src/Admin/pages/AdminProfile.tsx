@@ -65,6 +65,7 @@ const AdminProfile: React.FC = () => {
         if (response.ok) {
           const data = await response.json();
           setUserData(data.user);
+          console.log(data.user);
         } else {
           console.error("Failed to fetch user data");
         }
@@ -151,8 +152,16 @@ const AdminProfile: React.FC = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update password");
+        let errorMessage = "Failed to update password";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // If JSON parsing fails, use status text or generic message
+          errorMessage =
+            response.statusText || `HTTP ${response.status}: ${errorMessage}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
