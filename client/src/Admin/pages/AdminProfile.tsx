@@ -21,7 +21,7 @@ import {
   CheckCircle2,
   Calendar,
 } from "lucide-react";
-import { toast } from "sonner";
+import { useAuthStore } from "@/stores/authStore";
 
 const AdminProfile: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState(false);
@@ -29,13 +29,6 @@ const AdminProfile: React.FC = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
-  const [userData, setUserData] = useState<{
-    id: string;
-    email: string;
-    role: string;
-    createdAt?: string;
-    updatedAt?: string;
-  } | null>(null);
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -43,46 +36,19 @@ const AdminProfile: React.FC = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Get admin info from localStorage as fallback
-  const adminUser = JSON.parse(localStorage.getItem("adminUser") || "{}");
-  const adminRole = localStorage.getItem("adminRole") || "admin";
+  // Use authStore instead of manual API calls
+  const { user, fetchUserProfile, updatePassword } = useAuthStore();
 
-  // Fetch current user data from the API
+  // Fetch user profile on component mount
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = localStorage.getItem("adminToken");
-        if (!token) {
-          return;
-        }
+    fetchUserProfile();
+  }, [fetchUserProfile]);
 
-        const response = await fetch("/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  // Use authStore user data
+  const currentRole = user?.role || "admin";
 
-        if (response.ok) {
-          const data = await response.json();
-          setUserData(data.user);
-          console.log(data.user);
-        } else {
-          console.error("Failed to fetch user data");
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchUserData();
-  }, []);
-
-  // Use API data if available, fallback to localStorage
-  const currentUser = userData || adminUser;
-  const currentRole = userData?.role || adminRole;
-
-  const createdDate = currentUser.createdAt
-    ? new Date(currentUser.createdAt).toLocaleDateString("en-US", {
+  const createdDate = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -138,53 +104,24 @@ const AdminProfile: React.FC = () => {
       setIsUpdating(true);
       setUpdateSuccess(false);
 
-      const token = localStorage.getItem("adminToken");
-      const response = await fetch("/api/auth/update-password", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          currentPassword: formData.currentPassword,
-          newPassword: formData.newPassword,
-        }),
-      });
+      const success = await updatePassword(
+        formData.currentPassword,
+        formData.newPassword
+      );
 
-      if (!response.ok) {
-        let errorMessage = "Failed to update password";
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          // If JSON parsing fails, use status text or generic message
-          errorMessage =
-            response.statusText || `HTTP ${response.status}: ${errorMessage}`;
-        }
-        throw new Error(errorMessage);
-      }
-
-      const result = await response.json();
-
-      if (result.success) {
+      if (success) {
         setUpdateSuccess(true);
         setFormData({
           currentPassword: "",
           newPassword: "",
           confirmPassword: "",
         });
-        toast.success("Password updated successfully!");
 
         // Hide success message after 5 seconds
         setTimeout(() => setUpdateSuccess(false), 5000);
-      } else {
-        throw new Error(result.message || "Failed to update password");
       }
     } catch (error) {
       console.error("Password update error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to update password"
-      );
     } finally {
       setIsUpdating(false);
     }
@@ -231,7 +168,7 @@ const AdminProfile: React.FC = () => {
                       Email Address
                     </p>
                     <p className="text-lg font-semibold text-zinc-900 dark:text-white">
-                      {currentUser.email || "owner@example.com"}
+                      {user?.email || "owner@example.com"}
                     </p>
                   </div>
                 </div>

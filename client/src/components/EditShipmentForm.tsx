@@ -22,14 +22,18 @@ interface ShipmentData {
   status: string;
   sender: {
     name: string;
-    location: string; // city, country as a single string
+    city: string;
+    country: string;
+    location: string; // Combined city, country
     phone: string;
     address: string;
     email: string;
   };
   receiver: {
     name: string;
-    location: string; // city, country as a single string
+    city: string;
+    country: string;
+    location: string; // Combined city, country
     phone: string;
     address: string;
     email: string;
@@ -71,7 +75,7 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [autoEmail, setAutoEmail] = useState<boolean>(
-    initialData?.checkEmail || false
+    initialData?.checkEmail ?? true // Default to true for email notifications
   );
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [showErrors, setShowErrors] = useState(false);
@@ -82,20 +86,24 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
     status: initialData?.status ?? "Pending",
     sender: {
       name: initialData?.sender?.name ?? "",
+      city: initialData?.sender?.city ?? "",
+      country: initialData?.sender?.country ?? "",
       location:
-        [initialData?.sender?.city, initialData?.sender?.country]
-          .filter(Boolean)
-          .join(", ") ?? "",
+        initialData?.sender?.city && initialData?.sender?.country
+          ? `${initialData.sender.city}, ${initialData.sender.country}`
+          : "",
       phone: initialData?.sender?.phone ?? "",
       address: initialData?.sender?.address ?? "",
       email: initialData?.sender?.email ?? "",
     },
     receiver: {
       name: initialData?.receiver?.name ?? "",
+      city: initialData?.receiver?.city ?? "",
+      country: initialData?.receiver?.country ?? "",
       location:
-        [initialData?.receiver?.city, initialData?.receiver?.country]
-          .filter(Boolean)
-          .join(", ") ?? "",
+        initialData?.receiver?.city && initialData?.receiver?.country
+          ? `${initialData.receiver.city}, ${initialData.receiver.country}`
+          : "",
       phone: initialData?.receiver?.phone ?? "",
       address: initialData?.receiver?.address ?? "",
       email: initialData?.receiver?.email ?? "",
@@ -114,7 +122,7 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
       symbol: "$",
       name: "US Dollar",
     },
-    checkEmail: initialData?.checkEmail ?? false,
+    checkEmail: initialData?.checkEmail ?? true, // Default to true for email notifications
   });
 
   console.log("Form Data ==>", formData);
@@ -197,14 +205,6 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
     return errors;
   };
 
-  const parseLocation = (location: string) => {
-    const parts = location.split(", ");
-    return {
-      city: parts[0] || "",
-      country: parts[1] || "",
-    };
-  };
-
   const handleSubmit = () => {
     const errors = validateForm();
     setValidationErrors(errors);
@@ -216,20 +216,9 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
 
     setShowErrors(false);
 
-    const sender = {
-      ...formData.sender,
-      ...parseLocation(formData.sender.location),
-    };
-    const receiver = {
-      ...formData.receiver,
-      ...parseLocation(formData.receiver.location),
-    };
-
     // Transform dates to ISO strings, use today for pickup if not provided
     const transformedData = {
       ...formData,
-      sender,
-      receiver,
       dateSent: formData.pickupDate
         ? new Date(formData.pickupDate).toISOString()
         : new Date().toISOString(), // Use today's date as fallback
@@ -316,7 +305,7 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
   };
 
   const renderStep1 = () => (
-    <div className="space-y-4 sm:space-y-6 px-2 py-4 sm:p-6 rounded-lg bg-zinc-50 dark:bg-zinc-900">
+    <div className="space-y-4 sm:space-y-6 lg:p-4 p-2 sm:p-6 rounded-lg bg-zinc-50 dark:bg-zinc-900">
       <div className="flex items-center space-x-2 mb-4">
         <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
         <h2 className="text-lg sm:text-xl font-semibold text-zinc-900 dark:text-white">
@@ -364,7 +353,7 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
               onChange={(newValue) =>
                 setFormData((prev) => ({ ...prev, pickupDate: newValue }))
               }
-              allowTimeSelection={true} // Allow both date and time selection
+              allowTimeSelection={false} // Date-only for pickup
             />
           </div>
 
@@ -377,7 +366,7 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
               onChange={(newValue) =>
                 setFormData((prev) => ({ ...prev, deliveryDate: newValue }))
               }
-              allowTimeSelection={true} // Allow both date and time selection
+              allowTimeSelection={false} // Date-only for delivery
             />
           </div>
         </div>
@@ -385,15 +374,30 @@ const EditShipmentForm: React.FC<ShipmentFormProps> = ({
     </div>
   );
 
+  // Helper function to handle location changes and update city/country
   const handleLocationChange = (
-    type: "sender" | "receiver",
+    field: "sender" | "receiver",
     location: string
   ) => {
+    // Parse location string to extract city and country
+    const parts = location.split(", ");
+    let city = "";
+    let country = "";
+
+    if (parts.length >= 2) {
+      city = parts[0].trim();
+      country = parts[parts.length - 1].trim();
+    } else if (parts.length === 1) {
+      city = parts[0].trim();
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [type]: {
-        ...prev[type],
+      [field]: {
+        ...prev[field],
         location,
+        city,
+        country,
       },
     }));
   };

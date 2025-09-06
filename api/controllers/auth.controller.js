@@ -51,30 +51,31 @@ export const login = async (req, res) => {
   });
 };
 
-export const profile = async (req, res) => {
-  try {
-    // Get full user data including creation date
-    const user = await User.findById(req.user.id).select("-password");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+// export const profile = async (req, res) => {
+//   try {
+//     // Get full user data including creation date
+//     const user = await User.findById(req.user.id).select("-password");
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
 
-    res.json({
-      user: {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      },
-    });
-  } catch (error) {
-    console.error("Get user error:", error);
-    res.status(500).json({ message: "Failed to get user data" });
-  }
-};
+//     res.json({
+//       user: {
+//         id: user._id,
+//         email: user.email,
+//         role: user.role,
+//         createdAt: user.createdAt,
+//         updatedAt: user.updatedAt,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Get user error:", error);
+//     res.status(500).json({ message: "Failed to get user data" });
+//   }
+// };
 
 // ===== REFRESH TOKEN =====
+
 export const refreshToken = async (req, res) => {
   try {
     const { refreshToken } = req.body;
