@@ -27,15 +27,15 @@ export const createDeliverySchema = Joi.object({
       Joi.object({
         description: Joi.string().allow(""),
         quantity: Joi.number().min(0).default(1),
-        weight: Joi.number().min(0).default(0),
-        value: Joi.number().min(0).default(0),
+        weight: Joi.number().default(0), // Allow negative values, default 0
+        value: Joi.number().default(0), // Allow negative values, default 0
       })
     )
     .min(1)
     .required(), // At least 1 item required
 
   goodsDescription: Joi.string().allow(""),
-  deliveryFee: Joi.number().min(0).default(0),
+  deliveryFee: Joi.number().default(0), // Allow negative values, default 0
   currency: Joi.string().default("USD"),
 
   // ✅ Added fields for frontend-provided dates

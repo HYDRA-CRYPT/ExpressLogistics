@@ -2,7 +2,378 @@
 
 ## Overview
 
-AegisExpress Logistics is a comprehensive shipment tracking and delivery management system built with modern web technologies. The application provides real-time package tracking, intelligent email notifications, PDF invoice generation, and administrative management capabilities. Built with **React TypeScript** for the frontend and **Node.js Express** for the backend, it features advanced status-based email workflows, Telegram integration, professional PDF generation with jsPDF, interactive maps with route visualization, and enterprise-grade CI/CD deployment pipeline.
+AegisExpress Logistics is a comprehensive shipment tracking and delivery management system built with modern web technologies. The application provides real-time package tracking, intelligent email notifications, PDF invoice generation, and administrative management capabilities.
+
+**Tech Stack:** React TypeScript (Frontend) + Node.js Express (Backend) + MongoDB + Redis
+
+---
+
+## 🚀 Latest Features & Updates (September 2025)
+
+### ✨ Core Features Completed
+
+#### **Advanced Email System with Status-Based Logic**
+
+- **Smart Email Workflows**: Status-dependent email content and functionality
+- **Telegram Integration**: Processing status emails include Telegram registration requirements
+- **Urgent Warning System**: Red-highlighted emails for "On Hold" status with immediate action prompts
+- **Progressive Disclosure**: Full tracking/invoice access only after registration completion
+- **Professional Templates**: Modern, responsive email designs with proper branding
+
+#### **Enhanced PDF Generation System**
+
+- **Migrated from PDFKit to jsPDF**: Superior text rendering and layout control
+- **Professional Invoice Design**: Clean, symbol-free layouts with proper spacing
+- **Frontend PDF Generation**: Real-time PDF creation without server bottlenecks
+- **Cloudinary Integration**: Seamless PDF storage and retrieval
+- **Multi-format Support**: Download and email-friendly PDF outputs
+
+#### **Admin Profile Management**
+
+- **Profile Navigation**: Fixed React Router Link components for reliable navigation
+- **Password Management**: Secure password update with validation
+- **Real-time Data**: API endpoint `/auth/me` provides current user data with creation dates
+- **localStorage Integration**: Consistent data handling across all admin components
+- **Security Features**: Token-based authentication with proper logout handling
+
+#### **GitHub Actions & Deployment**
+
+- **Disabled Workflows**: Suspended account-related deployment workflows disabled
+- **Clean Repository**: Removed unnecessary IDE files (.idea, .venv) and duplicate documentation
+- **Deployment Ready**: Comprehensive hosting guides for multiple platforms
+
+---
+
+## 📚 Documentation
+
+### Quick Start Guides
+
+- **[Admin Seeding Guide](./ADMIN_SEEDING_GUIDE.md)** - How to create admin users (CLI, single, multiple)
+- **[Hosting Guide](./HOSTING_GUIDE.md)** - Complete deployment and hosting instructions
+- **[Workflows README](./.github/workflows/README.md)** - GitHub Actions status and configuration
+
+### Features Overview
+
+#### **🎯 Core Functionality:**
+
+- **Intelligent Real-time Tracking**: Advanced package tracking with status-based email workflows
+- **Interactive Route Mapping**: Progressive route visualization with custom markers and real-time updates
+- **Professional Invoice Management**: jsPDF-powered invoice generation with Cloudinary integration
+- **Status-Based Email System**: Smart email workflows with Telegram integration for processing stages
+- **Administrative Dashboard**: Comprehensive admin panel with analytics and shipment management
+- **Multi-status Tracking**: Support for Pending, Processing, Shipped, In Transit, On Hold, Delivered
+
+#### **🔧 Advanced Features:**
+
+- **Admin Profile Management**: Secure password updates, profile navigation, real-time data sync
+- **Smart Email Notifications**: Status-dependent email content and progressive disclosure
+- **Urgent Alert System**: Red-highlighted warnings for critical shipment issues
+- **Performance Optimization**: Frontend PDF generation and intelligent Redis caching
+- **Error Recovery**: Comprehensive timeout and network error handling
+- **Professional Branding**: Clean, symbol-free designs across all customer touchpoints
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend (Client)
+
+- **React.js 18+** with TypeScript
+- **Vite** for build tooling and development
+- **React Router** for navigation
+- **Zustand** for state management
+- **React Leaflet** for interactive maps
+- **Tailwind CSS** for styling
+- **jsPDF** for PDF generation
+- **Shadcn/ui** for component library
+
+### Backend (API)
+
+- **Node.js** with Express.js
+- **MongoDB** with Mongoose ODM
+- **Redis** (ioredis) for caching and session management
+- **JWT** for authentication
+- **Nodemailer** for email services
+- **Cloudinary** for file storage
+- **bcryptjs** for password hashing
+
+### Development & Deployment
+
+- **GitHub Actions** for CI/CD (currently disabled)
+- **Render** for API hosting
+- **Vercel** for client hosting
+- **MongoDB Atlas** for database
+- **Upstash Redis** for caching
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- MongoDB (Atlas recommended)
+- Redis (Upstash recommended)
+
+### Local Development
+
+1. **Clone and setup:**
+
+```bash
+git clone https://github.com/RabbitDaCoder/ExpressLogistics.git
+cd ExpressLogistics
+```
+
+2. **Setup API:**
+
+```bash
+cd api
+npm install
+cp .env.example .env
+# Edit .env with your database credentials
+npm run dev
+```
+
+3. **Setup Client:**
+
+```bash
+cd ../client
+npm install
+echo "VITE_API_URL=http://localhost:5000" > .env.local
+npm run dev
+```
+
+4. **Seed initial admin:**
+
+```bash
+cd api
+npm run dev -- --seed-admin
+```
+
+5. **Access application:**
+   - Client: http://localhost:5173
+   - Admin Panel: http://localhost:5173/owner/login
+   - API Health: http://localhost:5000/api/health
+
+### Production Deployment
+
+See **[Hosting Guide](./HOSTING_GUIDE.md)** for complete deployment instructions covering:
+
+- Render + Vercel deployment
+- Railway full-stack hosting
+- Environment variable configuration
+- Database setup (MongoDB Atlas)
+- Redis configuration (Upstash)
+- Custom domain setup
+- SSL/HTTPS configuration
+
+---
+
+## 👨‍💼 Admin Management
+
+### Creating Admin Users
+
+See **[Admin Seeding Guide](./ADMIN_SEEDING_GUIDE.md)** for detailed instructions:
+
+#### CLI Method (Initial Admin)
+
+```bash
+cd api
+npm run dev -- --seed-admin
+```
+
+#### API Method (Additional Admins)
+
+```bash
+curl -X POST http://localhost:5000/api/auth/seed-admins \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "admins": [
+      {
+        "email": "admin@example.com",
+        "password": "SecurePass123!",
+        "role": "admin"
+      }
+    ]
+  }'
+```
+
+### Admin Features
+
+- **Dashboard**: Analytics, shipment overview, performance metrics
+- **Shipment Management**: Create, edit, track, and manage deliveries
+- **Invoice Generation**: Professional PDF invoices with Cloudinary storage
+- **Profile Management**: Password updates, account settings
+- **User Management**: Create additional admin accounts
+
+---
+
+## 📦 Project Structure
+
+### Frontend Architecture
+
+```
+client/
+├── src/
+│   ├── Admin/           # Admin dashboard and components
+│   ├── components/      # Reusable UI components
+│   ├── pages/           # Public pages (Home, Track, etc.)
+│   ├── services/        # API services and PDF generation
+│   ├── stores/          # Zustand state management
+│   ├── types/           # TypeScript type definitions
+│   └── utils/           # Utility functions
+├── public/              # Static assets
+└── dist/                # Build output
+```
+
+### Backend Architecture
+
+```
+api/
+├── controllers/         # Route handlers and business logic
+├── models/              # MongoDB schemas and models
+├── routes/              # Express route definitions
+├── middleware/          # Authentication and error handling
+├── services/            # External services (email, maps, etc.)
+├── config/              # Database and Redis configuration
+└── utils/               # Utility functions and validators
+```
+
+---
+
+## 🔐 Security Features
+
+- **JWT Authentication**: Secure token-based authentication
+- **Password Hashing**: bcryptjs for secure password storage
+- **Role-Based Access**: Admin-only routes and permissions
+- **Rate Limiting**: API rate limiting to prevent abuse
+- **CORS Configuration**: Proper cross-origin request handling
+- **Input Validation**: Comprehensive input sanitization
+- **Environment Variables**: Secure configuration management
+
+---
+
+## 📧 Email System
+
+### Status-Based Email Workflows
+
+- **Pending**: Order confirmation emails
+- **Processing**: Telegram registration requirements
+- **Shipped**: Tracking information with invoice access
+- **In Transit**: Progress updates with route information
+- **On Hold**: Urgent alerts with red highlighting
+- **Delivered**: Completion confirmation
+
+### Email Features
+
+- **Professional Templates**: Responsive HTML email designs
+- **Telegram Integration**: Custom registration workflow
+- **PDF Attachments**: Invoice generation and attachment
+- **Progressive Disclosure**: Feature access based on registration status
+- **Branding Consistency**: Company logo and styling
+
+---
+
+## 🗺️ Mapping & Tracking
+
+### Interactive Maps
+
+- **OpenStreetMap**: Free mapping service with Leaflet
+- **Route Visualization**: Real-time route progress display
+- **Custom Markers**: Status-based map markers
+- **Geocoding**: Address to coordinate conversion
+- **Mobile Responsive**: Touch-friendly map controls
+
+### Tracking Features
+
+- **Real-time Updates**: Live shipment status updates
+- **Timeline View**: Comprehensive tracking history
+- **Location Sharing**: Secure location sharing for customers
+- **Delivery Estimates**: AI-powered delivery time predictions
+
+---
+
+## 📊 Performance & Monitoring
+
+### Caching Strategy
+
+- **Redis Integration**: Session and data caching
+- **API Response Caching**: Optimized API performance
+- **Frontend Optimization**: Component memoization and lazy loading
+
+### Health Monitoring
+
+- **Health Endpoints**: API health check endpoints
+- **Error Tracking**: Comprehensive error logging
+- **Performance Metrics**: Response time monitoring
+
+---
+
+## 🤝 Contributing
+
+1. **Fork the repository**
+2. **Create feature branch**: `git checkout -b feature/amazing-feature`
+3. **Commit changes**: `git commit -m 'Add amazing feature'`
+4. **Push to branch**: `git push origin feature/amazing-feature`
+5. **Open Pull Request**
+
+### Development Guidelines
+
+- Follow TypeScript best practices
+- Write tests for new features
+- Update documentation for changes
+- Ensure code passes linting and type checks
+
+---
+
+## 📞 Support & Contact
+
+### Issues & Bugs
+
+- **GitHub Issues**: Report bugs and request features
+- **Documentation**: Check guides for common solutions
+
+### Development Team
+
+- **Maintainer**: RabbitDaCoder
+- **Repository**: [ExpressLogistics](https://github.com/RabbitDaCoder/ExpressLogistics)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+## 🔗 Related Documentation
+
+- **[Admin Seeding Guide](./ADMIN_SEEDING_GUIDE.md)** - Complete admin user management
+- **[Hosting Guide](./HOSTING_GUIDE.md)** - Production deployment instructions
+- **[GitHub Workflows](./.github/workflows/README.md)** - CI/CD pipeline documentation
+
+---
+
+## 📈 Changelog
+
+### Version 2.0 (September 2025)
+
+- ✅ Enhanced PDF generation with jsPDF
+- ✅ Status-based email system with Telegram integration
+- ✅ Admin profile management with real-time data
+- ✅ Comprehensive hosting and deployment guides
+- ✅ Disabled GitHub Actions (suspended accounts)
+- ✅ Repository cleanup and documentation overhaul
+- ✅ Security improvements and authentication fixes
+
+### Version 1.0 (Initial Release)
+
+- ✅ Core shipment tracking functionality
+- ✅ Basic admin dashboard
+- ✅ Email notification system
+- ✅ PDF invoice generation
+- ✅ Interactive mapping with route visualization
 
 ---
 
@@ -501,9 +872,7 @@ await redis.lrange(key, 0, end); // Was: lRange
 ```javascript
 // Enhanced error handling and default settings
 const [autoEmail, setAutoEmail] =
-  useState <
-  boolean >
-  (initialData?.checkEmail ?? true); // Default to true for notifications
+  useState < boolean > (initialData?.checkEmail ?? true); // Default to true for notifications
 
 // Robust email sending with fallbacks
 try {
@@ -891,7 +1260,11 @@ npm run dev
 
 ### Developed with ❤️ by
 
-## RabbitDaCoder
+## RabbitDaCoder @RabbitDaCoder
+
+## Honourable Mentioned
+
+## @HYDRA-CRYPT @techagbadev-create @Copilot
 
 _A comprehensive enterprise logistics management solution built with modern web technologies for efficient shipment tracking, intelligent email workflows, and scalable delivery management._
 

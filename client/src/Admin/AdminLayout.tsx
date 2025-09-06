@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import { NavMain } from "@/components/nav-main";
 import { NavDocuments } from "@/components/nav-documents";
+import { NavUser } from "@/components/nav-user";
 
 import { data } from "./stores/api";
 import { SiteHeader } from "@/components/site-header";
@@ -18,6 +19,18 @@ import { useEffect } from "react";
 const AdminLayoutContent = () => {
   const { pathname } = useLocation();
   const { setOpenMobile, isMobile } = useSidebar();
+
+  // Get user data from localStorage - using correct keys
+  const adminUser = JSON.parse(localStorage.getItem("adminUser") || "{}");
+  const userData = {
+    name: adminUser.name || "Admin User",
+    email: adminUser.email || "owner@example.com",
+    avatar:
+      adminUser.avatar ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        "Admin User"
+      )}&size=128&background=0D8ABC&color=fff&rounded=true`,
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
@@ -47,7 +60,8 @@ const AdminLayoutContent = () => {
         </SidebarContent>
 
         <SidebarFooter>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          <NavUser user={userData} />
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 px-2">
             © 2025 AegisExpress
           </p>
         </SidebarFooter>

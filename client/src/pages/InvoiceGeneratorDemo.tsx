@@ -30,7 +30,7 @@ const InvoiceGeneratorDemo: React.FC = () => {
       city: "Lagos",
       country: "Nigeria",
       email: "billing@aegisexpress.com",
-      phone: "+234 801 234 5678",
+      phone: "@AegisExpressBot",
     },
     receiver: {
       name: "John Smith",
@@ -38,7 +38,7 @@ const InvoiceGeneratorDemo: React.FC = () => {
       city: "New York",
       country: "USA",
       email: "john.smith@email.com",
-      phone: "+1 555 123 4567",
+      phone: "@johnsmith_tg",
     },
     items: [
       { description: "Premium Package 1", value: 250, quantity: 2, weight: 5 },

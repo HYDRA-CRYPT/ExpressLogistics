@@ -3,6 +3,8 @@ import {
   IconLogout,
   IconUserCircle,
 } from "@tabler/icons-react";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -31,6 +33,40 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem("adminToken");
+
+      if (token) {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+      }
+
+      // Clear local storage - using correct keys
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminUser");
+      localStorage.removeItem("adminRole");
+      localStorage.removeItem("refreshToken");
+
+      toast.success("Logged out successfully");
+      navigate("/owner/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Still clear local storage even if API call fails
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminUser");
+      localStorage.removeItem("adminRole");
+      localStorage.removeItem("refreshToken");
+      navigate("/owner/login");
+    }
+  };
 
   return (
     <SidebarMenu>
@@ -76,13 +112,25 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <IconUserCircle />
-                Account
+              <DropdownMenuItem asChild>
+                <Link
+                  to="/owner/profile"
+                  className="cursor-pointer flex items-center gap-2"
+                >
+                  <IconUserCircle />
+                  Account Profile
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleLogout();
+              }}
+              className="cursor-pointer text-red-600 hover:text-red-700"
+            >
               <IconLogout />
               Log out
             </DropdownMenuItem>

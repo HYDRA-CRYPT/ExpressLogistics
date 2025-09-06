@@ -5,7 +5,7 @@ import {
   MapPin,
   Clock,
   User,
-  Phone,
+  MessageCircle,
   Mail,
   Calendar,
   ArrowLeft,
@@ -81,23 +81,27 @@ const TrackDetails = () => {
   });
 
   const getStatusColor = (status: string) => {
+    const baseClasses = "shadow-lg";
+    const onHoldClasses =
+      "border-2 border-red-300 shadow-lg shadow-red-500/50 ring-4 ring-red-500/20";
+
     switch (status.toLowerCase()) {
       case "delivered":
-        return "bg-green-500 text-white";
+        return `${baseClasses} bg-green-500 text-white shadow-green-500/25`;
       case "out for delivery":
-        return "bg-blue-500 text-white";
+        return `${baseClasses} bg-blue-500 text-white shadow-blue-500/25`;
       case "in transit":
-        return "bg-orange-500 text-white";
+        return `${baseClasses} bg-orange-500 text-white shadow-orange-500/25`;
       case "shipped":
-        return "bg-purple-500 text-white";
+        return `${baseClasses} bg-purple-500 text-white shadow-purple-500/25`;
       case "processing":
-        return "bg-indigo-500 text-white";
+        return `${baseClasses} bg-indigo-500 text-white shadow-indigo-500/25`;
       case "pending":
-        return "bg-yellow-500 text-white";
+        return `${baseClasses} bg-yellow-500 text-white shadow-yellow-500/25`;
       case "on hold":
-        return "bg-red-500 text-white";
+        return `${onHoldClasses} bg-red-500 hover:bg-red-600 text-white`;
       default:
-        return "bg-gray-500 text-white";
+        return `${baseClasses} bg-gray-500 text-white shadow-gray-500/25`;
     }
   };
 
@@ -132,41 +136,43 @@ const TrackDetails = () => {
   };
 
   // Convert shipment to DeliveryData format
-  const convertToDeliveryData = (shipment: any): DeliveryData => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const convertToDeliveryData = (shipment: unknown): DeliveryData => {
+    const s = shipment as any; // Type casting for legacy compatibility
     return {
-      trackingCode: shipment.trackingCode || code || "",
-      status: shipment.status || "In Transit",
-      shipmentType: shipment.shipmentType || "Express",
-      dateSent: shipment.dateSent
-        ? new Date(shipment.dateSent).toISOString().split("T")[0]
+      trackingCode: s.trackingCode || code || "",
+      status: s.status || "In Transit",
+      shipmentType: s.shipmentType || "Express",
+      dateSent: s.dateSent
+        ? new Date(s.dateSent).toISOString().split("T")[0]
         : undefined,
-      deliveryDate: shipment.deliveryDate
-        ? new Date(shipment.deliveryDate).toISOString().split("T")[0]
+      deliveryDate: s.deliveryDate
+        ? new Date(s.deliveryDate).toISOString().split("T")[0]
         : undefined,
-      deliveryFee: shipment.deliveryFee || 0,
-      currency: shipment.currency || "$",
-      sender: shipment.sender
+      deliveryFee: s.deliveryFee || 0,
+      currency: s.currency || "$",
+      sender: s.sender
         ? {
-            name: shipment.sender.name || "",
-            email: shipment.sender.email || "",
-            phone: shipment.sender.phone || "",
-            address: shipment.sender.address || "",
-            city: shipment.sender.city || "",
-            country: shipment.sender.country || "",
+            name: s.sender.name || "",
+            email: s.sender.email || "",
+            phone: s.sender.phone || "",
+            address: s.sender.address || "",
+            city: s.sender.city || "",
+            country: s.sender.country || "",
           }
         : undefined,
-      receiver: shipment.receiver
+      receiver: s.receiver
         ? {
-            name: shipment.receiver.name || "",
-            email: shipment.receiver.email || "",
-            phone: shipment.receiver.phone || "",
-            address: shipment.receiver.address || "",
-            city: shipment.receiver.city || "",
-            country: shipment.receiver.country || "",
+            name: s.receiver.name || "",
+            email: s.receiver.email || "",
+            phone: s.receiver.phone || "",
+            address: s.receiver.address || "",
+            city: s.receiver.city || "",
+            country: s.receiver.country || "",
           }
         : undefined,
       items:
-        shipment.items?.map((item: any) => ({
+        s.items?.map((item: any) => ({
           description: item.description || "",
           quantity: item.quantity || 1,
           value: item.value || 0,
@@ -175,43 +181,20 @@ const TrackDetails = () => {
     };
   };
 
-  // Direct download function with jsPDF fallback
+  // Direct download function with local PDF generation
   const handleDirectDownload = async () => {
-    if (!code) return;
+    if (!code || !shipment) {
+      toast.error("No shipment data available");
+      return;
+    }
 
     try {
       setIsDownloading(true);
 
-      // First try to get from backend
-      const response = await fetch(`/api/invoices/download/${code}`);
-
-      if (response.ok) {
-        // Backend has the invoice, download it
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-
-        const fileName = `invoice_${code}_${
-          new Date().toISOString().split("T")[0]
-        }.pdf`;
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-        toast.success("Invoice downloaded successfully!");
-      } else {
-        // Backend doesn't have invoice, generate with jsPDF
-        if (shipment) {
-          const deliveryData = convertToDeliveryData(shipment);
-          downloadInvoicePDF(deliveryData);
-          toast.success("Invoice generated and downloaded!");
-        } else {
-          throw new Error("No shipment data available");
-        }
-      }
+      // Always generate PDF locally using jsPDF
+      const deliveryData = convertToDeliveryData(shipment);
+      downloadInvoicePDF(deliveryData);
+      toast.success("Invoice downloaded successfully!");
     } catch (err) {
       console.error("Download error:", err);
       toast.error("Failed to download invoice. Please try again.");
@@ -325,9 +308,7 @@ const TrackDetails = () => {
                 variant="outline"
                 className={`px-4 py-2 font-semibold flex items-center space-x-2 ${getStatusColor(
                   shipment?.status || "pending"
-                )
-                  .replace("bg-", "border-")
-                  .replace("text-white", "text-current")}`}
+                )}`}
               >
                 {getStatusIcon(shipment?.status || "pending")}
                 <span>{shipment?.status || "Pending"}</span>
@@ -553,8 +534,8 @@ const TrackDetails = () => {
                       </p>
                       {shipment?.receiver?.phone && (
                         <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-                          <Phone className="h-3 w-3" />
-                          <span>{shipment.receiver.phone}</span>
+                          <MessageCircle className="h-3 w-3" />
+                          <span>@{shipment.receiver.phone}</span>
                         </div>
                       )}
                     </div>
@@ -693,8 +674,8 @@ const TrackDetails = () => {
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
                 >
                   <Link to="/contact">
-                    <Phone className="mr-2 h-4 w-4" />
-                    Contact Support
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Chat on Telegram
                   </Link>
                 </Button>
                 <Button

@@ -37,7 +37,7 @@ export const generateInvoicePDF = (delivery: DeliveryData): jsPDF => {
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(32);
   doc.setFont("helvetica", "bold");
-  doc.text("INVOICE", margin + 80, 35);
+  doc.text("INVOICE", margin + 60, 35);
 
   // Invoice details box with enhanced styling
   const detailsX = pageWidth - 80;
@@ -107,7 +107,7 @@ export const generateInvoicePDF = (delivery: DeliveryData): jsPDF => {
     `${delivery.sender?.city || "Lagos"}, ${
       delivery.sender?.country || "Nigeria"
     }`,
-    delivery.sender?.email || "billing@aegisexpress.com",
+    delivery.sender?.email || "support@aegisexpress.com",
     delivery.sender?.phone || "+234 801 234 5678",
   ];
 
@@ -357,13 +357,13 @@ export const generateInvoicePDF = (delivery: DeliveryData): jsPDF => {
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(28);
   doc.setFont("helvetica", "bold");
-  doc.text("THANK YOU!", pageWidth / 2 - 25, pageHeight - 25);
+  doc.text("THANK YOU!", pageWidth / 2 - 35, pageHeight - 25);
 
   doc.setFontSize(12);
   doc.setFont("helvetica", "normal");
   doc.text(
     "For choosing Aegis Express Logistics",
-    pageWidth / 2 - 45,
+    pageWidth / 2 - 35,
     pageHeight - 15
   );
 
@@ -371,7 +371,7 @@ export const generateInvoicePDF = (delivery: DeliveryData): jsPDF => {
   doc.setFontSize(8);
   doc.text(
     "Email: support@aegisexpress.com | Phone: +234 801 234 5678 | Web: www.aegisexpress.com",
-    margin,
+    pageWidth / 2 - 60,
     pageHeight - 5
   );
 
@@ -381,7 +381,27 @@ export const generateInvoicePDF = (delivery: DeliveryData): jsPDF => {
 // Function to generate and download PDF
 export const downloadInvoicePDF = (delivery: DeliveryData): void => {
   const pdf = generateInvoicePDF(delivery);
-  pdf.save(`Invoice-${delivery.trackingCode}.pdf`);
+
+  // Generate blob and create download link
+  const pdfBlob = pdf.output("blob");
+  const url = URL.createObjectURL(pdfBlob);
+
+  // Create download link
+  const fileName = `Invoice-${delivery.trackingCode}-${
+    new Date().toISOString().split("T")[0]
+  }.pdf`;
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.style.display = "none";
+
+  // Trigger download
+  document.body.appendChild(link);
+  link.click();
+
+  // Cleanup
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
 
 // Function to generate PDF as blob for uploading

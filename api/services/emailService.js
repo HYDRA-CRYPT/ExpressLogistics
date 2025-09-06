@@ -546,7 +546,7 @@ function generateEmailTemplate(delivery) {
             <p style="color: #4a5568; margin: 0; font-size: 14px;">
               <strong>Need Help?</strong><br>
               Our support team is available 24/7 to assist you.<br>
-              📧 support@aegisexpress.com | 📞 +234 801 234 5678
+              📧 support@aegisexpress.com | � @AegisExpressSupport on Telegram
             </p>
           </div>
         </div>
@@ -558,7 +558,7 @@ function generateEmailTemplate(delivery) {
               <h3>Aegis Express Logistics</h3>
               <div class="contact-info">
                 📍 123 Express Avenue, Victoria Island, Lagos, Nigeria<br>
-                📞 +234 801 234 5678 | 📧 support@aegisexpress.com<br>
+                � @AegisExpressSupport on Telegram | 📧 support@aegisexpress.com<br>
                 🌐 www.aegisexpress.com
               </div>
             </div>
@@ -644,7 +644,7 @@ export async function sendStatusEmail(delivery, emailType = "status_update") {
     return await sendEmail({
       to: recipient,
       subject: `${subject} | Aegis Express`,
-      text: `Your shipment ${delivery.trackingCode} status: ${status}. ${config.message} Track at: ${process.env.FRONTEND_URL}/track/${delivery.trackingCode}`,
+      text: `Your shipment ${delivery.trackingCode} status: ${status}. ${config.message} Track at: ${process.env.FRONTEND_URL}/track/${delivery.trackingCode} | Contact support: @AegisExpressSupport on Telegram`,
       html: emailTemplate,
     });
   } catch (error) {
@@ -738,7 +738,7 @@ export const sendDeliveryDeletionEmail = async (delivery) => {
               <h2 style="color: #ef4444;">${delivery.trackingCode}</h2>
             </div>
             <p>If you have questions, please contact our support team.</p>
-            <p>📧 support@aegisexpress.com | 📞 +234 801 234 5678</p>
+            <p>📧 support@aegisexpress.com | � @AegisExpressSupport on Telegram</p>
           </div>
         </div>
       </body>

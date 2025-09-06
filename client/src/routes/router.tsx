@@ -15,6 +15,7 @@ import AllShipments from "@/Admin/pages/AllShipment.tsx";
 import TrackShipments from "../Admin/pages/TrackShipments.tsx";
 import OwnerTrackDetails from "@/Admin/pages/OwnerTrackDetails.tsx";
 import EditShipment from "@/Admin/pages/EditShipment.tsx";
+import AdminProfile from "@/Admin/pages/AdminProfile.tsx";
 import Services from "@/pages/Service.tsx";
 import InvoiceDownload from "../pages/InvoiceDownload.tsx";
 import InvoiceGeneratorDemo from "../pages/InvoiceGeneratorDemo.tsx";
@@ -45,6 +46,7 @@ const router = createBrowserRouter([
         element: <AdminLayout />,
         children: [
           { path: "dashboard", element: <AdminDashboard /> },
+          { path: "profile", element: <AdminProfile /> },
           { path: "shipments/create", element: <CreateDelivery /> },
           { path: "shipments/edit/:id", element: <EditShipment /> },
 

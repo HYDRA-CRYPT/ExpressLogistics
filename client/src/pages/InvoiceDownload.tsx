@@ -228,23 +228,10 @@ const InvoiceDownload: React.FC = () => {
     try {
       setIsDownloading(true);
 
-      if (invoiceUrl) {
-        // If invoice URL exists, download from Cloudinary directly
-        const link = document.createElement("a");
-        link.href = invoiceUrl; // Use the direct URL without transformation
-        link.download = `invoice_${code}.pdf`;
-        link.target = "_blank"; // Open in new tab for better PDF handling
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast.success("Invoice downloaded successfully!");
-      } else {
-        // Generate PDF directly and download
-        const deliveryData = convertToDeliveryData(shipment);
-
-        downloadInvoicePDF(deliveryData);
-        toast.success("Invoice downloaded successfully!");
-      }
+      // Always generate PDF locally using jsPDF for consistent results
+      const deliveryData = convertToDeliveryData(shipment);
+      downloadInvoicePDF(deliveryData);
+      toast.success("Invoice downloaded successfully!");
     } catch (err) {
       console.error("Download error:", err);
       toast.error("Failed to download invoice. Please try again.");

@@ -51,6 +51,29 @@ export const login = async (req, res) => {
   });
 };
 
+export const profile = async (req, res) => {
+  try {
+    // Get full user data including creation date
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error("Get user error:", error);
+    res.status(500).json({ message: "Failed to get user data" });
+  }
+};
+
 // ===== REFRESH TOKEN =====
 export const refreshToken = async (req, res) => {
   try {
@@ -134,6 +157,71 @@ export const logout = async (req, res) => {
   }
 };
 
+// ===== UPDATE PASSWORD =====
+export const updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id; // From auth middleware
+
+    // Validate input
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        message: "Current password and new password are required",
+      });
+    }
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await user.comparePassword(currentPassword);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({
+        message: "Current password is incorrect",
+      });
+    }
+
+    // Validate new password strength
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
+    if (newPassword.length < 8 || !passwordRegex.test(newPassword)) {
+      return res.status(400).json({
+        message:
+          "New password must be at least 8 characters long and contain uppercase, lowercase, number and special character",
+      });
+    }
+
+    // Check if new password is different from current
+    const isSamePassword = await user.comparePassword(newPassword);
+    if (isSamePassword) {
+      return res.status(400).json({
+        message: "New password must be different from current password",
+      });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    // Optionally, invalidate all existing tokens to force re-login
+    await redisClient.del(`auth:token:${userId}`);
+    await redisClient.del(`auth:refresh:${userId}`);
+
+    res.json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error("Password update error:", error);
+    res.status(500).json({
+      message: "Failed to update password",
+    });
+  }
+};
+
 // ===== SEED ADMIN (via CLI flag) =====
 export async function seedAdminIfRequested() {
   if (!process.env.ADMIN_SEED_TOKEN) return;
@@ -167,3 +255,70 @@ export async function seedAdminIfRequested() {
 
   console.log("✅ Admin seeded:", email);
 }
+
+// ===== SEED MULTIPLE ADMINS =====
+export const seedMultipleAdmins = async (req, res) => {
+  try {
+    const { admins } = req.body;
+
+    if (!Array.isArray(admins) || admins.length === 0) {
+      return res.status(400).json({
+        message:
+          "Please provide an array of admin objects with email and password",
+      });
+    }
+
+    const results = [];
+
+    for (const adminData of admins) {
+      const { email, password, role = "admin" } = adminData;
+
+      if (!email || !password) {
+        results.push({
+          email: email || "unknown",
+          status: "failed",
+          message: "Email and password required",
+        });
+        continue;
+      }
+
+      // Check if admin already exists
+      const existing = await User.findOne({ email });
+      if (existing) {
+        results.push({
+          email,
+          status: "skipped",
+          message: "Admin already exists",
+        });
+        continue;
+      }
+
+      try {
+        const user = new User({ email, password, role });
+        await user.save();
+        results.push({
+          email,
+          status: "created",
+          message: "Admin created successfully",
+        });
+      } catch (error) {
+        results.push({
+          email,
+          status: "failed",
+          message: error.message,
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      message: "Admin seeding completed",
+      results,
+    });
+  } catch (error) {
+    console.error("Multiple admin seeding error:", error);
+    res.status(500).json({
+      message: "Failed to seed admins",
+    });
+  }
+};

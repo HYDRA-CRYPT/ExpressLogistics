@@ -5,7 +5,7 @@ import {
   X,
   Package,
   Mail,
-  Phone,
+  MessageCircle,
   Clock,
   Sparkles,
   ArrowRight,
@@ -55,12 +55,17 @@ const Header = () => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center text-sm">
             <div className="flex items-center space-x-6">
-              <div className="group flex items-center space-x-2 hover:bg-white/10 rounded-full px-3 py-1 transition-all duration-300">
+              <a
+                href="https://t.me/AegisExpressSupport"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center space-x-2 hover:bg-white/10 rounded-full px-3 py-1 transition-all duration-300"
+              >
                 <div className="bg-blue-500/20 p-1 rounded-full group-hover:bg-blue-500/30 transition-colors">
-                  <Phone className="h-3 w-3 text-blue-300" />
+                  <MessageCircle className="h-3 w-3 text-blue-300" />
                 </div>
-                <span className="font-medium">+1 (555) 123-4567</span>
-              </div>
+                <span className="font-medium">@AegisExpressSupport</span>
+              </a>
               <div className="group flex items-center space-x-2 hover:bg-white/10 rounded-full px-3 py-1 transition-all duration-300">
                 <div className="bg-green-500/20 p-1 rounded-full group-hover:bg-green-500/30 transition-colors">
                   <Mail className="h-3 w-3 text-green-300" />

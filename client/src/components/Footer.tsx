@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import {
   Package,
-  Phone,
+  MessageCircle,
   Mail,
   MapPin,
   Facebook,
@@ -178,26 +178,31 @@ const Footer = () => {
           <div>
             <div className="flex items-center space-x-2 mb-6">
               <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-2 rounded-xl">
-                <Phone className="h-4 w-4 text-white" />
+                <MessageCircle className="h-4 w-4 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white">Contact Info</h3>
             </div>
             <div className="space-y-4">
-              <div className="group bg-gray-800/30 hover:bg-gray-800/50 rounded-2xl p-4 transition-all duration-300 hover:scale-105">
+              <a
+                href="https://t.me/AegisExpressSupport"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group bg-gray-800/30 hover:bg-gray-800/50 rounded-2xl p-4 transition-all duration-300 hover:scale-105 block"
+              >
                 <div className="flex items-center space-x-3">
                   <div className="bg-blue-500/20 p-2 rounded-xl">
-                    <Phone className="h-4 w-4 text-blue-400" />
+                    <MessageCircle className="h-4 w-4 text-blue-400" />
                   </div>
                   <div>
                     <p className="text-xs text-gray-400 uppercase tracking-wide">
-                      Phone
+                      Telegram
                     </p>
                     <span className="text-gray-300 font-medium">
-                      +1 (555) 123-4567
+                      @AegisExpressSupport
                     </span>
                   </div>
                 </div>
-              </div>
+              </a>
 
               <div className="group bg-gray-800/30 hover:bg-gray-800/50 rounded-2xl p-4 transition-all duration-300 hover:scale-105">
                 <div className="flex items-center space-x-3">

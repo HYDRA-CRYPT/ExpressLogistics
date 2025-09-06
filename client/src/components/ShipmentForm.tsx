@@ -141,39 +141,41 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
       setFormData((prev) => ({ ...prev, pickupDate: today }));
     }
     if (!formData.deliveryDate) {
-      errors.push("Delivery date is required");
+      errors.push("Delivery date is required"); // Keep this required
     }
 
-    // Check sender information
+    // Sender information - made optional (removed required checks)
     if (!formData.sender.name.trim()) {
       errors.push("Sender name is required");
     }
-    if (!formData.sender.location.trim()) {
-      errors.push("Sender location is required");
-    }
-    if (!formData.sender.phone.trim()) {
-      errors.push("Sender phone is required");
-    }
-    if (!formData.sender.address.trim()) {
-      errors.push("Sender address is required");
-    }
+    // if (!formData.sender.location.trim()) {
+    //   errors.push("Sender location is required");
+    // }
+    // Sender phone is optional
+    // if (!formData.sender.phone.trim()) {
+    //   errors.push("Sender phone is required");
+    // }
+    // if (!formData.sender.address.trim()) {
+    //   errors.push("Sender address is required");
+    // }
     if (!formData.sender.email.trim()) {
       errors.push("Sender email is required");
     }
 
-    // Check receiver information
+    // Receiver information - made optional (removed required checks)
     if (!formData.receiver.name.trim()) {
       errors.push("Receiver name is required");
     }
     if (!formData.receiver.location.trim()) {
       errors.push("Receiver location is required");
     }
-    if (!formData.receiver.phone.trim()) {
-      errors.push("Receiver phone is required");
-    }
-    if (!formData.receiver.address.trim()) {
-      errors.push("Receiver address is required");
-    }
+    // Receiver phone is optional
+    // if (!formData.receiver.phone.trim()) {
+    //   errors.push("Receiver phone is required");
+    // }
+    // if (!formData.receiver.address.trim()) {
+    //   errors.push("Receiver address is required");
+    // }
     if (!formData.receiver.email.trim()) {
       errors.push("Receiver email is required");
     }
@@ -183,25 +185,20 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
       errors.push("At least one item is required");
     } else {
       formData.items.forEach((item, index) => {
+        // Item description is optional now, set default if empty
         if (!item.description.trim()) {
-          errors.push(`Item ${index + 1} description is required`);
+          const updatedItems = [...formData.items];
+          updatedItems[index] = { ...item, description: "General Item" };
+          setFormData((prev) => ({ ...prev, items: updatedItems }));
         }
         if (item.quantity <= 0) {
           errors.push(`Item ${index + 1} quantity must be greater than 0`);
         }
-        if (item.weight <= 0) {
-          errors.push(`Item ${index + 1} weight must be greater than 0`);
-        }
-        if (item.value <= 0) {
-          errors.push(`Item ${index + 1} value must be greater than 0`);
-        }
+        // Weight and value can be 0 or negative - no validation needed
       });
     }
 
-    // Check delivery fee
-    if (formData.deliveryFee <= 0) {
-      errors.push("Delivery fee must be greater than 0");
-    }
+    // Delivery fee can be 0 or negative - no validation needed
 
     return errors;
   };
@@ -670,7 +667,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
                     )
                   }
                   className="w-full bg-zinc-100 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-400 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-                  step="0.1"
+                  step="1"
                 />
               </div>
               <div>
@@ -684,7 +681,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
                     handleItemChange(index, "value", parseFloat(e.target.value))
                   }
                   className="w-full bg-zinc-100 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-400 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-                  step="0.01"
+                  step="1"
                 />
               </div>
             </div>

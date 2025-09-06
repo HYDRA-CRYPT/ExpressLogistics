@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Clock, Phone, HelpCircle, Info, Globe } from "lucide-react";
+import {
+  Search,
+  Clock,
+  MessageCircle,
+  HelpCircle,
+  Info,
+  Globe,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -155,7 +162,7 @@ const Track = () => {
             <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 bg-white/60 dark:bg-zinc-800/60 backdrop-blur-sm">
               <CardContent className="p-6 text-center">
                 <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                  <Phone className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  <MessageCircle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
                   24/7 Support
@@ -185,15 +192,15 @@ const Track = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="text-center hover:shadow-lg transition-all duration-300 border-0 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm">
               <CardContent className="p-6">
-                <Phone className="h-8 w-8 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
+                <MessageCircle className="h-8 w-8 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
-                  Call Us
+                  Chat with us
                 </h3>
                 <Badge
                   variant="outline"
                   className="text-blue-600 dark:text-blue-400"
                 >
-                  +1 (555) 123-4567
+                  @AegisExpressBot
                 </Badge>
               </CardContent>
             </Card>

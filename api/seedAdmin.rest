@@ -1,0 +1,101 @@
+### Admin Seeding REST Client
+### Use this file with VS Code REST Client extension or similar tools
+
+### Variables
+@baseUrl = http://localhost:5000
+@email = owner@example.com
+@password = Rabbit522@
+
+### Step 1: Login to get JWT token
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Step 2: Copy the token from Step 1 response and paste it below
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.YOUR_TOKEN_HERE
+
+### Step 3: Get current user profile (optional - to verify token works)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### Step 4: Seed a single admin
+POST {{baseUrl}}/api/auth/seed-admins
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "admins": [
+    {
+      "email": "admin2@example.com",
+      "password": "SecurePass123!",
+      "role": "admin"
+    }
+  ]
+}
+
+### Step 5: Seed multiple admins at once
+POST {{baseUrl}}/api/auth/seed-admins
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "admins": [
+    {
+      "email": "admin3@example.com",
+      "password": "AdminPass123!",
+      "role": "admin"
+    },
+    {
+      "email": "admin4@example.com",
+      "password": "ManagerPass456!",
+      "role": "admin"
+    },
+    {
+      "email": "supervisor@example.com",
+      "password": "SuperPass789!",
+      "role": "admin"
+    }
+  ]
+}
+
+### Step 6: Test new admin login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin2@example.com",
+  "password": "SecurePass123!"
+}
+
+### Health Check (no auth required)
+GET {{baseUrl}}/api/health
+
+###########################################################################
+# INSTRUCTIONS:
+# 1. Install "REST Client" extension in VS Code
+# 2. Update @email and @password variables above with your admin credentials
+# 3. Click "Send Request" on Step 1 to login
+# 4. Copy the "token" value from the response
+# 5. Replace "YOUR_TOKEN_HERE" in the @token variable with the actual token
+# 6. Use Steps 4 or 5 to seed admins
+# 7. Test new admin login with Step 6
+###########################################################################
+
+### Alternative: Quick seed template (replace EMAIL and PASSWORD)
+POST {{baseUrl}}/api/auth/seed-admins
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "admins": [
+    {
+      "email": "REPLACE_WITH_EMAIL",
+      "password": "REPLACE_WITH_STRONG_PASSWORD",
+      "role": "admin"
+    }
+  ]
+}

@@ -83,12 +83,13 @@ const Contact = () => {
 
   const contactInfo = [
     {
-      icon: <Phone className="h-6 w-6" />,
-      title: "Phone Support",
-      details: ["+1 (555) 123-4567", "+1 (555) 123-4568"],
+      icon: <MessageCircle className="h-6 w-6" />,
+      title: "Telegram Support",
+      details: ["@AegisExpressSupport", "24/7 Instant Chat"],
       color: "from-blue-500 to-cyan-500",
       bgColor: "bg-blue-500/10",
-      description: "Call us anytime for immediate assistance",
+      description: "Chat with us instantly via Telegram",
+      link: "https://t.me/AegisExpressSupport",
     },
     {
       icon: <Mail className="h-6 w-6" />,
@@ -276,7 +277,7 @@ const Contact = () => {
                           value={formData.phone}
                           onChange={handleChange}
                           className="w-full h-12 px-4 border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                          placeholder="+1 (555) 123-4567"
+                          placeholder="@YourTelegramHandle"
                         />
                       </div>
                       <div className="space-y-2">
@@ -393,7 +394,18 @@ const Contact = () => {
                                 key={detailIndex}
                                 className="text-gray-800 dark:text-gray-200 font-medium"
                               >
-                                {detail}
+                                {info.link ? (
+                                  <a
+                                    href={info.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors underline"
+                                  >
+                                    {detail}
+                                  </a>
+                                ) : (
+                                  detail
+                                )}
                               </p>
                             ))}
                           </div>
@@ -447,9 +459,14 @@ const Contact = () => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                      <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                        +1 (555) 911-SHIP
-                      </div>
+                      <a
+                        href="https://t.me/AegisExpressSupport"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent hover:from-blue-500 hover:to-cyan-500 transition-all duration-300"
+                      >
+                        @AegisExpressSupport
+                      </a>
                       <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                         <span className="text-sm font-medium">

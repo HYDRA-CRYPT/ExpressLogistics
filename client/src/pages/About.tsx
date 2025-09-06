@@ -16,7 +16,7 @@ import {
   Building2,
   MapPin,
   Package,
-  Phone,
+  MessageCircle,
 } from "lucide-react";
 import SEOHelmet from "@/components/SEOHelmet";
 import { Card, CardContent } from "@/components/ui/card";
@@ -189,8 +189,8 @@ const About = () => {
               className="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 px-8 py-4 rounded-xl font-semibold transition-all duration-300"
             >
               <Link to="/contact">
-                <Phone className="h-5 w-5 mr-3" />
-                Talk to Our Experts
+                <MessageCircle className="h-5 w-5 mr-3" />
+                Chat on Telegram
               </Link>
             </Button>
           </div>
@@ -544,8 +544,8 @@ const About = () => {
                   className="border-white text-white hover:bg-white hover:text-blue-600"
                 >
                   <Link to="/contact">
-                    <Phone className="h-5 w-5 mr-2" />
-                    Get Started Today
+                    <MessageCircle className="h-5 w-5 mr-2" />
+                    Chat with Us
                   </Link>
                 </Button>
               </div>
