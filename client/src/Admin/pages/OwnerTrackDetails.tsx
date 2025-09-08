@@ -6,6 +6,9 @@ import BeautifulErrorUI from "@/components/BeautifulErrorUI";
 import NoDataUI from "@/components/NoDataUI";
 import { useDeliveryStore } from "../../stores/deliveryStore";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, Package } from "lucide-react";
+import InvoiceDownload from "@/pages/InvoiceDownload";
 
 const OwnerTrackDetails: React.FC = () => {
   const { code } = useParams<{ code: string }>();
@@ -64,8 +67,39 @@ const OwnerTrackDetails: React.FC = () => {
 
   try {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-900">
-        <ShipmentDetails shipment={shipment} isAdmin={true} />
+      <div className="min-h-screen bg-white dark:bg-zinc-900">
+        <Tabs defaultValue="shipment" className="w-full">
+          <div className="border-b border-gray-200 dark:border-gray-700">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <TabsList className="w-full justify-start bg-transparent border-b-0 space-x-8">
+                <TabsTrigger
+                  value="shipment"
+                  className="flex items-center space-x-2 px-0 py-4 border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent"
+                >
+                  <Package className="h-4 w-4" />
+                  <span>Shipment Details</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="invoice"
+                  className="flex items-center space-x-2 px-0 py-4 border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>Invoice & Documents</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+          </div>
+
+          <TabsContent value="shipment" className="mt-0">
+            <ShipmentDetails shipment={shipment} isAdmin={true} />
+          </TabsContent>
+
+          <TabsContent value="invoice" className="mt-0">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <InvoiceDownload />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     );
   } catch (renderError) {

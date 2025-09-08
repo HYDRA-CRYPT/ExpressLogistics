@@ -82,7 +82,7 @@ interface RoutePoint {
 }
 
 /* === Constants === */
-const DEFAULT_CENTER: [number, number] = [6.5244, 3.3792]; // Lagos, Nigeria
+const DEFAULT_CENTER: [number, number] = [40.7128, -74.006]; // New York City, USA
 const DEFAULT_ZOOM = 6;
 
 /* === Geocoding with caching === */

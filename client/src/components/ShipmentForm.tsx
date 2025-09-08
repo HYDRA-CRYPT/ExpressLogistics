@@ -828,34 +828,38 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
 
               <div className="flex justify-between">
                 <span className="text-zinc-400">Pickup Date:</span>
-                <span className="text-white">
+                <span className="dark:text-white text-gray-600">
                   {formData.pickupDate || "Today's date"}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-400">Delivery Date:</span>
-                <span className="text-white">
+                <span className="dark:text-white text-gray-600">
                   {formData.deliveryDate || "Not selected"}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-400">Total Items:</span>
-                <span className="text-white">{formData.items.length}</span>
+                <span className="dark:text-white text-gray-600">
+                  {formData.items.length}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-400">Total Weight:</span>
-                <span className="text-white">{totalWeight.toFixed(1)} lbs</span>
+                <span className="dark:text-white text-gray-600">
+                  {totalWeight.toFixed(1)} lbs
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-400">Total Value:</span>
-                <span className="text-white">
+                <span className="dark:text-white text-gray-600">
                   {formData.currency.symbol}
                   {totalValue.toFixed(2)} {formData.currency.code}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-400">Status:</span>
-                <span className="text-white font-medium">
+                <span className="dark:text-white text-gray-600 font-medium">
                   {formData.status}
                 </span>
               </div>
@@ -863,7 +867,9 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
 
             {/* Status Selection */}
             <div className="pt-4 border-t border-zinc-700">
-              <h4 className="text-white font-medium mb-3">Delivery Status</h4>
+              <h4 className="dark:text-white text-gray-600 font-medium mb-3">
+                Delivery Status
+              </h4>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-zinc-300">
                   Set initial status for this shipment
@@ -871,7 +877,7 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
                 <select
                   value={formData.status}
                   onChange={(e) => handleInputChange("status", e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-800 border border-zinc-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 dark:bg-zinc-800 bg-zinc-300 border border-zinc-600 rounded-lg dark:text-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   {DELIVERY_STATUSES.map((status) => (
                     <option key={status} value={status}>
@@ -887,18 +893,20 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
             </div>
 
             <div className="pt-4 border-t border-zinc-700">
-              <h4 className="text-white font-medium mb-2">Route</h4>
+              <h4 className="dark:text-white text-gray-600 font-medium mb-2">
+                Route
+              </h4>
               <div className="space-y-2">
                 <div className="flex gap-2 items-center">
                   <span className="text-zinc-400 text-sm w-12">From:</span>
-                  <div className="text-white flex gap-1">
+                  <div className="dark:text-white text-gray-600 flex gap-1">
                     {formData.sender.city || "Sender City"},
                     {formData.sender.country || "Sender Country"}
                   </div>
                 </div>
                 <div className="flex gap-2 items-center">
                   <span className="text-zinc-400 text-sm w-12">To:</span>
-                  <div className="text-white flex gap-1">
+                  <div className="dark:text-white text-gray-600 flex gap-1">
                     {formData.receiver.city || "Receiver City"},
                     {formData.receiver.country || "Receiver Country"}
                   </div>
@@ -916,20 +924,30 @@ const ShipmentForm: React.FC<ShipmentFormProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-zinc-400">Base Shipping:</span>
-                <span className="text-white">${baseShipping.toFixed(2)}</span>
+                <span className="dark:text-white text-gray-600">
+                  ${baseShipping.toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-400">Weight Charges:</span>
-                <span className="text-white">${weightCharge.toFixed(2)}</span>
+                <span className="dark:text-white text-gray-600">
+                  ${weightCharge.toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-400">Delivery Fee:</span>
-                <span className="text-white">${deliveryFee.toFixed(2)}</span>
+                <span className="dark:text-white text-gray-600">
+                  ${deliveryFee.toFixed(2)}
+                </span>
               </div>
               <div className="border-t border-zinc-600 pt-3">
                 <div className="flex justify-between text-lg font-semibold">
-                  <span className="text-white">Total Estimated Cost:</span>
-                  <span className="text-white">${totalCost.toFixed(2)}</span>
+                  <span className="dark:text-white text-gray-600">
+                    Total Estimated Cost:
+                  </span>
+                  <span className="dark:text-white text-gray-600">
+                    ${totalCost.toFixed(2)}
+                  </span>
                 </div>
               </div>
             </div>

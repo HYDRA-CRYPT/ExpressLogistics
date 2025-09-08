@@ -11,6 +11,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
+import { CONTACT_CONFIG, getTelegramLink } from "@/config/contacts";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,7 +27,7 @@ const Header = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="bg-white dark:bg-zinc-900 shadow-lg sticky top-0 z-[1000]">
+    <header className="bg-zinc-100 dark:bg-zinc-900 shadow-lg sticky top-0 z-[1000]">
       {/* Enhanced Top bar */}
       <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-800 text-white py-3 relative overflow-hidden">
         {/* Background Pattern */}
@@ -56,7 +57,7 @@ const Header = () => {
           <div className="flex justify-between items-center text-sm">
             <div className="flex items-center space-x-6">
               <a
-                href="https://t.me/AegisExpressSupport"
+                href={getTelegramLink()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center space-x-2 hover:bg-white/10 rounded-full px-3 py-1 transition-all duration-300"
@@ -64,13 +65,17 @@ const Header = () => {
                 <div className="bg-blue-500/20 p-1 rounded-full group-hover:bg-blue-500/30 transition-colors">
                   <MessageCircle className="h-3 w-3 text-blue-300" />
                 </div>
-                <span className="font-medium">@AegisExpressSupport</span>
+                <span className="font-medium">
+                  {CONTACT_CONFIG.telegram.channelUsername}
+                </span>
               </a>
               <div className="group flex items-center space-x-2 hover:bg-white/10 rounded-full px-3 py-1 transition-all duration-300">
                 <div className="bg-green-500/20 p-1 rounded-full group-hover:bg-green-500/30 transition-colors">
                   <Mail className="h-3 w-3 text-green-300" />
                 </div>
-                <span className="font-medium">info@aegislogistics.com</span>
+                <span className="font-medium">
+                  {CONTACT_CONFIG.email.primary}
+                </span>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-2">

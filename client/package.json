@@ -100,9 +100,9 @@
     "vite": "^5.4.10"
   },
   "optionalDependencies": {
+    "@rollup/rollup-darwin-x64": "^4.21.3",
     "@rollup/rollup-linux-x64-gnu": "^4.21.3",
-    "@rollup/rollup-win32-x64-msvc": "^4.21.3",
-    "@rollup/rollup-darwin-x64": "^4.21.3"
+    "@rollup/rollup-win32-x64-msvc": "^4.21.3"
   },
   "resolutions": {
     "rollup": "^4.21.3",

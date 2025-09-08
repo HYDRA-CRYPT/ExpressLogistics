@@ -4,7 +4,7 @@
 ### Variables
 @baseUrl = http://localhost:5000
 @email = owner@example.com
-@password = Rabbit522@
+@password = Passw0rd!
 
 ### Step 1: Login to get JWT token
 POST {{baseUrl}}/api/auth/login
@@ -16,7 +16,7 @@ Content-Type: application/json
 }
 
 ### Step 2: Copy the token from Step 1 response and paste it below
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTQwY2UxZWZiYTQ1ZTc1NjVmODUwMCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NzE0OTAyOSwiZXhwIjoxNzU3NzUzODI5fQ.enLvjIjAB0Z4pQ_kJ_rTwZHqYA3KmwGfarqTkeZ703w
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YmU2MmZmZjdlZjRjOTcwZmI0YTIzYSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NzMwNzcyMSwiZXhwIjoxNzU3OTEyNTIxfQ.E35bito3CbfIXzgfCjGrbCyBH7MiqrUahoNV7BUFBC4
 
 ### Step 3: Get current user profile (optional - to verify token works)
 GET {{baseUrl}}/api/auth/me

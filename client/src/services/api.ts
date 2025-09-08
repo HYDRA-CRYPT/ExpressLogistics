@@ -63,11 +63,8 @@ api.interceptors.request.use(
   (config) => {
     const token = tokenManager.accessToken;
     if (token) {
-      // Use set() if available (Axios v1+)
-      config.headers?.set?.("Authorization", `Bearer ${token}`);
-
-      // Or fallback for older Axios (still safe)
-      (config.headers as any)["Authorization"] = `Bearer ${token}`;
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -82,7 +79,17 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Don't try to refresh tokens for login, refresh, or other auth endpoints
+    const isAuthEndpoint =
+      originalRequest.url?.includes("/auth/login") ||
+      originalRequest.url?.includes("/auth/refresh") ||
+      originalRequest.url?.includes("/auth/register");
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
+    ) {
       // Already refreshing? Queue the request
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -130,8 +137,11 @@ api.interceptors.response.use(
         processQueue(refreshError, null);
         tokenManager.clear();
 
-        // Redirect to login
-        if (window.location.pathname !== "/owner/login") {
+        // Redirect to login only if not already on auth pages
+        if (
+          window.location.pathname !== "/owner/login" &&
+          !window.location.pathname.includes("/auth")
+        ) {
           window.location.href = "/owner/login";
         }
 

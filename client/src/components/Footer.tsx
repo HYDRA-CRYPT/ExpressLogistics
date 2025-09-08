@@ -15,6 +15,11 @@ import {
   Globe,
   Sparkles,
 } from "lucide-react";
+import {
+  CONTACT_CONFIG,
+  getTelegramLink,
+  getEmailLink,
+} from "../config/contacts";
 
 const Footer = () => {
   return (
@@ -100,13 +105,17 @@ const Footer = () => {
             {/* Enhanced Social Links */}
             <div className="flex space-x-4">
               <a
-                href="#"
+                href={CONTACT_CONFIG.social.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group bg-gray-800/50 hover:bg-blue-600 p-3 rounded-2xl transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25"
               >
                 <Facebook className="h-5 w-5 text-gray-400 group-hover:text-white transition-colors" />
               </a>
               <a
-                href="#"
+                href={CONTACT_CONFIG.social.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group bg-gray-800/50 hover:bg-sky-500 p-3 rounded-2xl transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-sky-500/25"
               >
                 <Twitter className="h-5 w-5 text-gray-400 group-hover:text-white transition-colors" />
@@ -118,7 +127,9 @@ const Footer = () => {
                 <Instagram className="h-5 w-5 text-gray-400 group-hover:text-white transition-colors" />
               </a>
               <a
-                href="#"
+                href={CONTACT_CONFIG.social.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group bg-gray-800/50 hover:bg-blue-700 p-3 rounded-2xl transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25"
               >
                 <Linkedin className="h-5 w-5 text-gray-400 group-hover:text-white transition-colors" />
@@ -184,7 +195,7 @@ const Footer = () => {
             </div>
             <div className="space-y-4">
               <a
-                href="https://t.me/AegisExpressSupport"
+                href={getTelegramLink()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group bg-gray-800/30 hover:bg-gray-800/50 rounded-2xl p-4 transition-all duration-300 hover:scale-105 block"
@@ -198,13 +209,16 @@ const Footer = () => {
                       Telegram
                     </p>
                     <span className="text-gray-300 font-medium">
-                      @AegisExpressSupport
+                      {CONTACT_CONFIG.telegram.channelUsername}
                     </span>
                   </div>
                 </div>
               </a>
 
-              <div className="group bg-gray-800/30 hover:bg-gray-800/50 rounded-2xl p-4 transition-all duration-300 hover:scale-105">
+              <a
+                href={getEmailLink("primary")}
+                className="group bg-gray-800/30 hover:bg-gray-800/50 rounded-2xl p-4 transition-all duration-300 hover:scale-105 block"
+              >
                 <div className="flex items-center space-x-3">
                   <div className="bg-green-500/20 p-2 rounded-xl">
                     <Mail className="h-4 w-4 text-green-400" />
@@ -214,11 +228,11 @@ const Footer = () => {
                       Email
                     </p>
                     <span className="text-gray-300 font-medium">
-                      info@aegislogistics.com
+                      {CONTACT_CONFIG.email.primary}
                     </span>
                   </div>
                 </div>
-              </div>
+              </a>
 
               <div className="group bg-gray-800/30 hover:bg-gray-800/50 rounded-2xl p-4 transition-all duration-300 hover:scale-105">
                 <div className="flex items-start space-x-3">
@@ -230,9 +244,12 @@ const Footer = () => {
                       Address
                     </p>
                     <span className="text-gray-300 font-medium">
-                      123 Logistics Ave
+                      {CONTACT_CONFIG.address.headquarters.split(", ")[0]}
                       <br />
-                      New York, NY 10001
+                      {CONTACT_CONFIG.address.headquarters
+                        .split(", ")
+                        .slice(1)
+                        .join(", ")}
                     </span>
                   </div>
                 </div>

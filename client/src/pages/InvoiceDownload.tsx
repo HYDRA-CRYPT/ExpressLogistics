@@ -12,7 +12,7 @@ import {
   CheckCircle,
   Loader2,
   Eye,
-  Upload,
+  // Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,7 +22,7 @@ import NoDataUI from "@/components/NoDataUI";
 import SEOHelmet from "@/components/SEOHelmet";
 import { toast } from "sonner";
 import {
-  generateInvoicePDFBlob,
+  // generateInvoicePDFBlob,
   downloadInvoicePDF,
   previewInvoicePDF,
 } from "@/utils/invoicePdfGenerator";
@@ -68,8 +68,8 @@ const InvoiceDownload: React.FC = () => {
   const [shipment, setShipment] = useState<InvoiceData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
+  // const [isGenerating, setIsGenerating] = useState(false);
+  // const [isUploading, setIsUploading] = useState(false);
   const [invoiceUrl, setInvoiceUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -176,48 +176,48 @@ const InvoiceDownload: React.FC = () => {
     }
   }, [code, checkInvoiceExists]);
 
-  const generateAndUploadPDF = async () => {
-    if (!shipment || !code) {
-      toast.error("No shipment data available");
-      return;
-    }
+  // const generateAndUploadPDF = async () => {
+  //   if (!shipment || !code) {
+  //     toast.error("No shipment data available");
+  //     return;
+  //   }
 
-    try {
-      setIsGenerating(true);
+  //   try {
+  //     setIsGenerating(true);
 
-      // Convert shipment data to DeliveryData format
-      const deliveryData = convertToDeliveryData(shipment);
+  //     // Convert shipment data to DeliveryData format
+  //     const deliveryData = convertToDeliveryData(shipment);
 
-      // Generate PDF blob
-      const pdfBlob = generateInvoicePDFBlob(deliveryData);
+  //     // Generate PDF blob
+  //     const pdfBlob = generateInvoicePDFBlob(deliveryData);
 
-      // Upload to backend
-      setIsUploading(true);
-      const formData = new FormData();
-      formData.append("pdf", pdfBlob, `invoice_${code}.pdf`);
+  //     // Upload to backend
+  //     setIsUploading(true);
+  //     const formData = new FormData();
+  //     formData.append("pdf", pdfBlob, `invoice_${code}.pdf`);
 
-      const uploadResponse = await fetch(`/api/invoices/upload/${code}`, {
-        method: "POST",
-        body: formData,
-      });
+  //     const uploadResponse = await fetch(`/api/invoices/upload/${code}`, {
+  //       method: "POST",
+  //       body: formData,
+  //     });
 
-      if (!uploadResponse.ok) {
-        throw new Error("Failed to upload invoice");
-      }
+  //     if (!uploadResponse.ok) {
+  //       throw new Error("Failed to upload invoice");
+  //     }
 
-      const uploadResult = await uploadResponse.json();
-      if (uploadResult.success) {
-        setInvoiceUrl(uploadResult.url);
-        toast.success("Invoice generated and uploaded successfully!");
-      }
-    } catch (err) {
-      console.error("PDF generation error:", err);
-      toast.error("Failed to generate invoice. Please try again.");
-    } finally {
-      setIsGenerating(false);
-      setIsUploading(false);
-    }
-  };
+  //     const uploadResult = await uploadResponse.json();
+  //     if (uploadResult.success) {
+  //       setInvoiceUrl(uploadResult.url);
+  //       toast.success("Invoice generated and uploaded successfully!");
+  //     }
+  //   } catch (err) {
+  //     console.error("PDF generation error:", err);
+  //     toast.error("Failed to generate invoice. Please try again.");
+  //   } finally {
+  //     setIsGenerating(false);
+  //     setIsUploading(false);
+  //   }
+  // };
 
   const handleDownloadInvoice = async () => {
     if (!shipment || !code) {
@@ -350,17 +350,6 @@ const InvoiceDownload: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex-1">
-              <Button
-                asChild
-                variant="ghost"
-                className="mb-4 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 p-0"
-              >
-                <Link to={`/track/${code}`}>
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Shipment Details
-                </Link>
-              </Button>
-
               <div className="flex items-center gap-4 mb-4">
                 <div className="p-3 rounded-xl bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-zinc-700/50 shadow-sm">
                   <FileText className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -445,25 +434,6 @@ const InvoiceDownload: React.FC = () => {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
-                  {!invoiceUrl && (
-                    <Button
-                      onClick={generateAndUploadPDF}
-                      disabled={isGenerating || isUploading}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      {isGenerating || isUploading ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Upload className="mr-2 h-4 w-4" />
-                      )}
-                      {isGenerating
-                        ? "Generating..."
-                        : isUploading
-                        ? "Uploading..."
-                        : "Generate Invoice"}
-                    </Button>
-                  )}
-
                   <Button
                     onClick={handlePreviewInvoice}
                     variant="outline"
