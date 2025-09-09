@@ -91,7 +91,7 @@ const Home = () => {
       stats: "500+ Vehicles",
       color: "from-blue-500 to-cyan-500",
       image:
-        "https://images.unsplash.com/photo-1566492031773-4f4e44671d66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8dHJ1Y2t8ZW58MHx8MHx8fDA%3D",
     },
     {
       icon: <Plane className="h-8 w-8" />,
@@ -109,7 +109,7 @@ const Home = () => {
       stats: "100+ Ports",
       color: "from-green-500 to-emerald-500",
       image:
-        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1568347877321-f8935c7dc5a3?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8c2hpcHBpbmd8ZW58MHx8MHx8fDA%3D",
     },
     {
       icon: <Train className="h-8 w-8" />,

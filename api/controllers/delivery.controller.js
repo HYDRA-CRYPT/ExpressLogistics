@@ -12,7 +12,7 @@ import {
   sendDeliveryCreatedEmail,
   sendDeliveryConfirmationEmailWithPDF,
   sendStatusUpdateEmail,
-  sendDeliveryDeletionEmail,
+  // sendDeliveryDeletionEmail, // Commented out - will re-enable later
 } from "../services/emailService.js";
 
 import {
@@ -792,9 +792,9 @@ export const deleteDelivery = async (req, res) => {
     // Notify recipient about deletion using enhanced email
     if (delivery.receiver?.email) {
       try {
-        await sendDeliveryDeletionEmail(delivery);
+        // await sendDeliveryDeletionEmail(delivery); // Commented out - will re-enable later
         console.log(
-          `Deletion notification email sent for ${delivery.trackingCode}`
+          `Deletion notification email disabled for ${delivery.trackingCode}`
         );
       } catch (emailError) {
         console.error(

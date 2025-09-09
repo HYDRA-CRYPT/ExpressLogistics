@@ -3,7 +3,6 @@ import { Outlet, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import { Toaster } from "@/components/ui/sonner";
 import { ChevronUp } from "lucide-react";
 
 function App() {
@@ -42,7 +41,6 @@ function App() {
       <Header />
       <Outlet />
       <Footer />
-      <Toaster />
 
       {/* Scroll to Top Button */}
       {showScrollTop && (

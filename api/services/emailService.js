@@ -70,49 +70,49 @@ const STATUS_CONFIG = {
   Pending: {
     color: "#f59e0b",
     bgColor: "#fef3c7",
-    title: "Order Received",
+    title: "Package Status: Pending - Action Needed",
     message:
-      "Your package has been received and is being prepared for processing.",
-    urgency: "low",
+      "Your package is currently in PENDING status and requires attention. Please contact our admin for specific instructions on resolving the pending status to move your package forward in the delivery process.",
+    urgency: "medium",
   },
   Processing: {
     color: "#3b82f6",
     bgColor: "#dbeafe",
-    title: "Processing Your Shipment",
+    title: "Your Package is Being Processed",
     message:
-      "Your package is currently being processed in our facility. We'll notify you once it's ready for dispatch.",
-    urgency: "medium",
+      "Your package is currently being processed at our facility. This status indicates that any previous holds or pending issues have been resolved, and your package is now being prepared for shipment. We expect to move your package to the next stage shortly.",
+    urgency: "low",
   },
   Shipped: {
     color: "#8b5cf6",
     bgColor: "#e9d5ff",
-    title: "Package Shipped",
+    title: "Package Shipped - Registration Complete!",
     message:
-      "Your package has been dispatched and is on its way to the destination.",
+      "Excellent news! We have completed the registration of your package and generated your official tracking code. Your shipment is now in our delivery network and will move to 'In Transit' status as it begins its journey to you.",
     urgency: "low",
   },
   "In Transit": {
     color: "#06b6d4",
     bgColor: "#cffafe",
-    title: "In Transit",
+    title: "Your Package is on the Move!",
     message:
-      "Your package is currently traveling to its destination through our logistics network.",
+      "Great news! Your package is currently in transit and making its way to the destination. We will keep you informed with regular updates regarding any further information about your parcel.",
     urgency: "low",
   },
   "On Hold": {
     color: "#ef4444",
     bgColor: "#fee2e2",
-    title: "URGENT: Package On Hold",
+    title: "URGENT: Action Required for Your Package",
     message:
-      "Your parcel is currently on Hold. Please contact support immediately to resolve this issue.",
+      "IMPORTANT NOTICE: Your package is currently ON HOLD and requires immediate attention. You must contact our admin immediately to resolve this issue and ensure your package continues to its destination.",
     urgency: "high",
   },
   Delivered: {
     color: "#10b981",
     bgColor: "#d1fae5",
-    title: "Successfully Delivered",
+    title: "Package Successfully Delivered!",
     message:
-      "Your package has been successfully delivered to the destination address.",
+      "Congratulations! Your package has been successfully delivered. Thank you for choosing our delivery service! We hope you're satisfied with your delivery experience.",
     urgency: "low",
   },
 };
@@ -485,12 +485,21 @@ function generateEmailTemplate(delivery) {
               ? `
           <!-- Urgent Warning for On Hold Status -->
           <div class="urgent-warning">
-            <div class="urgent-title">⚠️ IMMEDIATE ACTION REQUIRED</div>
+            <div class="urgent-title">⚠️ URGENT ACTION REQUIRED</div>
             <div class="urgent-message">
-              Your parcel is currently on Hold. Please contact our support team immediately to resolve this issue and continue with your delivery.
+              Your package is currently ON HOLD and requires immediate attention. You must contact our admin immediately to resolve this issue and ensure your package continues to its destination.
             </div>
-            <a href="mailto:support@aegisexpress.com" class="btn btn-primary" style="background: #ffffff; color: #ef4444; margin-top: 10px;">
-              Contact Support Now
+            <div style="margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 8px;">
+              <strong>📱 Contact Admin Now:</strong><br>
+              <strong>Telegram:</strong> @AegisExpressSupport<br>
+              <strong>Available:</strong> 24/7 for urgent matters<br>
+              <strong>Reference:</strong> Quote your tracking number ${delivery.trackingCode}
+            </div>
+            <div style="font-size: 14px; margin-top: 10px;">
+              <strong>⏰ Time Sensitive:</strong> Delays in contacting us may result in extended hold periods or additional fees.
+            </div>
+            <a href="https://t.me/AegisExpressSupport" class="btn btn-primary" style="background: #ffffff; color: #ef4444; margin-top: 15px;">
+              Contact Admin Now
             </a>
           </div>
           `
@@ -498,7 +507,7 @@ function generateEmailTemplate(delivery) {
           <!-- Package Details Card -->
           <div class="package-details">
             <div class="package-header">
-              <div class="package-title">Package Information</div>
+              <div class="package-title">📋 Shipment Details</div>
             </div>
             <div class="package-info">
               <div class="info-row">
@@ -508,7 +517,7 @@ function generateEmailTemplate(delivery) {
                 }</span>
               </div>
               <div class="info-row">
-                <span class="info-label">Date Sent</span>
+                <span class="info-label">Shipping Date</span>
                 <span class="info-value">${
                   delivery.dateSent
                     ? new Date(delivery.dateSent).toLocaleDateString()
@@ -516,9 +525,21 @@ function generateEmailTemplate(delivery) {
                 }</span>
               </div>
               <div class="info-row">
-                <span class="info-label">Destination</span>
+                <span class="info-label">Recipient</span>
+                <span class="info-value">${
+                  delivery.receiver?.name || "N/A"
+                }</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Delivery Address</span>
                 <span class="info-value">${
                   delivery.receiver?.city || "N/A"
+                }</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Contact Number</span>
+                <span class="info-value">${
+                  delivery.receiver?.phone || "N/A"
                 }</span>
               </div>
               <div class="info-row">
@@ -535,18 +556,19 @@ function generateEmailTemplate(delivery) {
           <!-- Action Buttons -->
           <div class="action-section">
             <a href="${trackingUrl}" class="btn btn-primary">
-              Track Your Package
+              🔍 Track Your Package
             </a>
             <a href="${telegramLink}" class="btn btn-telegram">
-              Chat with Support
+              📱 Contact Admin on Telegram
             </a>
           </div>
           
           <div style="background: #f8fafc; border-radius: 8px; padding: 20px; margin-top: 25px; text-align: center;">
             <p style="color: #4a5568; margin: 0; font-size: 14px;">
-              <strong>Need Help?</strong><br>
-              Our support team is available 24/7 to assist you.<br>
-              📧 support@aegisexpress.com | � @AegisExpressSupport on Telegram
+              <strong>📱 Need Help?</strong><br>
+              Our admin is available 24/7 to assist you with any questions or concerns.<br>
+              <strong>Telegram:</strong> @AegisExpressSupport | <strong>Email:</strong> support@aegisexpress.com<br>
+              <em>For urgent matters, please contact our admin directly on Telegram.</em>
             </p>
           </div>
         </div>
@@ -630,12 +652,12 @@ export async function sendStatusEmail(delivery, emailType = "status_update") {
 
     // Generate subject based on status
     const subjects = {
-      Pending: `Order Received - ${delivery.trackingCode}`,
-      Processing: `Processing Your Shipment - ${delivery.trackingCode}`,
-      Shipped: `Package Shipped - ${delivery.trackingCode}`,
-      "In Transit": `Package In Transit - ${delivery.trackingCode}`,
-      "On Hold": `🚨 URGENT: Package On Hold - ${delivery.trackingCode}`,
-      Delivered: `Package Delivered - ${delivery.trackingCode}`,
+      Pending: `⏸️ Package Status: Pending - Action Needed - ${delivery.trackingCode}`,
+      Processing: `⏳ Your Package is Being Processed - ${delivery.trackingCode}`,
+      Shipped: `🚚 Package Shipped - Registration Complete! - ${delivery.trackingCode}`,
+      "In Transit": `📦 Your Package is on the Move! - ${delivery.trackingCode}`,
+      "On Hold": `⚠️ URGENT: Action Required for Your Package - ${delivery.trackingCode}`,
+      Delivered: `✅ Package Successfully Delivered! - ${delivery.trackingCode}`,
     };
 
     const subject =
@@ -705,6 +727,8 @@ export const sendLocationUpdateEmail = async (delivery, locationUpdate) => {
 };
 
 // Deletion notification email
+// TODO: Re-enable when needed later
+/* 
 export const sendDeliveryDeletionEmail = async (delivery) => {
   try {
     const recipient = delivery.receiver?.email;
@@ -756,6 +780,7 @@ export const sendDeliveryDeletionEmail = async (delivery) => {
     throw error;
   }
 };
+*/
 
 // Test email function
 export const sendTestEmail = async (testEmailAddress = "test@example.com") => {
@@ -789,6 +814,6 @@ export default {
   sendDeliveryConfirmationEmailWithPDF,
   sendStatusUpdateEmail,
   sendLocationUpdateEmail,
-  sendDeliveryDeletionEmail,
+  // sendDeliveryDeletionEmail, // Commented out - will re-enable later
   sendTestEmail,
 };

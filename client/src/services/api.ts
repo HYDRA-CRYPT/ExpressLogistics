@@ -17,8 +17,13 @@ const tokenManager = {
   get refreshToken() {
     return localStorage.getItem("refreshToken");
   },
+  get loginTime() {
+    const time = localStorage.getItem("loginTime");
+    return time ? parseInt(time) : null;
+  },
   setTokens(access: string, refresh?: string) {
     localStorage.setItem("adminToken", access);
+    localStorage.setItem("loginTime", Date.now().toString());
     if (refresh) {
       localStorage.setItem("refreshToken", refresh);
     }
@@ -29,6 +34,16 @@ const tokenManager = {
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("adminRole");
     localStorage.removeItem("adminUser");
+    localStorage.removeItem("loginTime");
+  },
+  getSessionAge() {
+    const loginTime = this.loginTime;
+    if (!loginTime) return null;
+    return (Date.now() - loginTime) / 1000 / 60; // Return age in minutes
+  },
+  isSessionExpired(maxAgeMinutes: number = 60) {
+    const age = this.getSessionAge();
+    return age ? age > maxAgeMinutes : true;
   },
 };
 

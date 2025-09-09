@@ -11,6 +11,7 @@ import {
 import { NavMain } from "@/components/nav-main";
 import { NavDocuments } from "@/components/nav-documents";
 import { NavUser } from "@/components/nav-user";
+import SessionTimeoutProvider from "@/components/SessionTimeoutProvider";
 
 import { data } from "./stores/api";
 import { SiteHeader } from "@/components/site-header";
@@ -79,7 +80,9 @@ const AdminLayoutContent = () => {
 const AdminLayout = () => {
   return (
     <SidebarProvider defaultOpen={true}>
-      <AdminLayoutContent />
+      <SessionTimeoutProvider sessionDuration={60} warningDuration={1}>
+        <AdminLayoutContent />
+      </SessionTimeoutProvider>
     </SidebarProvider>
   );
 };

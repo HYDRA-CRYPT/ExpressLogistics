@@ -3,6 +3,7 @@ import { api } from "../services/api";
 import axios from "axios";
 import type { User } from "@/types/auth";
 import { toast } from "sonner";
+import { SessionManager } from "../utils/sessionManager";
 
 interface AuthState {
   user: User | null;
@@ -46,6 +47,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       // Persist tokens and user info
       localStorage.setItem("adminToken", accessToken);
+      localStorage.setItem("loginTime", Date.now().toString());
 
       // Store refresh token if provided
       if (refreshToken) {
@@ -54,6 +56,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       localStorage.setItem("adminRole", data.user.role);
       localStorage.setItem("adminUser", JSON.stringify(data.user));
+
+      // Set login time for session management
+      SessionManager.setLoginTime();
 
       // Set default Authorization header
       api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
@@ -82,12 +87,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     set({ user: null, token: null });
 
-    // Clear all stored data
-    localStorage.removeItem("adminToken");
-    localStorage.removeItem("token"); // Clean up legacy token
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("adminRole");
-    localStorage.removeItem("adminUser");
+    // Clear all stored data using SessionManager
+    SessionManager.clearSession();
 
     delete api.defaults.headers.common["Authorization"];
 
