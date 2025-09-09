@@ -19,8 +19,8 @@ app.use(
   cors({
     origin: [
       process.env.CLIENT_ORIGIN || "http://localhost:5173",
-      "https://aegis-express.vercel.app",
-      "https://aegis-express.com",
+      "https://aegisexpresslog.vercel.app",
+      "https://aegisexpresslog.com",
       "http://localhost:3000",
       "http://localhost:5173",
     ],
