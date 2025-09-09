@@ -28,7 +28,7 @@ import TimelineComponent from "../Admin/pages/TimelineComponent";
 import LoadingSpinner from "../components/LoadingSpinner";
 import NoDataUI from "../components/NoDataUI";
 import { useDeliveryStore } from "../stores/deliveryStore";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import SEOHelmet from "@/components/SEOHelmet";
 import { getTelegramLink } from "@/config/contacts";
 import { motion } from "framer-motion";
@@ -49,7 +49,7 @@ const TrackDetails = () => {
 
       // Show toast when starting to fetch
       toast.info("Loading shipment details...", {
-        duration: 1000,
+        autoClose: 1000,
       });
     }
 

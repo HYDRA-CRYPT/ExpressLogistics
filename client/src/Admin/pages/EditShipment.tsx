@@ -5,7 +5,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import BeautifulErrorUI from "@/components/BeautifulErrorUI";
 import { getDeliveryById, editDeliveryById } from "@/services/deliveryService";
 import type { EditShipmentData } from "@/types/shipmentTypes";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 const EditShipmentPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -44,9 +44,7 @@ const EditShipmentPage = () => {
         setIsError(true);
         const errorMsg = getErrorMessage(err) || "Failed to fetch delivery";
         setError(errorMsg);
-        toast.error("Failed to load shipment", {
-          description: errorMsg,
-        });
+        toast.error(`Failed to load shipment: ${errorMsg}`);
       })
       .finally(() => setIsLoading(false));
   }, [id]);
@@ -56,21 +54,26 @@ const EditShipmentPage = () => {
     if (!id) return;
     setIsUpdating(true);
 
-    toast.loading("Updating shipment...", { id: "update-shipment" });
+    const toastId = toast.loading("Updating shipment...");
 
     editDeliveryById(id, updatedData)
       .then(() => {
-        toast.success("Shipment updated successfully!", {
-          id: "update-shipment",
+        toast.update(toastId, {
+          render: "Shipment updated successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
         });
         navigate("/owner/shipments");
       })
       .catch((err: unknown) => {
         const errorMsg = getErrorMessage(err) || "Failed to update delivery";
         setError(errorMsg);
-        toast.error("Failed to update shipment", {
-          id: "update-shipment",
-          description: errorMsg,
+        toast.update(toastId, {
+          render: `Failed to update shipment: ${errorMsg}`,
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
         });
       })
       .finally(() => setIsUpdating(false));

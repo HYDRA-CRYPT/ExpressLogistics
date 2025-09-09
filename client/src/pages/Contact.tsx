@@ -16,7 +16,7 @@ import {
   Globe,
   Zap,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import SEOHelmet from "@/components/SEOHelmet";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -63,13 +63,15 @@ const Contact = () => {
     }
 
     // Simulate form submission
-    toast.loading("Sending message...", { id: "contact-form" });
+    const toastId = toast.loading("Sending message...");
 
     setTimeout(() => {
       console.log("Form submitted:", formData);
-      toast.success("Message sent successfully! We'll get back to you soon.", {
-        id: "contact-form",
-        duration: 5000,
+      toast.update(toastId, {
+        render: "Message sent successfully! We'll get back to you soon.",
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
       });
 
       // Reset form

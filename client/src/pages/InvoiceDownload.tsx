@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import NoDataUI from "@/components/NoDataUI";
 import SEOHelmet from "@/components/SEOHelmet";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import {
   // generateInvoicePDFBlob,
   downloadInvoicePDF,

@@ -31,8 +31,20 @@ export default defineConfig({
           utils: ["axios", "date-fns", "clsx"],
         },
       },
+      onwarn(warning, warn) {
+        // Suppress specific warnings that can cause Vercel builds to fail
+        if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
+          return;
+        }
+        if (warning.code === "INVALID_ANNOTATION") {
+          return;
+        }
+        warn(warning);
+      },
     },
-    target: "esnext",
+    target: "es2020",
     minify: "esbuild",
+    sourcemap: false,
+    chunkSizeWarningLimit: 1000,
   },
 });

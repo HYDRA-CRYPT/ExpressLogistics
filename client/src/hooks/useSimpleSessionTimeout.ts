@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../stores/authStore";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 interface SimpleSessionTimeoutProps {
   sessionDuration?: number; // in minutes
@@ -114,11 +114,12 @@ export const useSimpleSessionTimeout = ({
     logoutTimer.current = setTimeout(() => {
       console.log("⏰ SESSION TIMEOUT - Logging out user");
       setShowDialog(false); // Hide dialog
-      toast.error("Session Expired", {
-        description:
-          "You have been automatically logged out due to inactivity.",
-        duration: 5000,
-      });
+      toast.error(
+        "Session Expired - You have been automatically logged out due to inactivity.",
+        {
+          autoClose: 5000,
+        }
+      );
       logout();
     }, logoutTime);
 
@@ -171,11 +172,12 @@ export const useSimpleSessionTimeout = ({
     logoutTimer.current = setTimeout(() => {
       console.log("⏰ SESSION TIMEOUT - Logging out user (after extension)");
       setShowDialog(false); // Hide dialog
-      toast.error("Session Expired", {
-        description:
-          "You have been automatically logged out due to inactivity.",
-        duration: 5000,
-      });
+      toast.error(
+        "Session Expired - You have been automatically logged out due to inactivity.",
+        {
+          autoClose: 5000,
+        }
+      );
       logout();
     }, logoutTime);
 

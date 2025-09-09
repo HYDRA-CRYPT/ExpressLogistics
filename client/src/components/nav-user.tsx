@@ -4,7 +4,7 @@ import {
   IconUserCircle,
 } from "@tabler/icons-react";
 import { useNavigate, Link } from "react-router-dom";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {

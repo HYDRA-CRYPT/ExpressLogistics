@@ -2,7 +2,7 @@ import ShipmentForm from "@/components/ShipmentForm";
 import { useMutate } from "@/hooks/useMutate";
 import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import {
   Card,
   CardContent,
@@ -89,10 +89,12 @@ const CreateDelivery = () => {
   const createDelivery = useMutate<DeliveryResponse, DeliveryRequest>({
     invalidateQueries: ["fetch", "/deliveries"],
     onSuccess: (response) => {
-      toast.success("Delivery created successfully!", {
-        description: `Tracking Code: ${response.trackingCode}. PDF invoice and confirmation email are being processed in the background.`,
-        duration: 5000,
-      });
+      toast.success(
+        `Delivery created successfully! Tracking Code: ${response.trackingCode}. PDF invoice and confirmation email are being processed in the background.`,
+        {
+          autoClose: 5000,
+        }
+      );
       resetForm();
     },
     onError: (error) => {
@@ -104,17 +106,14 @@ const CreateDelivery = () => {
         error.message.includes("ECONNABORTED")
       ) {
         toast.warning(
-          "Request timeout - Your delivery might still be processing",
+          "Request timeout - Your delivery might still be processing. This can happen when generating PDFs and sending emails. Please check the shipments list to see if your delivery was created.",
           {
-            description:
-              "This can happen when generating PDFs and sending emails. Please check the shipments list to see if your delivery was created.",
-            duration: 8000,
+            autoClose: 8000,
           }
         );
       } else {
-        toast.error("Failed to create delivery", {
-          description: error.message,
-          duration: 5000,
+        toast.error(`Failed to create delivery: ${error.message}`, {
+          autoClose: 5000,
         });
       }
     },
@@ -201,11 +200,12 @@ const CreateDelivery = () => {
           console.warn(
             "Request timed out - delivery might still be processing"
           );
-          toast.warning("Request timed out!", {
-            description:
-              "Your delivery creation is still processing in the background. This is normal when generating PDFs and sending emails. Please wait a moment and check the shipments list to see if your delivery was created.",
-            duration: 8000,
-          });
+          toast.warning(
+            "Request timed out! Your delivery creation is still processing in the background. This is normal when generating PDFs and sending emails. Please wait a moment and check the shipments list to see if your delivery was created.",
+            {
+              autoClose: 8000,
+            }
+          );
           return; // Don't show additional error
         }
 
@@ -213,10 +213,12 @@ const CreateDelivery = () => {
           !axiosErr.response &&
           (axiosErr.code === "ERR_NETWORK" || !navigator.onLine)
         ) {
-          toast.error("Network Error", {
-            description: "Please check your internet connection and try again.",
-            duration: 5000,
-          });
+          toast.error(
+            "Network Error - Please check your internet connection and try again.",
+            {
+              autoClose: 5000,
+            }
+          );
           return;
         }
       }
@@ -240,10 +242,12 @@ const CreateDelivery = () => {
       }
 
       console.error("CreateDelivery detailed error:", { err, message });
-      toast.error("Failed to create delivery", {
-        description: `Reason: ${message}. If the error persists, please try again or contact support.`,
-        duration: 6000,
-      });
+      toast.error(
+        `Failed to create delivery - Reason: ${message}. If the error persists, please try again or contact support.`,
+        {
+          autoClose: 6000,
+        }
+      );
     }
   };
 

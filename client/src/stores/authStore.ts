@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { api } from "../services/api";
 import axios from "axios";
 import type { User } from "@/types/auth";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { SessionManager } from "../utils/sessionManager";
 
 interface AuthState {
@@ -30,7 +30,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (email: string, password: string) => {
     set({ loading: true, error: null });
 
-    toast.loading("Signing in...", { id: "login" });
+    const toastId = toast.loading("Signing in...");
 
     try {
       const { data } = await api.post("/auth/login", { email, password });
@@ -64,7 +64,12 @@ export const useAuthStore = create<AuthState>((set) => ({
       api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
 
       console.log("Login successful, tokens stored");
-      toast.success("Welcome back!", { id: "login" });
+      toast.update(toastId, {
+        render: "Welcome back!",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
       return true;
     } catch (err: unknown) {
       let message = "Login failed";
@@ -75,9 +80,11 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       console.error("Login error:", err);
       set({ loading: false, error: message });
-      toast.error("Login failed", {
-        id: "login",
-        description: message,
+      toast.update(toastId, {
+        render: `Login failed: ${message}`,
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
       });
       return false;
     }
@@ -195,7 +202,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
 
     set({ loading: true, error: null });
-    toast.loading("Updating password...", { id: "update-password" });
+    const toastId = toast.loading("Updating password...");
 
     try {
       // Set auth header
@@ -213,8 +220,11 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       if (data.success) {
         set({ loading: false });
-        toast.success("Password updated successfully!", {
-          id: "update-password",
+        toast.update(toastId, {
+          render: "Password updated successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
         });
         return true;
       } else {
@@ -231,7 +241,12 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       console.error("Password update error:", err);
       set({ loading: false, error: message });
-      toast.error(message, { id: "update-password" });
+      toast.update(toastId, {
+        render: message,
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
       return false;
     }
   },

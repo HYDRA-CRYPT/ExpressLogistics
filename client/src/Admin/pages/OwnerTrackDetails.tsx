@@ -5,7 +5,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import BeautifulErrorUI from "@/components/BeautifulErrorUI";
 import NoDataUI from "@/components/NoDataUI";
 import { useDeliveryStore } from "../../stores/deliveryStore";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Package } from "lucide-react";
 import InvoiceDownload from "@/pages/InvoiceDownload";

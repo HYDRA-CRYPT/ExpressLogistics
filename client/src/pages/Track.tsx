@@ -9,7 +9,7 @@ import {
   Globe,
   ArrowRight,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,11 +34,11 @@ const Track = () => {
     }
 
     setIsSearching(true);
-    toast.loading("Searching for your package...", { id: "search-tracking" });
+    const toastId = toast.loading("Searching for your package...");
 
     // Add a small delay to show loading state
     setTimeout(() => {
-      toast.dismiss("search-tracking");
+      toast.dismiss(toastId);
       navigate(`/track/${number}`);
       setIsSearching(false);
     }, 800);

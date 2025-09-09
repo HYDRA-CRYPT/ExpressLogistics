@@ -18,7 +18,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { EllipsisVertical } from "lucide-react";
 import type { CardDelivery } from "@/types/shipment";
 import { useDeleteDelivery } from "@/services/deliveryService"; // adjust path as needed

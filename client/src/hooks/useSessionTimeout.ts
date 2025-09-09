@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useAuthStore } from "../stores/authStore";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { SessionManager } from "../utils/sessionManager";
 
 interface SessionTimeoutOptions {
@@ -30,7 +30,7 @@ export const useSessionTimeout = (
 
   // Ref to track if warning is currently shown
   const isWarningShown = useRef(false);
-  const warningToastId = useRef<string | number>("session-warning");
+  const warningToastId = useRef<string | number | null>(null);
 
   // Clear all timers
   const clearAllTimers = useCallback(() => {
@@ -47,8 +47,9 @@ export const useSessionTimeout = (
       autoLogoutTimer.current = null;
     }
     // Dismiss warning toast if it's showing
-    if (isWarningShown.current) {
+    if (isWarningShown.current && warningToastId.current) {
       toast.dismiss(warningToastId.current);
+      warningToastId.current = null;
       isWarningShown.current = false;
     }
   }, []);
@@ -61,10 +62,12 @@ export const useSessionTimeout = (
     // Clear session data
     SessionManager.clearSession();
 
-    toast.error("Session Expired", {
-      description: "You have been automatically logged out due to inactivity.",
-      duration: 5000,
-    });
+    toast.error(
+      "Session Expired - You have been automatically logged out due to inactivity.",
+      {
+        autoClose: 5000,
+      }
+    );
 
     // Logout user
     logout();
@@ -94,27 +97,19 @@ export const useSessionTimeout = (
         isWarningShown.current = true;
         onWarning?.();
 
-        // Show persistent warning toast with action buttons
-        toast.warning("🚨 Session Expiring Soon", {
-          id: warningToastId.current,
-          description: `Your session will expire in ${SessionManager.formatTimeRemaining(
+        // Show persistent warning toast
+        warningToastId.current = toast.warning(
+          `🚨 Session Expiring Soon - Your session will expire in ${SessionManager.formatTimeRemaining(
             warningDuration
-          )}. Click "Stay Logged In" to continue using the software.`,
-          duration: Infinity, // Keep toast visible
-          action: {
-            label: "Stay Logged In",
-            onClick: () => {
-              // Restart session and update login time
-              SessionManager.setLoginTime();
-              clearAllTimers();
-              restartSessionInternal();
-              toast.success("✅ Session extended successfully!");
+          )}. Please save your work.`,
+          {
+            autoClose: false, // Keep toast visible
+            onClose: () => {
+              isWarningShown.current = false;
+              warningToastId.current = null;
             },
-          },
-          onDismiss: () => {
-            isWarningShown.current = false;
-          },
-        }); // Set auto-logout timer for remaining time
+          }
+        ); // Set auto-logout timer for remaining time
         const timeUntilExpiry = Math.max(0, sessionDuration - sessionAge);
         autoLogoutTimer.current = setTimeout(() => {
           handleTimeout();
@@ -130,27 +125,19 @@ export const useSessionTimeout = (
       isWarningShown.current = true;
       onWarning?.();
 
-      // Show persistent warning toast with action buttons
-      toast.warning("Session Expiring Soon", {
-        id: warningToastId.current,
-        description: `Your session will expire in ${SessionManager.formatTimeRemaining(
+      // Show persistent warning toast
+      warningToastId.current = toast.warning(
+        `Session Expiring Soon - Your session will expire in ${SessionManager.formatTimeRemaining(
           warningDuration
-        )}. Click "Stay Logged In" to continue.`,
-        duration: Infinity, // Keep toast visible
-        action: {
-          label: "Stay Logged In",
-          onClick: () => {
-            // Restart session and update login time
-            SessionManager.setLoginTime();
-            clearAllTimers();
-            restartSessionInternal();
-            toast.success("Session extended successfully!");
+        )}. Please save your work.`,
+        {
+          autoClose: false, // Keep toast visible
+          onClose: () => {
+            isWarningShown.current = false;
+            warningToastId.current = null;
           },
-        },
-        onDismiss: () => {
-          isWarningShown.current = false;
-        },
-      });
+        }
+      );
 
       // Set auto-logout timer for warning duration
       autoLogoutTimer.current = setTimeout(() => {
@@ -165,14 +152,7 @@ export const useSessionTimeout = (
         1
       )} minutes`
     );
-  }, [
-    sessionDuration,
-    warningDuration,
-    handleTimeout,
-    user,
-    clearAllTimers,
-    onWarning,
-  ]);
+  }, [sessionDuration, warningDuration, handleTimeout, user, onWarning]);
 
   // Restart session timers (exposed function)
   const restartSession = useCallback(() => {
