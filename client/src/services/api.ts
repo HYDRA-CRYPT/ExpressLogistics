@@ -5,7 +5,7 @@ import axios, { AxiosError, type AxiosRequestConfig } from "axios";
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   (import.meta.env.PROD
-    ? "https://aegis-express-api.onrender.com/api" // Use absolute URL for production
+    ? "https://expresslogistics-brcw.onrender.com/api" // Use absolute URL for production
     : "http://localhost:5000/api");
 
 // --- Token Manager (FIXED) ---
