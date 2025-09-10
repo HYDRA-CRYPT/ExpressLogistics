@@ -20,6 +20,7 @@ app.use(
     origin: [
       process.env.CLIENT_ORIGIN || "http://localhost:5173",
       "https://aegisexpresslog.vercel.app",
+      "https://express-logistics-client.vercel.app",
       "https://aegisexpresslog.com",
       "http://localhost:3000",
       "http://localhost:5173",

@@ -3,7 +3,7 @@ import Redis from "ioredis";
 
 const REDIS_URL =
   process.env.REDIS_URL ||
-  "rediss://default:AdZnAAIncDFkYzg1MTViMzVmMGI0MTFhYjhmZGQxMTczOTk5OTYzNnAxNTQ4ODc@full-skylark-54887.upstash.io:6379";
+  "rediss://default:ARtxAAImcDExOTA4YjI3YjkxYjQ0Y2MzYTZjMjU3ODUwYWE1OTBmOHAxNzAyNQ@pretty-emu-7025.upstash.io:6379";
 
 // Initialize ioredis client
 const redisClient = new Redis(REDIS_URL);

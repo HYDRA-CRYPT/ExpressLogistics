@@ -16,7 +16,7 @@ Content-Type: application/json
 }
 
 ### Step 2: Copy the token from Step 1 response and paste it below
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YmU2MmZmZjdlZjRjOTcwZmI0YTIzYSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NzMwNzcyMSwiZXhwIjoxNzU3OTEyNTIxfQ.E35bito3CbfIXzgfCjGrbCyBH7MiqrUahoNV7BUFBC4
+@token = 
 
 ### Step 3: Get current user profile (optional - to verify token works)
 GET {{baseUrl}}/api/auth/me
