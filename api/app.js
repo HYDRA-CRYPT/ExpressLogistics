@@ -21,7 +21,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:5173",
       "https://aegisexpresslog.vercel.app",
-      "http://www.aegisexpresslog.com",
+      "https://www.aegisexpresslog.com",
       "https://express-logistics-client.vercel.app",
     ],
     credentials: true,
