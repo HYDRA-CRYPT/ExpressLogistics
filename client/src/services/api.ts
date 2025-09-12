@@ -1,12 +1,12 @@
 // src/services/api.ts
 import axios, { AxiosError, type AxiosRequestConfig } from "axios";
 
-// Use environment variable for base URL, fallback to current origin for production
-const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.PROD
-    ? "https://expresslogistics-brcw.onrender.com/api" // Use absolute URL for production
-    : "http://localhost:5000/api");
+// Remove any hardcoded fallback URLs and ensure it uses environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+if (!API_BASE_URL) {
+  throw new Error("VITE_API_BASE_URL environment variable is not defined");
+}
 
 // --- Token Manager (FIXED) ---
 const tokenManager = {
@@ -49,7 +49,7 @@ const tokenManager = {
 
 // --- Axios Instance ---
 export const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: API_BASE_URL,
   timeout: 60000, // 60 seconds for delivery creation with PDF/email
   headers: {
     "Content-Type": "application/json",
@@ -129,7 +129,7 @@ api.interceptors.response.use(
           throw new Error("No refresh token available");
         }
 
-        const { data } = await axios.post(`${BASE_URL}/auth/refresh`, {
+        const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {
           refreshToken,
         });
 

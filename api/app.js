@@ -17,25 +17,14 @@ app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: [
-      process.env.CLIENT_ORIGIN || "http://localhost:5173",
-      "https://aegisexpresslog.vercel.app",
-      "https://express-logistics-client.vercel.app",
-      "https://aegisexpresslog.com",
+    origin: process.env.CLIENT_URL || [
       "http://localhost:3000",
       "http://localhost:5173",
+      "https://aegisexpresslog.vercel.app",
     ],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Accept",
-      "Origin",
-      "X-Requested-With",
-      "x-request-timeout",
-      "X-Request-Timeout",
-    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 

@@ -12,7 +12,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:5000",
+        target: process.env.VITE_API_BASE_URL || "http://localhost:5000",
         changeOrigin: true,
         secure: false,
       },
@@ -32,13 +32,8 @@ export default defineConfig({
         },
       },
       onwarn(warning, warn) {
-        // Suppress specific warnings that can cause Vercel builds to fail
-        if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
-          return;
-        }
-        if (warning.code === "INVALID_ANNOTATION") {
-          return;
-        }
+        // Ignore certain warnings
+        if (warning.code === "UNUSED_EXTERNAL_IMPORT") return;
         warn(warning);
       },
     },
