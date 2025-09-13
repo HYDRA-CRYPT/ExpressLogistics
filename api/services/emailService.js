@@ -102,9 +102,9 @@ const STATUS_CONFIG = {
   "On Hold": {
     color: "#ef4444",
     bgColor: "#fee2e2",
-    title: "URGENT: Action Required for Your Package",
+    title: "Package Status Update",
     message:
-      "IMPORTANT NOTICE: Your package is currently ON HOLD and requires immediate attention. You must contact our admin immediately to resolve this issue and ensure your package continues to its destination.",
+      "Your package is currently on hold. Please contact our admin for assistance.",
     urgency: "high",
   },
   Delivered: {
@@ -567,7 +567,7 @@ function generateEmailTemplate(delivery) {
             <p style="color: #4a5568; margin: 0; font-size: 14px;">
               <strong>📱 Need Help?</strong><br>
               Our admin is available 24/7 to assist you with any questions or concerns.<br>
-              <strong>Telegram:</strong> @AegisExpressSupport | <strong>Email:</strong> support@aegisexpress.com<br>
+              <strong>Telegram:</strong> @AegisExpressSupport | <strong>Email:</strong> aegisexpresslog@gmail.com<br>
               <em>For urgent matters, please contact our admin directly on Telegram.</em>
             </p>
           </div>
@@ -579,9 +579,9 @@ function generateEmailTemplate(delivery) {
             <div class="company-info">
               <h3>Aegis Express Logistics</h3>
               <div class="contact-info">
-                📍 123 Express Avenue, Victoria Island, Lagos, Nigeria<br>
-                � @AegisExpressSupport on Telegram | 📧 support@aegisexpress.com<br>
-                🌐 www.aegisexpress.com
+                📍 123 Logistics Avenue, New York, NY 10001<br>
+                � @AegisExpressSupport on Telegram | 📧 aegisexpresslog@gmail.com<br>
+                🌐 www.aegisexpresslog.com
               </div>
             </div>
             
