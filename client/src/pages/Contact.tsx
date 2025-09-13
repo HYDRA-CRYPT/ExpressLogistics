@@ -798,65 +798,6 @@ const Contact = () => {
                 viewport={{ once: true }}
               >
                 <motion.div
-                  initial={{ opacity: 0, x: -30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, delay: 0.6 }}
-                  viewport={{ once: true }}
-                  whileHover={{ scale: 1.02, y: -5 }}
-                >
-                  <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 hover:shadow-lg transition-all duration-300">
-                    <CardContent className="p-6">
-                      <motion.div
-                        className="flex items-center space-x-4 mb-3"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.7 }}
-                        viewport={{ once: true }}
-                      >
-                        <motion.div
-                          className="bg-gradient-to-r from-green-500 to-emerald-500 p-3 rounded-2xl"
-                          initial={{ scale: 0, rotate: -180 }}
-                          whileInView={{ scale: 1, rotate: 0 }}
-                          transition={{ duration: 0.8, delay: 0.8 }}
-                          viewport={{ once: true }}
-                          whileHover={{ scale: 1.1, rotate: 15 }}
-                        >
-                          <MessageCircle className="h-6 w-6 text-white" />
-                        </motion.div>
-                        <motion.div
-                          initial={{ opacity: 0, x: -20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.6, delay: 0.9 }}
-                          viewport={{ once: true }}
-                        >
-                          <h4 className="font-bold text-green-800 dark:text-green-300 text-lg">
-                            WhatsApp Support
-                          </h4>
-                          <p className="text-green-700 dark:text-green-300">
-                            Chat with us instantly for quick support and
-                            real-time updates
-                          </p>
-                        </motion.div>
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 1.0 }}
-                        viewport={{ once: true }}
-                        whileHover={{ scale: 1.05, y: -3 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white">
-                          <MessageCircle className="h-4 w-4 mr-2" />
-                          Start WhatsApp Chat
-                          <ArrowRight className="h-4 w-4 ml-2" />
-                        </Button>
-                      </motion.div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                <motion.div
                   initial={{ opacity: 0, x: 30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, delay: 0.7 }}
