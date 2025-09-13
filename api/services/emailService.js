@@ -650,10 +650,10 @@ function generateEmailTemplate(delivery) {
             <div class="company-info">
               <h3>Aegis Express Logistics</h3>
               <div class="contact-info">
-                1301 2nd St NW Waseca, Minnesota(MN), 56093<br>
-                @AegisXP on Telegram | aegisexpresslog@gmail.com<br>
-                www.aegisexpresslog.com
-              </div>
+  <span>1301 2nd St NW</span> <span>Waseca, Minnesota(MN), 56093</span><br>
+  @AegisXP on Telegram | aegisexpresslog@gmail.com<br>
+  www.aegisexpresslog.com
+</div>
             </div>
             
             <div class="disclaimer">
