@@ -27,6 +27,7 @@ import {
   previewInvoicePDF,
 } from "@/utils/invoicePdfGenerator";
 import type { DeliveryData } from "@/types/invoice";
+import api from "@/services/api";
 
 interface InvoiceData {
   _id?: string;
@@ -118,27 +119,14 @@ const InvoiceDownload: React.FC = () => {
 
   const fetchShipmentData = async (trackingCode: string) => {
     try {
-      const response = await fetch(
-        `/api/deliveries/track/${trackingCode}/full`
-      );
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error(
-            `No shipment found with tracking code: ${trackingCode}`
-          );
-        }
-        throw new Error(
-          `Failed to fetch shipment data: ${response.statusText}`
-        );
-      }
-
-      const data = await response.json();
-      setShipment(data);
-    } catch (err) {
+      const response = await api.get(`/deliveries/track/${trackingCode}/full`);
+      setShipment(response.data);
+    } catch (err: any) {
       console.error("Error fetching shipment:", err);
       setError(
-        err instanceof Error ? err.message : "Failed to load shipment data"
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to load shipment data"
       );
     }
   };
@@ -149,15 +137,14 @@ const InvoiceDownload: React.FC = () => {
       setError(null);
 
       // Check if invoice already exists
-      const response = await fetch(`/api/invoices/tracking/${trackingCode}`);
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setShipment(data.delivery);
-          setInvoiceUrl(data.url);
+      try {
+        const response = await api.get(`/invoices/tracking/${trackingCode}`);
+        if (response.data?.success) {
+          setShipment(response.data.delivery);
+          setInvoiceUrl(response.data.url);
         }
-      } else {
+      } catch (err) {
+        console.log("Error message", err);
         // If invoice doesn't exist, fetch shipment data
         await fetchShipmentData(trackingCode);
       }
