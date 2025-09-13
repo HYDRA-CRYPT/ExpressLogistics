@@ -32,7 +32,11 @@ const Header = () => {
       <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-800 text-white py-3 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <svg className="w-full h-full" viewBox="0 0 100 100" fill="none">
+          <svg
+            className="w-full h-full text-white"
+            viewBox="0 0 100 100"
+            fill="none"
+          >
             <defs>
               <pattern
                 id="headerPattern"
@@ -40,13 +44,7 @@ const Header = () => {
                 height="20"
                 patternUnits="userSpaceOnUse"
               >
-                <circle
-                  cx="10"
-                  cy="10"
-                  r="1"
-                  fill="currentColor"
-                  className="text-white"
-                />
+                <circle cx="10" cy="10" r="1" fill="currentColor" />
               </pattern>
             </defs>
             <rect width="100" height="100" fill="url(#headerPattern)" />
@@ -69,14 +67,17 @@ const Header = () => {
                   {CONTACT_CONFIG.telegram.channelUsername}
                 </span>
               </a>
-              <div className="group flex items-center space-x-2 hover:bg-white/10 rounded-full px-3 py-1 transition-all duration-300">
+              <a
+                href={`mailto:${CONTACT_CONFIG.email.primary}`}
+                className="group flex items-center space-x-2 hover:bg-white/10 rounded-full px-3 py-1 transition-all duration-300"
+              >
                 <div className="bg-green-500/20 p-1 rounded-full group-hover:bg-green-500/30 transition-colors">
                   <Mail className="h-3 w-3 text-green-300" />
                 </div>
                 <span className="font-medium">
                   {CONTACT_CONFIG.email.primary}
                 </span>
-              </div>
+              </a>
             </div>
             <div className="hidden md:flex items-center space-x-2">
               <div className="bg-orange-500/20 p-1 rounded-full">
