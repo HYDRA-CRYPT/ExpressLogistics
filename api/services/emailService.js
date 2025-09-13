@@ -70,10 +70,10 @@ const STATUS_CONFIG = {
   Pending: {
     color: "#f59e0b",
     bgColor: "#fef3c7",
-    title: "Package Status: Pending - Action Needed",
+    title: "UPDATE; COMPLETE SHIPMENT REGISTRATION",
     message:
       "Your Parcel is currently pending and requires attention. Please forward your mobile number and tracking code to the delivery admin telegram link below to complete and confirm your shipping registration.",
-    urgency: "high",
+    urgency: "medium",
     showActions: true,
     actions: {
       showTrackingButton: false,
@@ -650,10 +650,10 @@ function generateEmailTemplate(delivery) {
             <div class="company-info">
               <h3>Aegis Express Logistics</h3>
               <div class="contact-info">
-                1301 2nd St NW Waseca, Minnesota(MN), 56093<br>
-                @AegisXP on Telegram | aegisexpresslog@gmail.com<br>
-                www.aegisexpresslog.com
-              </div>
+  <span>1301 2nd St NW</span> <span>Waseca, Minnesota(MN), 56093</span><br>
+  @AegisXP on Telegram | aegisexpresslog@gmail.com<br>
+  www.aegisexpresslog.com
+</div>
             </div>
             
             <div class="disclaimer">
