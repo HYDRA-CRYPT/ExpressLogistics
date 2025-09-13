@@ -4,15 +4,15 @@
 export const CONTACT_CONFIG = {
   // Email addresses
   email: {
-    primary: "info@aegislogistics.com",
-    support: "support@aegislogistics.com",
-    billing: "billing@aegisexpress.com",
-    quotes: "quotes@aegisexpress.com",
+    primary: "aegisexpresslog@gmail.com",
+    support: "aegisexpresslog@gmail.com",
+    billing: "aegisexpresslog@gmail.com",
+    quotes: "aegisexpresslog@gmail.com",
   },
 
   // Telegram information
   telegram: {
-    supportLink: "https://t.me/AegisExpressSupport",
+    supportLink: "https://t.me/AegisXP",
     botUsername: "@AegisExpressBot",
     channelUsername: "@AegisExpressSupport",
   },
@@ -26,7 +26,7 @@ export const CONTACT_CONFIG = {
 
   // Physical addresses
   address: {
-    headquarters: "123 Logistics Avenue, New York, NY 10001",
+    headquarters: "1301 2nd St NW Waseca, Minnesota(MN), 56093",
     warehouse: "456 Distribution Center, Brooklyn, NY 11201",
   },
 
