@@ -4,17 +4,17 @@
 export const CONTACT_CONFIG = {
   // Email addresses
   email: {
-    primary: "aegisexpresslog@gmail.com",
-    support: "aegisexpresslog@gmail.com",
-    billing: "aegisexpresslog@gmail.com",
-    quotes: "aegisexpresslog@gmail.com",
+    primary: "support@aegisexpresslog.com",
+    support: "support@aegisexpresslog.com",
+    billing: "support@aegisexpresslog.com",
+    quotes: "support@aegisexpresslog.com",
   },
 
   // Telegram information
   telegram: {
-    supportLink: "https://t.me/AegisXP",
-    botUsername: "@AegisExpressBot",
-    channelUsername: "@AegisExpressSupport",
+    supportLink: "https://t.me/AegisLogSupport",
+    botUsername: "@AegisLogBot",
+    channelUsername: "@AegisLogSupport",
   },
 
   // Phone numbers
