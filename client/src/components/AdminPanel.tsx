@@ -508,7 +508,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 !updateData.location ||
                 isUpdating ||
                 isLoadingDeliveryId ||
-                selectedStatus === currentStatus ||
                 !resolvedDeliveryId
               }
               className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-zinc-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 text-sm sm:text-base"
