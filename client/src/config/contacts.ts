@@ -12,7 +12,7 @@ export const CONTACT_CONFIG = {
 
   // Telegram information
   telegram: {
-    supportLink: "https://t.me/AegisLogSupport",
+    supportLink: "https://t.me/AegislogiSupport",
     botUsername: "@AegisLogBot",
     channelUsername: "@AegisLogSupport",
   },
