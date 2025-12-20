@@ -103,9 +103,9 @@ export const generateInvoicePDF = (delivery: DeliveryData): jsPDF => {
   // Bill From information
   const senderInfo = [
     delivery.sender?.name || "Aegis Express Logistics",
-    delivery.sender?.address || "123 Express Avenue",
-    `${delivery.sender?.city || "Lagos"}, ${
-      delivery.sender?.country || "Nigeria"
+    delivery.sender?.address || "1301 2nd St NW Wasecae",
+    `${delivery.sender?.city || "Minnesota(MN)"}, ${
+      delivery.sender?.country || "United States of America"
     }`,
     delivery.sender?.email || "support@aegisexpress.com",
     delivery.sender?.phone || "+234 801 234 5678",
